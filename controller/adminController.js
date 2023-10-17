@@ -7,7 +7,7 @@ const fs = require('fs')
 // Login
 exports.login = async (req, res) => {
     try {
-        console.log(req.body);
+        
         const { email, password } = req.body
         const data = await admin.findOne({ email })
         if (data == null) {
@@ -54,7 +54,7 @@ exports.home = async (req, res) => {
 // Provider 
 exports.addprovider = async (req, res) => {
     try {
-        console.log(req.body);
+        
         const {
             providername,
             provideremail,
@@ -202,11 +202,11 @@ exports.deleteprovider = async (req, res) => {
 // }
 
 // Service
-
 exports.addservice = async (req, res) => {
     try {
-        let serviceData = await service.create(req.body)
-        if (serviceData) {
+        
+        if (req.body) {
+            let serviceData = await service.create(req.body)
             res.json({
                 status: 200,
                 message: "Service added successfully"
@@ -228,8 +228,133 @@ exports.showservices = async (req, res) => {
 exports.deleteservice = async (req, res) => {
     try {
         let deleteData = await service.findByIdAndDelete(req.params.id)
+        if (deleteData) {
+            res.json({
+                status: 200,
+                message: "Service deleted successfully"
+            })
+        }
     } catch (error) {
         console.log(error);
     }
+}
+// 
+// One by on add service
+const servicetype = require('../model/services/servicetype')
+exports.add_servicetype = async (req, res) => {
+    try {
+        
+        if (req.body) {
+            let data = await servicetype.create(req.body)
+            res.json({
+                status: 200,
+                message: "Servicetype added",
+                servicetype: data
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+const bcategory = require('../model/services/bussiness_category')
+exports.add_bcategory = async (req, res) => {
+    try {
+        
+        if (req.body) {
+            console.log(req.body);
+            let data = await bcategory.create(req.body)
+            res.json({
+                status: 200,
+                message: "Bussiness category added",
+                bussinessCategory: data
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+const bformation = require('../model/services/bussiness_formation')
+exports.add_bformation = async (req, res) => {
+    try {
+        
+        if (req.body) {
+            let data = await bformation.create(req.body)
+            res.json({
+                status: 200,
+                message: "Bussiness Formation category added",
+                bussinessformation: data
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+const bsubcategory = require('../model/services/bussiness_subcategory')
+exports.add_bsubcategory = async (req, res) => {
+    try {
+        
+        if (req.body) {
+            let data = await bsubcategory.create(req.body)
+            res.json({
+                status: 200,
+                message: "Bussiness subcategory category added",
+                bussinessformation: data
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
 
+exports.show_bcategory = async (req, res) => {
+    try {
+        let data = await bcategory.find()
+        res.json({
+            status: 200,
+            bcategory: data,
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+// exports.addbcategory = async (req, res) => {
+//     try {
+//         const { bussinesssubcategory, bcategoryid } = req.body
+//         let bcategoryData = await bsubcategory.create({
+//             bussinesssubcategory,
+//             bcategoryid
+//         })
+//         console.log(bcategoryData);
+//         if (bcategoryData) {
+//             res.json({
+//                 message: "Bussiness subcategory added",
+//                 Bsubcategory: bcategoryData,
+//             })
+//         }
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
+exports.show_bsubcategory = async (req, res) => {
+    try {
+        let data = await bsubcategory.find().populate('bcategoryid').exec()
+        res.json({
+            data: data
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+exports.subcatdata = async (req, res) => {
+    try {
+        const suboptget = await bsubcategory.find({ bcategoryid: req.body.bcatid })
+        console.log(suboptget);
+        if (suboptget) {
+            return res.json({
+                bsubcategorys: suboptget
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }
 }

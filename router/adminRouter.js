@@ -16,20 +16,47 @@ const {
     addservice,
     showservices,
     deleteservice,
-    } = require('../controller/adminController')
 
-router.post('/login',login)
-router.get('/home',verifyToken,home)
+
+    // One by one add
+    // Add
+    add_servicetype,
+    add_bcategory,
+    add_bformation,
+    add_bsubcategory,
+    
+    // Category
+    show_bcategory,
+    // addbcategory,
+    show_bsubcategory,
+    subcatdata,
+} = require('../controller/adminController')
+
+router.post('/login', login)
+router.get('/home', verifyToken, home)
 
 // Provider
-router.post('/addprovider',verifyToken,upload.array('documents'),addprovider)
-router.get('/showproviders',verifyToken,showproviders)
-router.delete('/deleteprovider/:id',verifyToken,deleteprovider)
+router.post('/addprovider', verifyToken, upload.array('documents'), addprovider)
+router.get('/showproviders', verifyToken, showproviders)
+router.delete('/deleteprovider/:id', verifyToken, deleteprovider)
 // router.patch('/updateprovider',verifyToken,updateprovider)
 
+
 // Service
-router.post('/addservice',verifyToken,addservice)
-router.get('/showservices',verifyToken,showservices)
-router.delete('/deleteservice',verifyToken,deleteservice)
+router.post('/addservice', addservice)
+router.get('/showservices', verifyToken, showservices)
+router.delete('/deleteservice/:id', verifyToken, deleteservice)
+
+// One by one add
+// Add
+router.post('/add_servicetype',add_servicetype)
+router.post('/add_bcategory',add_bcategory)
+router.post('/add_bformation',add_bformation)
+router.post('/add_bsubcategory',add_bsubcategory)
+
+router.get('/show_bcategory',show_bcategory)
+// router.post('/addbcategory',verifyToken,addbcategory)
+router.get('/show_bsubcategory',show_bsubcategory)
+router.post('/subcatdata',subcatdata)
 
 module.exports = router
