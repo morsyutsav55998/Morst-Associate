@@ -1,7 +1,9 @@
 const admin = require('../model/admin')
 const jwt = require('jsonwebtoken');
 const provider = require('../model/provider');
-const service = require('../model/service')
+const bcategory = require('../model/services/bussiness_category')
+const servicetype = require('../model/services/servicetype')
+const bformation = require('../model/services/bussiness_formation')
 const path = require('path')
 const fs = require('fs')
 // Login
@@ -51,10 +53,9 @@ exports.home = async (req, res) => {
         })
     }
 }
-// Provider 
+// Provider
 exports.addprovider = async (req, res) => {
     try {
-        
         const {
             providername,
             provideremail,
@@ -201,46 +202,6 @@ exports.deleteprovider = async (req, res) => {
 //     }
 // }
 
-// Service
-exports.addservice = async (req, res) => {
-    try {
-        
-        if (req.body) {
-            let serviceData = await service.create(req.body)
-            res.json({
-                status: 200,
-                message: "Service added successfully"
-            })
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-exports.showservices = async (req, res) => {
-    let serviceData = await service.find()
-    if (serviceData) {
-        res.json({
-            message: "All services",
-            services: serviceData
-        })
-    }
-}
-exports.deleteservice = async (req, res) => {
-    try {
-        let deleteData = await service.findByIdAndDelete(req.params.id)
-        if (deleteData) {
-            res.json({
-                status: 200,
-                message: "Service deleted successfully"
-            })
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-// 
-// One by on add service
-const servicetype = require('../model/services/servicetype')
 exports.add_servicetype = async (req, res) => {
     try {
         
@@ -256,7 +217,6 @@ exports.add_servicetype = async (req, res) => {
         console.log(error);
     }
 }
-const bcategory = require('../model/services/bussiness_category')
 exports.add_bcategory = async (req, res) => {
     try {
         
@@ -273,7 +233,6 @@ exports.add_bcategory = async (req, res) => {
         console.log(error);
     }
 }
-const bformation = require('../model/services/bussiness_formation')
 exports.add_bformation = async (req, res) => {
     try {
         
