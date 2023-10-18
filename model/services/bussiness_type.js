@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const busssinesstypeSchema = new mongoose.Schema({
-    busssiness_type: {
+    btype: {
         type: String
     }
 });

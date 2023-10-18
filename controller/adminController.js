@@ -2,7 +2,7 @@ const admin = require('../model/admin')
 const jwt = require('jsonwebtoken');
 const provider = require('../model/provider');
 const bcategory = require('../model/services/bussiness_category')
-const servicetype = require('../model/services/bussiness_type')
+const btype = require('../model/services/bussiness_type')
 const bsubcategory = require('../model/services/bussiness_subcategory')
 const bformation = require('../model/services/bussiness_formation')
 const path = require('path')
@@ -72,10 +72,11 @@ exports.addprovider = async (req, res) => {
             Bemail,
             Bsocialmedia,
             B_GSTnumber,
-            Btype,
             Bdetails,
             Btdsdetails,
             Bpancardnumber,
+            Btype,
+            Bformation,
             bsubcategoryid,
             Baddress,
             collaborationDetails,
@@ -114,6 +115,8 @@ exports.addprovider = async (req, res) => {
             Bdetails,
             Btdsdetails,
             Bpancardnumber,
+            Btype,
+            Bformation,
             bsubcategoryid,
             Baddress,
             collaborationDetails,
@@ -211,7 +214,7 @@ exports.add_btype = async (req, res) => {
     try {
         
         if (req.body) {
-            let data = await servicetype.create(req.body)
+            let data = await btype.create(req.body)
             res.json({
                 status: 200,
                 message: "Servicetype added",
@@ -252,6 +255,20 @@ exports.add_bformation = async (req, res) => {
     } catch (error) {
         console.log(error);
     }
+}
+exports.show_bformation = async (req,res)=>{
+    let data = await bformation.find()
+    res.json({
+        message : "All bussiness formation data",
+        bussinessFormation : data,
+    })
+}
+exports.show_btype = async (req,res)=>{
+    const data = await btype.find()
+    res.json({
+        message : "All bussiness type data",
+        bussinessType :data,
+    })
 }
 exports.add_bsubcategory = async (req, res) => {
     try {

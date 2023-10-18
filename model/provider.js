@@ -44,6 +44,12 @@ const providerSchema = new mongoose.Schema({
     Bpancardnumber:{
         type:String
     },
+    Btype :{
+        type:String
+    },
+    Bformation:{
+        type:String,
+    },
     bsubcategoryid:{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'bussinesssubcategory',

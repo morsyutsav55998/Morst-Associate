@@ -18,7 +18,11 @@ const {
     add_bformation,
     add_bsubcategory,
     
-    // Category
+    // Show B formation and type
+    show_bformation,
+    show_btype,
+
+    // Category & Subcategory
     show_bcategory,
     // addbcategory,
     show_bsubcategory,
@@ -29,17 +33,20 @@ router.post('/login', login)
 router.get('/home', verifyToken, home)
 
 // Provider
-router.post('/addprovider', upload.array('providerimg'), addprovider)
+router.post('/addprovider', upload.array('documents'), addprovider)
 router.get('/showproviders', verifyToken, showproviders)
-router.delete('/deleteprovider/:id', verifyToken, deleteprovider)
+router.delete('/deleteprovider/:id',verifyToken, deleteprovider)
 // router.patch('/updateprovider',verifyToken,updateprovider)
 
-// One by one add
 // Add
 router.post('/add_btype',add_btype)
 router.post('/add_bcategory',add_bcategory)
 router.post('/add_bformation',add_bformation)
 router.post('/add_bsubcategory',add_bsubcategory)
+
+// Show formation & type
+router.get('/show_bformation',show_bformation)
+router.get('/show_btype',show_btype)
 
 router.get('/show_bcategory',show_bcategory)
 // router.post('/addbcategory',verifyToken,addbcategory)
