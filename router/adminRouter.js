@@ -13,7 +13,7 @@ const {
     // updateprovider,
 
     // Add
-    add_servicetype,
+    add_btype,
     add_bcategory,
     add_bformation,
     add_bsubcategory,
@@ -34,10 +34,9 @@ router.get('/showproviders', verifyToken, showproviders)
 router.delete('/deleteprovider/:id', verifyToken, deleteprovider)
 // router.patch('/updateprovider',verifyToken,updateprovider)
 
-
 // One by one add
 // Add
-router.post('/add_servicetype',add_servicetype)
+router.post('/add_btype',add_btype)
 router.post('/add_bcategory',add_bcategory)
 router.post('/add_bformation',add_bformation)
 router.post('/add_bsubcategory',add_bsubcategory)

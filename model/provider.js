@@ -1,82 +1,83 @@
 const mongoose = require('mongoose');
 const providerSchema = new mongoose.Schema({
     // Provider
-    providername: { 
+    name: { 
         type: String
     },
-    provideremail:{
+    email:{
         type:String
     },
-    providernumber:{
+    number:{
         type:String
     },
-    providerbod:{
+    BOD:{
         type:String
     },
-    provideraddress:{
+    address:{
         type:String
     },
     // Bussiness
-    bussinessname:{
+    Bname:{
         type:String
     },
-    bussinessnumber:{
+    Bnumber:{
         type:String
     },
-    bussinessemail:{
+    Bemail:{
         type:String
     },
-    bussinesswebsite:{
+    Bsocialmedia:{
+        type:Array
+    },
+    B_GSTnumber:{
         type:String
     },
-    bussinessgstnumber:{
+    Btype:{
         type:String
     },
-    bussinesstype:{
+    Bdetails:{
         type:String
     },
-    bussinessdetails:{
+    Btdsdetails:{
         type:String
     },
-    bussinesstdsdetails:{
+    Bpancardnumber:{
         type:String
     },
-    bussinesspancardnumber:{
+    bsubcategoryid:{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'bussinesssubcategory',
+    },
+    Baddress:{
         type:String
     },
-    bussinesscategory:{
-        type:String
-    },
-    bussinessaddress:{
-        type:String
-    },
-    collaborationdetails:{
+    collaborationDetails:{
         type:String
     },
     // Sales
-    salespersonname:{
+    salespersonName:{
         type:String
     },
-    salespersonnumber:{
+    salespersonNumber:{
         type:String
     },
-    salespersonemail:{
+    salespersonEmail:{
         type:String
     },
-    salespersonposition:{
+    salespersonPosition:{
         type:String
     },
     // Bank
-    bankname:{
+    banknName:{
         type:String
     },
-    bankaccountnumber:{
+    bankAccountnumber:{
         type:String,
     },
-    bankifsccode:{
+    bankIFSCcode:{
         type:String
     },
-    bankbranchname:{
+    bankBranchname:{
         type:String
     },
     // Documents upload

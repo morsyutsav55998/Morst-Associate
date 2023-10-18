@@ -2,7 +2,8 @@ const admin = require('../model/admin')
 const jwt = require('jsonwebtoken');
 const provider = require('../model/provider');
 const bcategory = require('../model/services/bussiness_category')
-const servicetype = require('../model/services/servicetype')
+const servicetype = require('../model/services/bussiness_type')
+const bsubcategory = require('../model/services/bussiness_subcategory')
 const bformation = require('../model/services/bussiness_formation')
 const path = require('path')
 const fs = require('fs')
@@ -56,36 +57,39 @@ exports.home = async (req, res) => {
 // Provider
 exports.addprovider = async (req, res) => {
     try {
+        console.log(req.body);
+        console.log(req.files);
         const {
-            providername,
-            provideremail,
-            providernumber,
-            providerbod,
-            provideraddress,
+            name,
+            email,
+            number,
+            BOD,
+            address,
+
             // 
-            bussinessname,
-            bussinessnumber,
-            bussinessemail,
-            bussinesswebsite,
-            bussinessgstnumber,
-            bussinesstype,
-            bussinessdetails,
-            bussinesstdsdetails,
-            bussinesspancardnumber,
-            bussinesscategory,
-            bussinessaddress,
+            Bname,
+            Bnumber,
+            Bemail,
+            Bsocialmedia,
+            B_GSTnumber,
+            Btype,
+            Bdetails,
+            Btdsdetails,
+            Bpancardnumber,
+            bsubcategoryid,
+            Baddress,
+            collaborationDetails,
             // 
-            collaborationdetails,
-            // Salesmen
-            salespersonname,
-            salespersonnumber,
-            salespersonemail,
-            salespersonposition,
-            // Bank
-            bankname,
-            bankaccountnumber,
-            bankifsccode,
-            bankbranchname,
+            salespersonName,
+            salespersonNumber,
+            salespersonEmail,
+            salespersonPosition,
+
+            // 
+            banknName,
+            bankAccountnumber,
+            bankIFSCcode,
+            bankBranchname,
         } = req.body
         const files = req.files
         var documents = []
@@ -94,35 +98,36 @@ exports.addprovider = async (req, res) => {
             documents.push(filepath)
         }
         const providerData = await provider.create({
-            providername,
-            provideremail,
-            providernumber,
-            providerbod,
-            provideraddress,
+            name,
+            email,
+            number,
+            BOD,
+            address,
+
             // 
-            bussinessname,
-            bussinessnumber,
-            bussinessemail,
-            bussinesswebsite,
-            bussinessgstnumber,
-            bussinesstype,
-            bussinessdetails,
-            bussinesstdsdetails,
-            bussinesspancardnumber,
-            bussinesscategory,
-            bussinessaddress,
+            Bname,
+            Bnumber,
+            Bemail,
+            Bsocialmedia,
+            B_GSTnumber,
+            Btype,
+            Bdetails,
+            Btdsdetails,
+            Bpancardnumber,
+            bsubcategoryid,
+            Baddress,
+            collaborationDetails,
             // 
-            collaborationdetails,
-            // Salesmen
-            salespersonname,
-            salespersonnumber,
-            salespersonemail,
-            salespersonposition,
-            // Bank
-            bankname,
-            bankaccountnumber,
-            bankifsccode,
-            bankbranchname,
+            salespersonName,
+            salespersonNumber,
+            salespersonEmail,
+            salespersonPosition,
+
+            // 
+            banknName,
+            bankAccountnumber,
+            bankIFSCcode,
+            bankBranchname,
             // document
             documents
         })
@@ -202,7 +207,7 @@ exports.deleteprovider = async (req, res) => {
 //     }
 // }
 
-exports.add_servicetype = async (req, res) => {
+exports.add_btype = async (req, res) => {
     try {
         
         if (req.body) {
@@ -248,7 +253,6 @@ exports.add_bformation = async (req, res) => {
         console.log(error);
     }
 }
-const bsubcategory = require('../model/services/bussiness_subcategory')
 exports.add_bsubcategory = async (req, res) => {
     try {
         
@@ -264,7 +268,6 @@ exports.add_bsubcategory = async (req, res) => {
         console.log(error);
     }
 }
-
 exports.show_bcategory = async (req, res) => {
     try {
         let data = await bcategory.find()
