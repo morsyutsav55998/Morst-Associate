@@ -29,7 +29,7 @@ router.post('/login', login)
 router.get('/home', verifyToken, home)
 
 // Provider
-router.post('/addprovider', verifyToken, upload.array('documents'), addprovider)
+router.post('/addprovider', upload.array('providerimg'), addprovider)
 router.get('/showproviders', verifyToken, showproviders)
 router.delete('/deleteprovider/:id', verifyToken, deleteprovider)
 // router.patch('/updateprovider',verifyToken,updateprovider)

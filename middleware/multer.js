@@ -1,10 +1,15 @@
 const multer = require('multer');
-const AVTAR_PATH = '/files'
+const AVATAR_PATH = '/files'
+const fs = require('fs')
 const path = require('path');
 
 const storage = multer.diskStorage({
-    destination: (req, file, cd) => {
-        cd(null, path.join(__dirname, '..', AVTAR_PATH));
+    destination: (req, file, cb) => {
+        // cb(null, path.join(__dirname, '..', AVTAR_PATH)); 
+        const uploadPath = path.join(__dirname, '..', AVATAR_PATH, "darshan");
+        fs.mkdirSync(uploadPath, { recursive: true }); // Create the folder if it doesn't exist
+        cb(null, uploadPath);
+        
     },
     filename: (req, file, cb) => {
 
