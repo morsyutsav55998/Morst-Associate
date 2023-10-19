@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const providerSchema = new mongoose.Schema({
     // Provider
+    profile:{
+        type : String,
+    },
     name: { 
         type: String
     },
@@ -54,6 +57,9 @@ const providerSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'bussinesssubcategory',
     },
+    b_brochure:{
+        type:String,
+    },
     Baddress:{
         type:String
     },
@@ -88,7 +94,7 @@ const providerSchema = new mongoose.Schema({
     },
     // Documents upload
     documents:{
-        type:Array
+        type:[String]
     }
 });
 

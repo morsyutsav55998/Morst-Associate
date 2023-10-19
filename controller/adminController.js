@@ -1,10 +1,10 @@
 const admin = require('../model/admin')
 const jwt = require('jsonwebtoken');
 const provider = require('../model/provider');
-const bcategory = require('../model/services/bussiness_category')
-const btype = require('../model/services/bussiness_type')
-const bsubcategory = require('../model/services/bussiness_subcategory')
-const bformation = require('../model/services/bussiness_formation')
+const bcategory = require('../model/category/bussiness_category')
+const btype = require('../model/category/bussiness_type')
+const bsubcategory = require('../model/category/bussiness_subcategory')
+const bformation = require('../model/category/bussiness_formation')
 const path = require('path')
 const fs = require('fs')
 // Login
@@ -92,18 +92,28 @@ exports.addprovider = async (req, res) => {
             bankIFSCcode,
             bankBranchname,
         } = req.body
-        const files = req.files
-        var documents = []
-        for (let file of files) {
-            let filepath = '/files/' + file.filename
-            documents.push(filepath)
-        }
+        // const files = req.files
+        // var documents = []
+        // for (let file of files) {
+        //     let filepath = '/files/' + file.fileorignal
+        //     documents.push(filepath)
+        // }
+        const dirpath = '/files/'
+        const profilePath = dirpath + req.files['profile'][0].filename;
+        const brochurePaths = dirpath + req.files['b_brochure'][0].filename;
+        const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
+
+        console.log(profilePath);
+        console.log(documentsPath);
+        console.log(brochurePaths);
+
         const providerData = await provider.create({
             name,
             email,
             number,
             BOD,
             address,
+            profile : profilePath,
 
             // 
             Bname,
@@ -120,6 +130,7 @@ exports.addprovider = async (req, res) => {
             bsubcategoryid,
             Baddress,
             collaborationDetails,
+            b_brochure:brochurePaths,
             // 
             salespersonName,
             salespersonNumber,
@@ -131,8 +142,8 @@ exports.addprovider = async (req, res) => {
             bankAccountnumber,
             bankIFSCcode,
             bankBranchname,
-            // document
-            documents
+            documents : documentsPath,
+            
         })
         if (providerData) {
             res.status(200).json({
@@ -152,6 +163,18 @@ exports.showproviders = async (req, res) => {
             status: 200,
             providers: data
         })
+    }
+}
+exports.providerdetails = async (req,res)=>{
+    try {
+        console.log(req.params.id);
+        let data = await provider.findById(req.params.id)
+        res.json({
+            message : "Provider all details",
+            data : data
+        })
+    } catch (error) {
+        console.log(error);
     }
 }
 exports.deleteprovider = async (req, res) => {

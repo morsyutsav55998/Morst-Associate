@@ -15,9 +15,10 @@ app.use(express.urlencoded({
 }))
 
 app.use('/admin',require('./router/adminRouter'))
+app.use('/provider',require('./router/providerRouter'))
 
-app.get('/get',(req,res)=>{
-    res.send('Done')
+app.get('/success',(req,res)=>{
+    res.send('😊')
 })
 
 app.listen(3000,(err)=>{

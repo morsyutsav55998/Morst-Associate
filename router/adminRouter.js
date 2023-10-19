@@ -9,6 +9,7 @@ const {
     // Provider
     addprovider,
     showproviders,
+    providerdetails,
     deleteprovider,
     // updateprovider,
 
@@ -29,12 +30,26 @@ const {
     subcatdata,
 } = require('../controller/adminController')
 
-router.post('/login', login)
+router.post('/login',login)
 router.get('/home', verifyToken, home)
 
 // Provider
-router.post('/addprovider', upload.array('documents'), addprovider)
+router.post('/addprovider',  upload.fields([
+    {
+        name : 'profile',
+        maxCount : 1
+    },
+    {
+        name : 'b_brochure',
+        maxCount : 1
+    },
+    {
+        name :'documents',
+        maxCount : 5,
+    }
+]),addprovider)
 router.get('/showproviders', verifyToken, showproviders)
+router.get('/providerdetails/:id',providerdetails)
 router.delete('/deleteprovider/:id',verifyToken, deleteprovider)
 // router.patch('/updateprovider',verifyToken,updateprovider)
 
@@ -51,6 +66,6 @@ router.get('/show_btype',show_btype)
 router.get('/show_bcategory',show_bcategory)
 // router.post('/addbcategory',verifyToken,addbcategory)
 router.get('/show_bsubcategory',show_bsubcategory)
-router.post('/subcatdata',subcatdata)
+router.post('/subcatdata',subcatdata) 
 
 module.exports = router
