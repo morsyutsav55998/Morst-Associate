@@ -37,15 +37,12 @@ router.get('/home', verifyToken, home)
 router.post('/addprovider',  upload.fields([
     {
         name : 'profile',
-        maxCount : 1
     },
     {
         name : 'b_brochure',
-        maxCount : 1
     },
     {
         name :'documents',
-        maxCount : 5,
     }
 ]),addprovider)
 router.get('/showproviders', verifyToken, showproviders)
