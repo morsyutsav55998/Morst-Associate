@@ -103,10 +103,6 @@ exports.addprovider = async (req, res) => {
         const brochurePaths = dirpath + req.files['b_brochure'][0].filename;
         const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
 
-        console.log(profilePath);
-        console.log(documentsPath);
-        console.log(brochurePaths);
-
         const providerData = await provider.create({
             name,
             email,
@@ -145,6 +141,7 @@ exports.addprovider = async (req, res) => {
             documents : documentsPath,
             
         })
+        console.log(providerData);
         if (providerData) {
             res.status(200).json({
                 Status: 200,
