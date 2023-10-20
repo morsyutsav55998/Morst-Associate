@@ -8,4 +8,5 @@ const {
 
 router.post('/login',login)
 router.get('/home',verifyToken,home)
+// router.get('/logout',logout)
 module.exports = router

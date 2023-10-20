@@ -80,7 +80,7 @@ const providerSchema = new mongoose.Schema({
         type:String
     },
     // Bank
-    banknName:{
+    bankName:{
         type:String
     },
     bankAccountnumber:{

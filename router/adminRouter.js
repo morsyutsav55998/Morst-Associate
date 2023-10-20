@@ -12,7 +12,7 @@ const {
     showproviders,
     providerdetails,
     deleteprovider,
-    // updateprovider,
+    updateprovider,
 
     // Add
     add_btype,
@@ -67,7 +67,7 @@ router.post('/addprovider',  upload.fields([
 router.get('/showproviders',showproviders)
 router.get('/providerdetails/:id',providerdetails)
 router.delete('/deleteprovider/:id',deleteprovider)
-// router.patch('/updateprovider',verifyToken,updateprovider)
+router.patch('/updateprovider/:id',updateprovider)
 
 // Add
 router.post('/add_btype',add_btype)
