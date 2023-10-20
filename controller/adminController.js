@@ -5,12 +5,13 @@ const bcategory = require('../model/category/bussiness_category')
 const btype = require('../model/category/bussiness_type')
 const bsubcategory = require('../model/category/bussiness_subcategory')
 const bformation = require('../model/category/bussiness_formation')
+const iplink = 'http://192.168.0.113:3000/'
 const path = require('path')
 const fs = require('fs')
 // Login
 exports.login = async (req, res) => {
     try {
-        
+
         const { email, password } = req.body
         const data = await admin.findOne({ email })
         if (data == null) {
@@ -80,12 +81,12 @@ exports.addprovider = async (req, res) => {
             bsubcategoryid,
             Baddress,
             collaborationDetails,
+
             // 
             salespersonName,
             salespersonNumber,
             salespersonEmail,
             salespersonPosition,
-
             // 
             banknName,
             bankAccountnumber,
@@ -98,10 +99,14 @@ exports.addprovider = async (req, res) => {
         //     let filepath = '/files/' + file.fileorignal
         //     documents.push(filepath)
         // }
-        const dirpath = '/files/'
-        const profilePath = dirpath + req.files['profile'][0].filename;
-        const brochurePaths = dirpath + req.files['b_brochure'][0].filename;
-        const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
+        const profilePath = iplink + req.files['profile'][0].filename;
+        const brochurePath = iplink + req.files['b_brochure'][0].filename;
+        const adharcardPath = iplink + req.files['adharcard'][0].filename;
+        const pancardPath = iplink + req.files['pancard'][0].filename
+        const gstfilePath = iplink + req.files['gstfile'][0].filename
+        const tdsfilePath = iplink + req.files['tdsfile'][0].filename
+        const agreementfilePath = iplink + req.files['agreementfile'][0].filename
+        // const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
 
         const providerData = await provider.create({
             name,
@@ -109,7 +114,7 @@ exports.addprovider = async (req, res) => {
             number,
             BOD,
             address,
-            profile : profilePath,
+            profile: profilePath,
 
             // 
             Bname,
@@ -126,7 +131,7 @@ exports.addprovider = async (req, res) => {
             bsubcategoryid,
             Baddress,
             collaborationDetails,
-            b_brochure:brochurePaths,
+            b_brochure: brochurePath,
             // 
             salespersonName,
             salespersonNumber,
@@ -138,8 +143,13 @@ exports.addprovider = async (req, res) => {
             bankAccountnumber,
             bankIFSCcode,
             bankBranchname,
-            documents : documentsPath,
-            
+            // documents : documentsPath,'
+            // 
+            adharcard: adharcardPath,
+            pancard: pancardPath,
+            gstfile: gstfilePath,
+            tdsfile: tdsfilePath,
+            agreementfile: agreementfilePath,
         })
         console.log(providerData);
         if (providerData) {
@@ -154,7 +164,12 @@ exports.addprovider = async (req, res) => {
     }
 }
 exports.showproviders = async (req, res) => {
-    const data = await provider.find()
+    const data = await provider.find().populate('bsubcategoryid').populate({
+        path: 'bsubcategoryid',
+        populate: {
+            path: 'bcategoryid', // Populate the 'bcategoryid' field within 'bsubcategoryid'
+        }
+    })
     if (data) {
         res.json({
             status: 200,
@@ -162,13 +177,18 @@ exports.showproviders = async (req, res) => {
         })
     }
 }
-exports.providerdetails = async (req,res)=>{
+exports.providerdetails = async (req, res) => {
     try {
         console.log(req.params.id);
-        let data = await provider.findById(req.params.id)
+        let data = await provider.findById(req.params.id).populate('bsubcategoryid').populate({
+            path: 'bsubcategoryid',
+            populate: {
+                path: 'bcategoryid', // Populate the 'bcategoryid' field within 'bsubcategoryid'
+            }
+        })
         res.json({
-            message : "Provider all details",
-            data : data
+            message: "Provider all details",
+            providers: data
         })
     } catch (error) {
         console.log(error);
@@ -179,14 +199,48 @@ exports.deleteprovider = async (req, res) => {
         console.log(req.params.id);
         const data = await provider.findById(req.params.id)
         if (data) {
-            const docPath = data.documents
-            docPath.forEach(docpaths => {
-                fs.unlinkSync(path.join(__dirname + '../../' + docpaths), () => {
-                    res.json({
-                        message: "Documents deleted"
-                    })
-                })
-            })
+            // const docPath = data.documents
+
+            // fs.unlinkSync(data.profile);
+            // fs.unlinkSync(data.b_brochure);
+            // fs.unlinkSync(data.adharcard);
+            // fs.unlinkSync(data.pancard);
+            // fs.unlinkSync(data.gstfile);
+            // fs.unlinkSync(data.tdsfile);
+            // fs.unlinkSync(data.agreementfile);
+            
+            const deleteFile = (path) => {
+                fs.unlink(path, (err) => {
+                    if (err) {
+                        console.error('Error deleting file:', err);
+                    } else {
+                        console.log('File deleted:', path);
+                    }
+                });
+            };
+            // Delete each file
+            if (data.profile) {
+                deleteFile(iplink + data.profile);
+            }
+            if (data.b_brochure) {
+                deleteFile(iplink + data.b_brochure);
+            }
+            if (data.adharcard) {
+                deleteFile(iplink + data.adharcard);
+            }
+            if (data.pancard) {
+                deleteFile(iplink + data.pancard);
+            }
+            if (data.gstfile) {
+                deleteFile(iplink + data.gstfile);
+            }
+            if (data.tdsfile) {
+                deleteFile(iplink + data.tdsfile);
+            }
+            if (data.agreementfile) {
+                deleteFile(iplink + data.agreementfile);
+            }
+
             const dataDelete = await provider.findByIdAndDelete(req.params.id)
             if (dataDelete) {
                 res.json({
@@ -232,7 +286,7 @@ exports.deleteprovider = async (req, res) => {
 
 exports.add_btype = async (req, res) => {
     try {
-        
+
         if (req.body) {
             let data = await btype.create(req.body)
             res.json({
@@ -247,7 +301,7 @@ exports.add_btype = async (req, res) => {
 }
 exports.add_bcategory = async (req, res) => {
     try {
-        
+
         if (req.body) {
             console.log(req.body);
             let data = await bcategory.create(req.body)
@@ -263,7 +317,7 @@ exports.add_bcategory = async (req, res) => {
 }
 exports.add_bformation = async (req, res) => {
     try {
-        
+
         if (req.body) {
             let data = await bformation.create(req.body)
             res.json({
@@ -276,23 +330,23 @@ exports.add_bformation = async (req, res) => {
         console.log(error);
     }
 }
-exports.show_bformation = async (req,res)=>{
+exports.show_bformation = async (req, res) => {
     let data = await bformation.find()
     res.json({
-        message : "All bussiness formation data",
-        bussinessFormation : data,
+        message: "All bussiness formation data",
+        bussinessFormation: data,
     })
 }
-exports.show_btype = async (req,res)=>{
+exports.show_btype = async (req, res) => {
     const data = await btype.find()
     res.json({
-        message : "All bussiness type data",
-        bussinessType :data,
+        message: "All bussiness type data",
+        bussinessType: data,
     })
 }
 exports.add_bsubcategory = async (req, res) => {
     try {
-        
+
         if (req.body) {
             let data = await bsubcategory.create(req.body)
             res.json({
@@ -316,24 +370,6 @@ exports.show_bcategory = async (req, res) => {
         console.log(error);
     }
 }
-// exports.addbcategory = async (req, res) => {
-//     try {
-//         const { bussinesssubcategory, bcategoryid } = req.body
-//         let bcategoryData = await bsubcategory.create({
-//             bussinesssubcategory,
-//             bcategoryid
-//         })
-//         console.log(bcategoryData);
-//         if (bcategoryData) {
-//             res.json({
-//                 message: "Bussiness subcategory added",
-//                 Bsubcategory: bcategoryData,
-//             })
-//         }
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
 exports.show_bsubcategory = async (req, res) => {
     try {
         let data = await bsubcategory.find().populate('bcategoryid').exec()

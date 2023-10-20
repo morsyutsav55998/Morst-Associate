@@ -93,8 +93,23 @@ const providerSchema = new mongoose.Schema({
         type:String
     },
     // Documents upload
-    documents:{
-        type:[String]
+    // documents:{
+    //     type:[String]
+    // }
+    adharcard:{
+        type:String,
+    },
+    pancard:{
+        type:String,
+    },
+    gstfile:{
+        type:String,
+    },
+    tdsfile:{
+        type:String,
+    },
+    agreementfile:{
+        type:String,
     }
 });
 

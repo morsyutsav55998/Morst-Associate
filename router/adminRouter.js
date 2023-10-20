@@ -5,6 +5,7 @@ const upload = require('../middleware/multer')
 const {
     login, // Admin Login
     home,  // Show admin data
+    logout,
 
     // Provider
     addprovider,
@@ -25,13 +26,15 @@ const {
 
     // Category & Subcategory
     show_bcategory,
-    // addbcategory,
     show_bsubcategory,
     subcatdata,
 } = require('../controller/adminController')
 
 router.post('/login',login)
 router.get('/home', verifyToken, home)
+router.get('/logout', async (req,res)=>{
+    
+})
 
 // Provider
 router.post('/addprovider',  upload.fields([
@@ -41,13 +44,29 @@ router.post('/addprovider',  upload.fields([
     {
         name : 'b_brochure',
     },
+    // {
+    //     name :'documents',
+    // }
     {
-        name :'documents',
-    }
+        name : 'adharcard',
+    },
+    {
+        name : 'pancard',
+    },
+    {
+        name : 'gstfile',
+    },
+    {
+        name : 'tdsfile',
+    },
+    {
+        name : 'agreementfile',
+    },
 ]),addprovider)
-router.get('/showproviders', verifyToken, showproviders)
+
+router.get('/showproviders',showproviders)
 router.get('/providerdetails/:id',providerdetails)
-router.delete('/deleteprovider/:id',verifyToken, deleteprovider)
+router.delete('/deleteprovider/:id',deleteprovider)
 // router.patch('/updateprovider',verifyToken,updateprovider)
 
 // Add
@@ -61,7 +80,6 @@ router.get('/show_bformation',show_bformation)
 router.get('/show_btype',show_btype)
 
 router.get('/show_bcategory',show_bcategory)
-// router.post('/addbcategory',verifyToken,addbcategory)
 router.get('/show_bsubcategory',show_bsubcategory)
 router.post('/subcatdata',subcatdata) 
 

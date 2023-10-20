@@ -5,4 +5,4 @@ const adminSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('bussiness_category', adminSchema);
+module.exports = mongoose.model('bussinesscategory', adminSchema);

@@ -1,6 +1,6 @@
 const provider = require("../model/provider")
 const jwt = require('jsonwebtoken')
-exports.login = async (req,res)=>{
+exports.login = async (req, res) => {
     try {
         const { email, number } = req.body
         const data = await provider.findOne({ email })
@@ -30,6 +30,20 @@ exports.login = async (req,res)=>{
                     message: 'Sorry! Provider Login Password Failed'
                 })
             }
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+exports.home = async (req, res) => {
+    try {
+        const providerId = req.provider
+        let data = await provider.findById(providerId.id)
+        if (data) {
+            res.json({
+                status: 200,
+                providerdata: data
+            })
         }
     } catch (error) {
         console.log(error);
