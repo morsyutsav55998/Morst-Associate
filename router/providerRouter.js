@@ -15,4 +15,4 @@ router.get('/home',verifyToken,home)
 
 router.post('/addservice',verifyToken,upload.array('serviceimg'),addservice)
 router.get('/showservices',verifyToken,showservices) 
-module.exports = router 
+module.exports = router

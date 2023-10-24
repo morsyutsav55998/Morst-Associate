@@ -9,7 +9,7 @@ const bformation = require('../model/category/bussiness_formation')
 const path = require('path')
 const iplink = 'http://192.168.0.113:3000/'
 const fs = require('fs');
-const { stringify } = require('querystring');
+
 // Login
 exports.login = async (req, res) => {
     try {
@@ -104,12 +104,13 @@ exports.addprovider = async (req, res) => {
         // String to array 
         const isArray = bsubcategoryid.split(',');
         // console.log(isArray);
-        const subcatData = []
+        const catData = []
         for (var i of isArray) {
             var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
-            subcatData.push(subcat)
+            console.log(subcat.bcategoryid)
+            catData.push(subcat)
+            // console.log(subcatData,"hkasdlikasdnlkasdnlksdanlklk");
         }
-        console.log(subcatData,);
         // const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
         const providerData = await provider.create({
             name,
@@ -168,12 +169,13 @@ exports.addprovider = async (req, res) => {
 }
 
 exports.showproviders = async (req, res) => {
-    const data = await provider.find().populate('bsubcategoryid').populate({
-        path: 'bsubcategoryid',
-        populate: {
-            path: 'bcategoryid', // Populate the 'bcategoryid' field within 'bsubcategoryid'
-        }
-    })
+    const data = await provider.find()
+    // .populate('bsubcategoryid').populate({
+    //     path: 'bsubcategoryid',
+    //     populate: {
+    //         path: 'bcategoryid', // Populate the 'bcategoryid' field within 'bsubcategoryid'
+    //     }
+    // })
     if (data) {
         res.json({
             status: 200,
@@ -195,7 +197,7 @@ exports.providerdetails = async (req, res) => {
         for (var i of data.bsubcategoryid) {
             var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
             subcatData.push(subcat)
-            console.log(subcatData);
+            console.log(subcatData,"ADABJDADJADJAJNDASJKD");
         }
         res.json({
             message: "Provider all details",
@@ -214,7 +216,6 @@ exports.deleteprovider = async (req, res) => {
 
         const data = await provider.findById(req.params.id)
         if (data) {
-
 
             const filesToDelete = [];
             const dummyImagePath = 'http://192.168.0.113:3000//dummy.jpeg'
@@ -390,7 +391,7 @@ exports.show_bsubcategory = async (req, res) => {
 exports.subcatdata = async (req, res) => {
     try {
         const suboptget = await bsubcategory.find({ bcategoryid: req.body.bcatid })
-        console.log(suboptget);
+        
         if (suboptget) {
             return res.json({
                 bsubcategorys: suboptget
@@ -405,16 +406,14 @@ exports.subcatdata = async (req, res) => {
 
 
 // User 
-exports.adduser = async (req,res)=>{
-    try {   
-        if(req.body){
-            
-            console.log(req.body);
+exports.adduser = async (req, res) => {
+    try {
+        if (req.body) {
             const userData = await user.create(req.body)
-            if(userData){
+            if (userData) {
                 res.status(200).json({
-                    message : "User added successfully ",
-                    registered :  userData,
+                    message: "User added successfully ",
+                    registered: userData,
                 })
             }
         }
@@ -422,7 +421,7 @@ exports.adduser = async (req,res)=>{
         console.log(error);
     }
 }
-exports.userlogin = async (req,res) =>{
+exports.userlogin = async (req, res) => {
     try {
         const { email, number } = req.body
         const data = await user.findOne({ email })
@@ -433,7 +432,7 @@ exports.userlogin = async (req,res) =>{
             });
         }
         else {
-            if (data.number == number){
+            if (data.number == number) {
                 // Token genrate
                 const token = await jwt.sign({ id: data.id }, process.env.userkey)
                 res.cookie('usertoken', token, {

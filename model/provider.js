@@ -56,11 +56,10 @@ const providerSchema = new mongoose.Schema({
     Bformation:{
         type:String,
     },
-    bsubcategoryid:{
-        type : Array,
-        // type : mongoose.Schema.Types.ObjectId,
-        // ref : 'bussinesscategory',
-    },
+    bsubcategoryid:[{
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'bussinesscategory',
+    }],
     b_brochure:{
         type:String,
     },

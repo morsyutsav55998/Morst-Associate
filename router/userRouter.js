@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const verifyToken = require('../JWT/userjwt')
 const {
-    // register,
     login,
     
     allprovider,
@@ -10,7 +9,6 @@ const {
     // service_details,
 } = require('../controller/userController')
 
-// router.post('/register',register)
 router.post('/login',login)
 router.get('/allprovider',verifyToken,allprovider)
 router.post('/search',search)

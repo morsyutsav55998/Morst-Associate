@@ -4,32 +4,6 @@ const services = require('../model/provider_service')
 const bsubcategory = require('../model/category/bussiness_subcategory')
 const jwt = require('jsonwebtoken')
 
-
-// exports.register = async (req,res)=>{
-//     try {
-//         if(req.body){
-//             // let data = {
-//             //     name,
-//             //     email,
-//             //     number,
-//             //     DOB,
-//             //     occupation,
-//             //     reference,
-//             // } = req.body
-//             console.log(req.body);
-//             const userData = await user.create(req.body)
-//             if(userData){
-//                 res.status(200).json({
-//                     message : "User is registred successfully ",
-//                     registered :  userData,
-//                 })
-//             }
-//         }
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
-
 exports.login = async (req,res)=>{
     try {
         console.log(req.body);
@@ -78,12 +52,8 @@ exports.allprovider = async (req,res)=>{
 }
 exports.search = async (req,res)=>{
     try {
-        const data = await provider.find()
         const searchTerm = req.body.search.toLowerCase(); 
-        // How to search 
-        
-        res.json(filteredData);
-
+        const data = await provider.find()
     } catch (error) {
         console.log(error);
     }
