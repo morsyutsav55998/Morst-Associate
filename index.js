@@ -10,6 +10,7 @@ const path = require('path')
 
 app.use(express.static(path.join(__dirname,'files')))
 app.use(express.static(path.join(__dirname,'sample')))
+
 require('dotenv').config()
 app.use(morgan('dev'))
 app.use(cors())
@@ -18,7 +19,7 @@ app.use(express.urlencoded({
     extended : true
 }))
 
-
+app.use('/user',require('./router/userRouter'))
 app.use('/admin',require('./router/adminRouter'))
 app.use('/provider',require('./router/providerRouter'))
 

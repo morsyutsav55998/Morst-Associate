@@ -1,29 +1,29 @@
 const jwt = require('jsonwebtoken');
-const provider = require('../model/provider');
+const user = require('../model/user');
 const verifyToken = async (req, res, next) => {
-    let token = req.headers.providertoken
+    let token = req.headers.usertoken
     if (token) {
-        var providerdata = await jwt.verify(token, process.env.providerkey, (err, data) => {
+        var userdata = await jwt.verify(token, process.env.userkey, (err, data) => {
             if (err) {
                 console.log(err);
             }
             return data
         })
-        if(providerdata == undefined){
+        if(userdata == undefined){
             res.json({
                 message : "Token in valid",
             })
         }
         else{
-            var data = await provider.findById(providerdata.id)
+            var data = await user.findById(userdata.id)
             if(data == null){
                 res.json({
                     status : 400,
-                    message : "Provider data not found"
+                    message : "User data not found"
                 })
             }
             else{
-                req.provider = data
+                req.user = data
                 next()
             }
         }
@@ -31,7 +31,7 @@ const verifyToken = async (req, res, next) => {
     else{
         res.json({
             status : 400,
-            message :  'Provider login require'
+            message :  'User login require'
         })
     }
 }

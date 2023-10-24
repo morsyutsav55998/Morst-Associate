@@ -19,6 +19,9 @@ const providerSchema = new mongoose.Schema({
     address:{
         type:String
     },
+    product_service:{
+        type:String
+    },
     // Bussiness
     Bname:{
         type:String
@@ -54,8 +57,9 @@ const providerSchema = new mongoose.Schema({
         type:String,
     },
     bsubcategoryid:{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'bussinesssubcategory',
+        type : Array,
+        // type : mongoose.Schema.Types.ObjectId,
+        // ref : 'bussinesscategory',
     },
     b_brochure:{
         type:String,
@@ -112,5 +116,5 @@ const providerSchema = new mongoose.Schema({
         type:String,
     }
 });
-
 module.exports = mongoose.model('provider', providerSchema);
+

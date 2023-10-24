@@ -1,5 +1,6 @@
 const admin = require('../model/admin')
 const jwt = require('jsonwebtoken');
+const user = require('../model/user')
 const provider = require('../model/provider');
 const bcategory = require('../model/category/bussiness_category')
 const btype = require('../model/category/bussiness_type')
@@ -7,11 +8,11 @@ const bsubcategory = require('../model/category/bussiness_subcategory')
 const bformation = require('../model/category/bussiness_formation')
 const path = require('path')
 const iplink = 'http://192.168.0.113:3000/'
-const fs = require('fs')
+const fs = require('fs');
+const { stringify } = require('querystring');
 // Login
 exports.login = async (req, res) => {
     try {
-
         const { email, password } = req.body
         const data = await admin.findOne({ email })
         if (data == null) {
@@ -56,161 +57,6 @@ exports.home = async (req, res) => {
     }
 }
 // Provider
-// exports.addprovider = async (req, res) => {
-//     try {
-//         // console.log(req.body);
-//         // console.log(req.files);
-//         const {
-//             name,
-//             email,
-//             number,
-//             BOD,
-//             address,
-//             // 
-//             Bname,
-//             Bnumber,
-//             Bemail,
-//             Bsocialmedia,
-//             B_GSTnumber,
-//             Bdetails,
-//             Btdsdetails,
-//             Bpancardnumber,
-//             Btype,
-//             Bformation,
-//             bsubcategoryid,
-//             Baddress,
-//             collaborationDetails,
-//             // 
-//             salespersonName,
-//             salespersonNumber,
-//             salespersonEmail,
-//             salespersonPosition,
-//             // 
-//             bankName,
-//             bankAccountnumber,
-//             bankIFSCcode,
-//             bankBranchname,
-//         } = req.body
-//         // Files upload 
-//         var profilePath = req.files.profile;
-//         console.log(profilePath, "oooooooooooooooo");
-//         var brochurePath = iplink + req.files.b_brochure;
-//         var adharcardPath = iplink + req.files.adharcard;
-//         var pancardPath = iplink + req.files.pancard;
-//         var gstfilePath = iplink + req.files.gstfile;
-//         var tdsfilePath = iplink + req.files.tdsfile;
-//         var agreementfilePath = iplink + req.files.agreementfile;
-
-//         profilePath = profilePath.replace(iplink, "");
-
-//         console.log(profilePath);
-//         if (profilePath == undefined) {
-//             profilePath = iplink + '1697792093045-716279775-tds.png'; // Replace with the desired value for profilePath
-//         } else {
-//             profilePath = iplink + req.files.profile[0].filename
-//             console.log(profilePath, "88");
-//             ; // Corrected variable assignment
-//         }
-
-//         brochurePath = brochurePath.replace(iplink, "");
-//         if (brochurePath == undefined) {
-//             brochurePath = iplink + '1697792093045-716279775-tds.png';
-//         } else {
-//             brochurePath = iplink + req.files.profile[0].filename // Corrected variable assignment
-//         }
-
-//         adharcardPath = adharcardPath.replace(iplink, "");
-//         if (adharcardPath == undefined) {
-//             adharcardPath = iplink + '1697792093045-716279775-tds.png';
-//         } else {
-//             adharcardPath = iplink + req.files.profile[0].filename // Corrected variable assignment
-//         }
-
-//         pancardPath = pancardPath.replace(iplink, "");
-//         if (pancardPath == undefined) {
-//             pancardPath = iplink + '1697792093045-716279775-tds.png';
-//         } else {
-//             pancardPath = iplink + req.files.profile[0].filename // Corrected variable assignment
-//         }
-
-//         gstfilePath = gstfilePath.replace(iplink, "");
-//         if (gstfilePath == undefined) {
-//             gstfilePath = iplink + '1697792093045-716279775-tds.png';
-//         } else {
-//             gstfilePath = iplink + req.files.profile[0].filename // Corrected variable assignment
-//         }
-
-//         tdsfilePath = tdsfilePath.replace(iplink, "");
-//         if (tdsfilePath == undefined) {
-//             tdsfilePath = iplink + '1697792093045-716279775-tds.png';
-//         } else {
-//             tdsfilePath = iplink + req.files.profile[0].filename // Corrected variable assignment
-//         }
-
-//         agreementfilePath = agreementfilePath.replace(iplink, "");
-//         if (agreementfilePath == undefined) {
-//             agreementfilePath = iplink + '1697792093045-716279775-tds.png';
-//         } else {
-//             agreementfilePath = iplink + req.files.profile[0].filename // Corrected variable assignment
-//         }
-
-//         // Now you have conditionally set paths for each variable
-
-//         // const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
-
-//         const providerData = await provider.create({
-//             name,
-//             email,
-//             number,
-//             BOD,
-//             address,
-//             profile: profilePath,
-//             Bname,
-//             Bnumber,
-//             Bemail,
-//             Bsocialmedia,
-//             B_GSTnumber,
-//             Btype,
-//             Bdetails,
-//             Btdsdetails,
-//             Bpancardnumber,
-//             Btype,
-//             Bformation,
-//             bsubcategoryid,
-//             Baddress,
-//             collaborationDetails,
-//             b_brochure: brochurePath,
-//             // 
-//             salespersonName,
-//             salespersonNumber,
-//             salespersonEmail,
-//             salespersonPosition,
-
-//             // 
-//             bankName,
-//             bankAccountnumber,
-//             bankIFSCcode,
-//             bankBranchname,
-//             // documents : documentsPath,
-//             // 
-//             adharcard: adharcardPath,
-//             pancard: pancardPath,
-//             gstfile: gstfilePath,
-//             tdsfile: tdsfilePath,
-//             agreementfile: agreementfilePath,
-//         })
-//         console.log(providerData);
-//         if (providerData) {
-//             res.status(200).json({
-//                 Status: 200,
-//                 Message: "Provider added successfully",
-//                 Provider: providerData
-//             })
-//         }
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
 exports.addprovider = async (req, res) => {
     try {
         const {
@@ -219,7 +65,7 @@ exports.addprovider = async (req, res) => {
             number,
             BOD,
             address,
-
+            product_service,
             // 
             Bname,
             Bnumber,
@@ -248,13 +94,22 @@ exports.addprovider = async (req, res) => {
         } = req.body
 
         let profilePath = req.files['profile'] ? iplink + req.files['profile'][0].filename : iplink + '/profile.png'
-        let brochurePath = req.files['b_brochure'] ? iplink + req.files['b_brochure'][0].filename : iplink + '/dummy.jpeg';
-        let adharcardPath = req.files['adharcard'] ? iplink + req.files['adharcard'][0].filename : iplink + '/dummy.jpeg';
-        let pancardPath = req.files['pancard'] ? iplink + req.files['pancard'][0].filename : iplink + '/dummy.jpeg';
-        let gstfilePath = req.files['gstfile'] ? iplink + req.files['gstfile'][0].filename : iplink + '/dummy.jpeg';
-        let tdsfilePath = req.files['tdsfile'] ? iplink + req.files['tdsfile'][0].filename : iplink + '/dummy.jpeg';
-        let agreementfilePath = req.files['agreementfile'] ? iplink + req.files['agreementfile'][0].filename : iplink + '/dummy.jpeg';
+        let brochurePath = req.files['b_brochure'] ? iplink + req.files['b_brochure'][0].filename : iplink + '/dummy.jpeg'
+        let adharcardPath = req.files['adharcard'] ? iplink + req.files['adharcard'][0].filename : iplink + '/dummy.jpeg'
+        let pancardPath = req.files['pancard'] ? iplink + req.files['pancard'][0].filename : iplink + '/dummy.jpeg'
+        let gstfilePath = req.files['gstfile'] ? iplink + req.files['gstfile'][0].filename : iplink + '/dummy.jpeg'
+        let tdsfilePath = req.files['tdsfile'] ? iplink + req.files['tdsfile'][0].filename : iplink + '/dummy.jpeg'
+        let agreementfilePath = req.files['agreementfile'] ? iplink + req.files['agreementfile'][0].filename : iplink + '/dummy.jpeg'
 
+        // String to array 
+        const isArray = bsubcategoryid.split(',');
+        // console.log(isArray);
+        const subcatData = []
+        for (var i of isArray) {
+            var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
+            subcatData.push(subcat)
+        }
+        console.log(subcatData,);
         // const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
         const providerData = await provider.create({
             name,
@@ -263,6 +118,7 @@ exports.addprovider = async (req, res) => {
             BOD,
             address,
             profile: profilePath,
+            product_service,
 
             // 
             Bname,
@@ -276,10 +132,11 @@ exports.addprovider = async (req, res) => {
             Bpancardnumber,
             Btype,
             Bformation,
-            bsubcategoryid,
+            bsubcategoryid: subcatData,
             Baddress,
             collaborationDetails,
             b_brochure: brochurePath,
+
             // 
             salespersonName,
             salespersonNumber,
@@ -290,7 +147,7 @@ exports.addprovider = async (req, res) => {
             bankAccountnumber,
             bankIFSCcode,
             bankBranchname,
-            // documents : documentsPath,'
+            // documents : documentsPath,
             // 
             adharcard: adharcardPath,
             pancard: pancardPath,
@@ -298,7 +155,6 @@ exports.addprovider = async (req, res) => {
             tdsfile: tdsfilePath,
             agreementfile: agreementfilePath,
         })
-        console.log(providerData);
         if (providerData) {
             res.status(200).json({
                 Status: 200,
@@ -327,16 +183,25 @@ exports.showproviders = async (req, res) => {
 }
 exports.providerdetails = async (req, res) => {
     try {
-        let data = await provider.findById(req.params.id).populate('bsubcategoryid').populate({
-            path: 'bsubcategoryid',
-            populate: {
-                path: 'bcategoryid', // Populate the 'bcategoryid' field within 'bsubcategoryid'
-            }
-        })
+        let data = await provider.findById(req.params.id)
+        // .populate('bsubcategoryid')
+        //     .populate({
+        //         path: 'bsubcategoryid',
+        //         populate: {
+        //             path: 'bcategoryid', // Populate the 'bcategoryid' field within 'bsubcategoryid'
+        //         }
+        //     }).exec()
+        const subcatData = []
+        for (var i of data.bsubcategoryid) {
+            var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
+            subcatData.push(subcat)
+            console.log(subcatData);
+        }
         res.json({
             message: "Provider all details",
-            providers: data
+            providers: data, subcatData
         })
+
     } catch (error) {
         console.log(error);
     }
@@ -350,22 +215,39 @@ exports.deleteprovider = async (req, res) => {
         const data = await provider.findById(req.params.id)
         if (data) {
 
-            var profilePath = data.profile.replace(iplink,'./files/');
-            var brochurePath = data.b_brochure.replace(iplink,'./files/');
-            var adharcardPath = data.adharcard.replace(iplink,'./files/');
-            var pancardPath = data.pancard.replace(iplink, './files/');
-            var gstfilePath = data.gstfile.replace(iplink, './files/');
-            var tdsfilePath = data.tdsfile.replace(iplink, './files/');
-            var agreementfilePath = data.agreementfile.replace(iplink, './files/');
 
-            // Delete files from the server
-            fs.unlinkSync(profilePath);     
-            fs.unlinkSync(brochurePath);
-            fs.unlinkSync(adharcardPath);
-            fs.unlinkSync(pancardPath);
-            fs.unlinkSync(gstfilePath);
-            fs.unlinkSync(tdsfilePath);
-            fs.unlinkSync(agreementfilePath);
+            const filesToDelete = [];
+            const dummyImagePath = 'http://192.168.0.113:3000//dummy.jpeg'
+            const profileDummy = 'http://192.168.0.113:3000//profile.png'
+            // Check and add file paths to the `filesToDelete` array
+            if (data.profile && data.profile !== profileDummy) {
+                filesToDelete.push(data.profile.replace(iplink, './files/'));
+            }
+            if (data.b_brochure && data.b_brochure !== dummyImagePath) {
+                filesToDelete.push(data.b_brochure.replace(iplink, './files/'));
+            }
+            if (data.adharcard && data.adharcard !== dummyImagePath) {
+                filesToDelete.push(data.adharcard.replace(iplink, './files/'));
+            }
+            if (data.pancard && data.pancard !== dummyImagePath) {
+                filesToDelete.push(data.pancard.replace(iplink, './files/'));
+            }
+            if (data.gstfile && data.gstfile !== dummyImagePath) {
+                filesToDelete.push(data.gstfile.replace(iplink, './files/'));
+            }
+            if (data.tdsfile && data.tdsfile !== dummyImagePath) {
+                filesToDelete.push(data.tdsfile.replace(iplink, './files/'));
+            }
+            if (data.agreementfile && data.agreementfile !== dummyImagePath) {
+                filesToDelete.push(data.agreementfile.replace(iplink, './files/'));
+            }
+
+            // Delete the files if they exist
+            filesToDelete.forEach((filePath) => {
+                if (filePath) {
+                    fs.unlinkSync(filePath); // Synchronously delete the file
+                }
+            });
 
             const dataDelete = await provider.findByIdAndDelete(req.params.id)
             if (dataDelete) {
@@ -400,9 +282,7 @@ exports.updateprovider = async (req, res) => {
                     })
                 }
                 else {
-                    // data.documents.forEach(async (doc)=>{
-                    //     const data = 
-                    // })
+                    // Update files in this module
                 }
             }
         }
@@ -515,6 +395,63 @@ exports.subcatdata = async (req, res) => {
             return res.json({
                 bsubcategorys: suboptget
             })
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+
+
+// User 
+exports.adduser = async (req,res)=>{
+    try {   
+        if(req.body){
+            
+            console.log(req.body);
+            const userData = await user.create(req.body)
+            if(userData){
+                res.status(200).json({
+                    message : "User added successfully ",
+                    registered :  userData,
+                })
+            }
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+exports.userlogin = async (req,res) =>{
+    try {
+        const { email, number } = req.body
+        const data = await user.findOne({ email })
+        if (data == null) {
+            res.status(400).json({
+                status: 400,
+                message: "Sorry! Enter Valid Email",
+            });
+        }
+        else {
+            if (data.number == number){
+                // Token genrate
+                const token = await jwt.sign({ id: data.id }, process.env.userkey)
+                res.cookie('usertoken', token, {
+                    expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
+                });
+                // localStorage.setItem('token', token);
+                res.status(200).json({
+                    status: 200,
+                    message: 'User Login Successfully',
+                    providertoken: token
+                })
+            }
+            else {
+                res.json({
+                    status: 400,
+                    message: 'Sorry! User Login Password Failed'
+                })
+            }
         }
     } catch (error) {
         console.log(error);

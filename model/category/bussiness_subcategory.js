@@ -3,10 +3,9 @@ const adminSchema = new mongoose.Schema({
     bcategoryid : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'bussinesscategory',
-        require : true,
    },
     bussinesssubcategory: {
-        type: String
+        type: String,
     }
 });
 
