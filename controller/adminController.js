@@ -9,7 +9,7 @@ const bformation = require('../model/category/bussiness_formation')
 const path = require('path')
 const iplink = 'http://192.168.0.113:3000/'
 const fs = require('fs');
-const { stringify } = require('querystring');
+
 // Login
 exports.login = async (req, res) => {
     try {
@@ -196,7 +196,6 @@ exports.providerdetails = async (req, res) => {
         for (var i of data.bsubcategoryid) {
             var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
             subcatData.push(subcat)
-            console.log(subcatData)
         }
         res.json({
             message: "Provider all details",
@@ -267,23 +266,25 @@ exports.deleteprovider = async (req, res) => {
 
 exports.updateprovider = async (req, res) => {
     try {
-        const data = await provider.findById(req.params.id)
-        console.log(data);
-        if (data) {
-            console.log(data);
-            if (req.files.length == 0) {
-                const provderDataupdate = await provider.findByIdAndUpdate(req.params.id, req.body)
-                if (provderDataupdate) {
-                    res.json({
-                        status: 200,
-                        message: "Provider updated successfully",
-                    })
-                }
-                else {
-                    // Update files in this module
-                }
-            }
-        }
+        console.log(req.body);
+        console.log(req.files);
+        // const data = await provider.findById(req.params.id)
+        // if (data) {
+        //     console.log(data);
+        //     if (req.files.length == 0) {
+        //         const provderDataupdate = await provider.findByIdAndUpdate(req.params.id, req.body)
+        //         console.log(provderDataupdate);
+        //         if (provderDataupdate) {
+        //             res.json({
+        //                 status: 200,
+        //                 message: "Provider updated successfully",
+        //             })
+        //         }
+        //         else {
+        //             // Update files in this module
+        //         }
+        //     }
+        // }
     } catch (error) {
         console.log(error);
     }
@@ -308,7 +309,6 @@ exports.add_bcategory = async (req, res) => {
     try {
 
         if (req.body) {
-            console.log(req.body);
             let data = await bcategory.create(req.body)
             res.json({
                 status: 200,
@@ -388,7 +388,6 @@ exports.show_bsubcategory = async (req, res) => {
 exports.subcatdata = async (req, res) => {
     try {
         const suboptget = await bsubcategory.find({ bcategoryid: req.body.bcatid })
-        console.log(suboptget);
         if (suboptget) {
             return res.json({
                 bsubcategorys: suboptget
@@ -406,8 +405,6 @@ exports.subcatdata = async (req, res) => {
 exports.adduser = async (req, res) => {
     try {
         if (req.body) {
-
-            console.log(req.body);
             const userData = await user.create(req.body)
             if (userData) {
                 res.status(200).json({

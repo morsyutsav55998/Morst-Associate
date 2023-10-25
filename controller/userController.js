@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken')
 
 exports.login = async (req,res)=>{
     try {
-        console.log(req.body);
         const { email, number } = req.body
         const data = await user.findOne({ email })
         if (data == null) {
@@ -59,6 +58,7 @@ exports.search = async (req,res)=>{
                 path: 'bcategoryid bussinesssubcategory',
             },
         })
+
 
         function convertDataToLowerCase(data) {
             return JSON.parse(JSON.stringify(data).toLowerCase());
@@ -118,4 +118,4 @@ exports.search = async (req,res)=>{
 //     } catch (error) {
 //         console.log(error);
 //     }
-// }
+// }    

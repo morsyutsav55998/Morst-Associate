@@ -12,6 +12,5 @@ const {
 router.post('/login',login)
 router.get('/allprovider',allprovider)
 router.post('/search',search)
-// router.get('/service_details')
 
 module.exports = router
