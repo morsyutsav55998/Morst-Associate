@@ -191,7 +191,7 @@ exports.providerdetails = async (req, res) => {
         //         populate: {
         //             path: 'bcategoryid', // Populate the 'bcategoryid' field within 'bsubcategoryid'
         //         }
-        //     }).exec()
+        // }).exec()
         const subcatData = []
         for (var i of data.bsubcategoryid) {
             var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
