@@ -28,8 +28,7 @@ const {
     show_bcategory,
     show_bsubcategory,
     subcatdata,
-
-
+    
     // User
     adduser,
 } = require('../controller/adminController')
@@ -101,6 +100,7 @@ router.patch('/updateprovider/:id',upload.fields([
 ]),updateprovider)
 
 // Add
+    
 router.post('/add_btype',add_btype)
 router.post('/add_bcategory',add_bcategory)
 router.post('/add_bformation',add_bformation)
