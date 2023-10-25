@@ -10,7 +10,7 @@ const {
 } = require('../controller/userController')
 
 router.post('/login',login)
-router.get('/allprovider',verifyToken,allprovider)
+router.get('/allprovider',allprovider)
 router.post('/search',search)
 // router.get('/service_details')
 

@@ -58,7 +58,7 @@ const providerSchema = new mongoose.Schema({
     },
     bsubcategoryid:[{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'bussinesscategory',
+        ref : 'bussinesssubcategory',
     }],
     b_brochure:{
         type:String,

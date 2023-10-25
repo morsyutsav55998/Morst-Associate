@@ -1,0 +1,140 @@
+[{
+  "_id": {
+    "$oid": "6538ab31c70fc5ee9c9493ec"
+  },
+  "profile": "http://192.168.0.113:3000/1698212657261-452648060-male-avatar-profile-picture-vector-10211761.jpg",
+  "name": "utsav",
+  "email": "utsav",
+  "number": "1",
+  "BOD": "2023-12-31",
+  "address": "utsav",
+  "product_service": "sfada",
+  "Bname": "dasda",
+  "Bnumber": "2131",
+  "Bemail": "asdasdas",
+  "Bsocialmedia": [
+    "dasdasdas",
+    "asd",
+    "asdasda",
+    "asd"
+  ],
+  "B_GSTnumber": "qeq21131",
+  "Btype": "Retailer",
+  "Bdetails": "asdsdaasd",
+  "Btdsdetails": "czacasda",
+  "Bpancardnumber": "ada2342",
+  "Bformation": "Privet Limited",
+  "bsubcategoryid": [
+    {
+      "$oid": "6533a5915422f85c76d88c34"
+    },
+    {
+      "$oid": "6533a59d5422f85c76d88c36"
+    },
+    {
+      "$oid": "6533a5ac5422f85c76d88c38"
+    },
+    {
+      "$oid": "6533a5be5422f85c76d88c3a"
+    },
+    {
+      "$oid": "6533a5c75422f85c76d88c3c"
+    },
+    {
+      "$oid": "6533a5d35422f85c76d88c3e"
+    },
+    {
+      "$oid": "6533a5dd5422f85c76d88c40"
+    },
+    {
+      "$oid": "6533a5ec5422f85c76d88c42"
+    }
+  ],
+  "b_brochure": "http://192.168.0.113:3000/1698212657262-734345002-brochurepamphletdifference016.jpg",
+  "Baddress": "asdasdasd",
+  "collaborationDetails": "fasd",
+  "salespersonName": "asdda",
+  "salespersonNumber": "asdsdaasd",
+  "salespersonEmail": "asdsdasda",
+  "salespersonPosition": "asdsda",
+  "bankName": "asdsdas",
+  "bankAccountnumber": "sdaasdd",
+  "bankIFSCcode": "dsaasd",
+  "bankBranchname": "asdasd",
+  "adharcard": "http://192.168.0.113:3000/1698212657263-591126844-image-170-1024x683.png",
+  "pancard": "http://192.168.0.113:3000/1698212657266-960152250-product-jpeg.jpg",
+  "gstfile": "http://192.168.0.113:3000/1698212657268-733236652-GST-Registration-Certificate-Sample-Annexure-A.png",
+  "tdsfile": "http://192.168.0.113:3000/1698212657268-791040959-tds.png",
+  "agreementfile": "http://192.168.0.113:3000/1698212657269-422144665-simple-one-page-lease-agreement-template-d4b038b1c1d4ad01ee065ae5fbbaa7d2.png",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6538acb2c70fc5ee9c9493ee"
+  },
+  "profile": "http://192.168.0.113:3000/1698213042110-370864984-male-avatar-profile-picture-vector-10211761.jpg",
+  "name": "utsav",
+  "email": "utsav",
+  "number": "1",
+  "BOD": "2023-12-31",
+  "address": "utsav",
+  "product_service": "sfada",
+  "Bname": "dasda",
+  "Bnumber": "2131",
+  "Bemail": "asdasdas",
+  "Bsocialmedia": [
+    "dasdasdas",
+    "asd",
+    "asdasda",
+    "asd"
+  ],
+  "B_GSTnumber": "qeq21131",
+  "Btype": "Retailer",
+  "Bdetails": "asdsdaasd",
+  "Btdsdetails": "czacasda",
+  "Bpancardnumber": "ada2342",
+  "Bformation": "Privet Limited",
+  "bsubcategoryid": [
+    {
+      "$oid": "6533a5915422f85c76d88c34"
+    },
+    {
+      "$oid": "6533a59d5422f85c76d88c36"
+    },
+    {
+      "$oid": "6533a5ac5422f85c76d88c38"
+    },
+    {
+      "$oid": "6533a5be5422f85c76d88c3a"
+    },
+    {
+      "$oid": "6533a5c75422f85c76d88c3c"
+    },
+    {
+      "$oid": "6533a5d35422f85c76d88c3e"
+    },
+    {
+      "$oid": "6533a5dd5422f85c76d88c40"
+    },
+    {
+      "$oid": "6533a5ec5422f85c76d88c42"
+    }
+  ],
+  "b_brochure": "http://192.168.0.113:3000/1698213042110-39744404-brochurepamphletdifference016.jpg",
+  "Baddress": "asdasdasd",
+  "collaborationDetails": "fasd",
+  "salespersonName": "asdda",
+  "salespersonNumber": "asdsdaasd",
+  "salespersonEmail": "asdsdasda",
+  "salespersonPosition": "asdsda",
+  "bankName": "asdsdas",
+  "bankAccountnumber": "sdaasdd",
+  "bankIFSCcode": "dsaasd",
+  "bankBranchname": "asdasd",
+  "adharcard": "http://192.168.0.113:3000/1698213042111-627279634-image-170-1024x683.png",
+  "pancard": "http://192.168.0.113:3000/1698213042112-327643272-product-jpeg.jpg",
+  "gstfile": "http://192.168.0.113:3000/1698213042114-966224792-GST-Registration-Certificate-Sample-Annexure-A.png",
+  "tdsfile": "http://192.168.0.113:3000/1698213042115-328954093-tds.png",
+  "agreementfile": "http://192.168.0.113:3000/1698213042115-479641300-simple-one-page-lease-agreement-template-d4b038b1c1d4ad01ee065ae5fbbaa7d2.png",
+  "__v": 0
+}]

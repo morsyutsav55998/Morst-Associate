@@ -9,7 +9,7 @@ const bformation = require('../model/category/bussiness_formation')
 const path = require('path')
 const iplink = 'http://192.168.0.113:3000/'
 const fs = require('fs');
-
+const { stringify } = require('querystring');
 // Login
 exports.login = async (req, res) => {
     try {
@@ -103,14 +103,13 @@ exports.addprovider = async (req, res) => {
 
         // String to array 
         const isArray = bsubcategoryid.split(',');
-        // console.log(isArray);
-        const catData = []
-        for (var i of isArray) {
-            var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
-            console.log(subcat.bcategoryid)
-            catData.push(subcat)
-            // console.log(subcatData,"hkasdlikasdnlkasdnlksdanlklk");
-        }
+        // const subcatData_ = []
+        // for (var i of isArray) {
+        //     var subcat = await bsubcategory.findById(i).populate('bcategoryid')
+        //     subcatData_.push(subcat)
+        // }
+        // console.log(subcatData_,"check");
+        // console.log(subcatData,"asaskdjadjk");
         // const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
         const providerData = await provider.create({
             name,
@@ -133,7 +132,7 @@ exports.addprovider = async (req, res) => {
             Bpancardnumber,
             Btype,
             Bformation,
-            bsubcategoryid: subcatData,
+            bsubcategoryid: isArray,
             Baddress,
             collaborationDetails,
             b_brochure: brochurePath,
@@ -197,13 +196,12 @@ exports.providerdetails = async (req, res) => {
         for (var i of data.bsubcategoryid) {
             var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
             subcatData.push(subcat)
-            console.log(subcatData,"ADABJDADJADJAJNDASJKD");
+            console.log(subcatData)
         }
         res.json({
             message: "Provider all details",
             providers: data, subcatData
         })
-
     } catch (error) {
         console.log(error);
     }
@@ -216,7 +214,6 @@ exports.deleteprovider = async (req, res) => {
 
         const data = await provider.findById(req.params.id)
         if (data) {
-
             const filesToDelete = [];
             const dummyImagePath = 'http://192.168.0.113:3000//dummy.jpeg'
             const profileDummy = 'http://192.168.0.113:3000//profile.png'
@@ -264,7 +261,7 @@ exports.deleteprovider = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
 }
 
@@ -391,7 +388,7 @@ exports.show_bsubcategory = async (req, res) => {
 exports.subcatdata = async (req, res) => {
     try {
         const suboptget = await bsubcategory.find({ bcategoryid: req.body.bcatid })
-        
+        console.log(suboptget);
         if (suboptget) {
             return res.json({
                 bsubcategorys: suboptget
@@ -409,6 +406,8 @@ exports.subcatdata = async (req, res) => {
 exports.adduser = async (req, res) => {
     try {
         if (req.body) {
+
+            console.log(req.body);
             const userData = await user.create(req.body)
             if (userData) {
                 res.status(200).json({
