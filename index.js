@@ -8,8 +8,8 @@ const mongoose = require('./middleware/mongoose')
 const path = require('path')
 
 // Static for files
-app.use(express.static(path.join(__dirname,'files')))
-app.use(express.static(path.join(__dirname,'sample')))
+app.use(express.static(path.join(__dirname, 'files')))
+app.use(express.static(path.join(__dirname, 'sample')))
 
 // Require packages functions
 require('dotenv').config()
@@ -17,21 +17,22 @@ app.use(morgan('dev'))
 app.use(cors())
 app.use(bodyParser.json());
 app.use(express.urlencoded({
-    extended : true
+    extended: true
 }))
 
 // Routes
-app.use('/user',require('./router/userRouter'))
-app.use('/admin',require('./router/adminRouter'))
-app.use('/provider',require('./router/providerRouter'))
-app.get('/',(req,res)=>{
+app.use('/user', require('./router/userRouter'))
+app.use('/admin', require('./router/adminRouter'))
+app.use('/provider', require('./router/providerRouter'))
+
+app.get('/', (req, res) => {
     res.send('😊')
 })
-
 // Server
-app.listen(3000,(err)=>{
-    if(err){
+
+app.listen(3000, (err) => {
+    if (err) {
         console.log(err);
     }
-    console.log("Server is running on port",3000);
-}) 
+    console.log("Server is running on port", 3000);
+})

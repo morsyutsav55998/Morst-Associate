@@ -238,7 +238,7 @@ exports.deleteprovider = async (req, res) => {
             if (data.agreementfile && data.agreementfile !== dummyImagePath) {
                 filesToDelete.push(data.agreementfile.replace(iplink, './files/'));
             }
-
+            
             // Delete the files if they exist
             filesToDelete.forEach((filePath) => {
                 if (filePath) {
@@ -397,10 +397,6 @@ exports.subcatdata = async (req, res) => {
         console.log(error);
     }
 }
-
-
-
-
 // User 
 exports.adduser = async (req, res) => {
     try {

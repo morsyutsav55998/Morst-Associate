@@ -115,6 +115,7 @@ router.get('/show_bcategory',show_bcategory)
 router.get('/show_bsubcategory',show_bsubcategory)
 router.post('/subcatdata',subcatdata) 
 
+
 // User
 router.post('/adduser',verifyToken,adduser)
 

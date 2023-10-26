@@ -16,7 +16,7 @@ router.get('/logout', async (req,res)=>{
     res.status(200).json({message:'logout successfully'})
 })
 
-router.get('/allprovider',allprovider)
+router.get('/allprovider',verifyToken,allprovider)
 router.post('/search',search)
 
 module.exports = router

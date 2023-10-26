@@ -55,6 +55,59 @@ exports.allprovider = async (req, res) => {
     console.log(error);
   }
 }
+// exports.search = async (req, res) => {
+//   try {
+//     var data = await provider.find().populate({
+//       path: 'bsubcategoryid',
+//       populate: {
+//         path: 'bcategoryid bussinesssubcategory',
+//       },
+//     })
+//     function convertDataToLowerCase(data) {
+//       return JSON.parse(JSON.stringify(data).toLowerCase());
+//     }
+//     data = convertDataToLowerCase(data)
+//     var utsav = [req.body.search]
+//     var searchTerms = convertDataToLowerCase(utsav)
+//     for (const term of searchTerms) {
+//       filteredData = deepSearchObjects(data, [term])
+//     }
+//     // console.log(filteredData);
+//     // console.log(JSON.stringify(filteredData));
+//     res.json({
+//       "Data in string": JSON.stringify(filteredData),
+//       "Data in JSON": filteredData,
+
+//     })
+//     // console.log(filteredData); 
+//     function deepSearchObjects(objects, searchTerms) {
+//       return objects.filter(obj => {
+//         const containsSearchTerm = searchInObject(obj, searchTerms, 0);
+//         return containsSearchTerm;
+//       })
+//     }
+//     function searchInObject(obj, searchTerms, depth) {
+//       if (depth > 10) {
+//         return false;
+//       }
+//       for (const key in obj) {
+//         if (typeof obj[key] === 'object') {
+//           if (searchInObject(obj[key], searchTerms, depth + 1)) {
+//             return true;
+//           }
+//         } else if (typeof obj[key] === 'string') {
+//           if (searchTerms.some(term => obj[key].includes(term))) {
+//             return true;
+//           }
+//         }
+//       }
+//       return false;
+//     }
+
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
 exports.search = async (req, res) => {
   try {
     var data = await provider.find().populate({
@@ -62,32 +115,46 @@ exports.search = async (req, res) => {
       populate: {
         path: 'bcategoryid bussinesssubcategory',
       },
-    })
+    });
+
     function convertDataToLowerCase(data) {
       return JSON.parse(JSON.stringify(data).toLowerCase());
     }
-    data = convertDataToLowerCase(data)
-    var utsav = [req.body.search]
-    var searchTerms = convertDataToLowerCase(utsav)
+
+    data = convertDataToLowerCase(data);
+    var utsav = [req.body.search];
+    var searchTerms = convertDataToLowerCase(utsav);
+
+    // Define an array of keys to exclude from the search
+    const keysToExclude = ['_id', 'profile', 'b_brochure','adharcard','pancard','gstfile','tdsfile','agreementfile'];
+
     for (const term of searchTerms) {
-      filteredData = deepSearchObjects(data, [term])
+      filteredData = deepSearchObjects(data, [term], keysToExclude);
     }
 
-    res.json(filteredData)
-    // console.log(filteredData); 
-    function deepSearchObjects(objects, searchTerms) {
+    res.json({
+      "String": JSON.stringify(filteredData),
+      "JSON": filteredData,
+    });
+
+    function deepSearchObjects(objects, searchTerms, keysToExclude) {
       return objects.filter(obj => {
-        const containsSearchTerm = searchInObject(obj, searchTerms, 0);
+        const containsSearchTerm = searchInObject(obj, searchTerms, 0, keysToExclude);
         return containsSearchTerm;
-      })
+      });
     }
-    function searchInObject(obj, searchTerms, depth) {
+
+    function searchInObject(obj, searchTerms, depth, keysToExclude) {
       if (depth > 10) {
         return false;
       }
       for (const key in obj) {
+        // Check if the key is in the keysToExclude array
+        if (keysToExclude.includes(key)) {
+          continue; // Skip this key
+        }
         if (typeof obj[key] === 'object') {
-          if (searchInObject(obj[key], searchTerms, depth + 1)) {
+          if (searchInObject(obj[key], searchTerms, depth + 1, keysToExclude)) {
             return true;
           }
         } else if (typeof obj[key] === 'string') {
@@ -98,26 +165,8 @@ exports.search = async (req, res) => {
       }
       return false;
     }
-
   } catch (error) {
     console.log(error);
   }
 }
 
-
-// exports.search = async (req,res)=>{
-//     try {
-//         const data = await provider.find().populate({
-//             path: 'bsubcategoryid',
-//             populate: {
-//                 path: 'bcategoryid bussinesssubcategory',
-//             },
-//         })
-//         // console.log(data);
-//         res.json(data)
-//         // const searchValue = req.body.search;
-//         // This is my searching values
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }    
