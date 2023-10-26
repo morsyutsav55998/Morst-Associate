@@ -49,7 +49,7 @@ exports.allprovider = async (req, res) => {
     })
     res.status(200).json({
       message: "All provider",
-      services: data,
+      providers: data,
     })
   } catch (error) {
     console.log(error);
@@ -133,7 +133,7 @@ exports.search = async (req, res) => {
     }
 
     res.json({
-      "String": JSON.stringify(filteredData),
+      // "String": JSON.stringify(filteredData),
       "JSON": filteredData,
     });
 
@@ -169,4 +169,19 @@ exports.search = async (req, res) => {
     console.log(error);
   }
 }
-
+exports.providerdetails = async (req,res)=>{
+  try {
+    console.log(req.params.id);
+    let data = await provider.findById(req.params.id).populate({
+      path: 'bsubcategoryid',
+      populate: {
+        path: 'bcategoryid bussinesssubcategory',
+      },
+    });
+    res.json({
+      provider : data
+    })
+  } catch (error) {
+    console.log(error);
+  }
+}
