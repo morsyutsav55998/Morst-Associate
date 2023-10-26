@@ -5,6 +5,7 @@ const provider = require('../model/provider');
 const bcategory = require('../model/category/bussiness_category')
 const btype = require('../model/category/bussiness_type')
 const bsubcategory = require('../model/category/bussiness_subcategory')
+const product = require('../model/category/product')
 const bformation = require('../model/category/bussiness_formation')
 const path = require('path')
 const iplink = 'http://192.168.0.113:3000/'
@@ -104,10 +105,8 @@ exports.addprovider = async (req, res) => {
         // String to array 
         const isArray = bsubcategoryid.split(',');
         // const subcatData_ = []
-        // for (var i of isArray) {
-        //     var subcat = await bsubcategory.findById(i).populate('bcategoryid')
-        //     subcatData_.push(subcat)
-        // }
+        // var subcat = await bsubcategory.findById(i).populate('bcategoryid')
+        // subcatData_.push(subcat)
         // console.log(subcatData_,"check");
         // console.log(subcatData,"asaskdjadjk");
         // const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
@@ -136,7 +135,6 @@ exports.addprovider = async (req, res) => {
             Baddress,
             collaborationDetails,
             b_brochure: brochurePath,
-
             // 
             salespersonName,
             salespersonNumber,
@@ -208,9 +206,7 @@ exports.providerdetails = async (req, res) => {
 // This is my delete function
 exports.deleteprovider = async (req, res) => {
     try {
-
         // How to delete file
-
         const data = await provider.findById(req.params.id)
         if (data) {
             const filesToDelete = [];
@@ -335,6 +331,36 @@ exports.add_bformation = async (req, res) => {
         console.log(error);
     }
 }
+exports.add_product = async (req,res)=>{
+    try {
+        console.log(req.body);
+        let data = await product.create(req.body)
+        res.json({
+            message : "Product added",
+            "product & service" :  data    
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+exports.show_products = async (req,res)=>{
+    try {
+        let data = await product.find().populate({
+            path: 'bsubcategoryid',
+            populate: {
+              path: 'bcategoryid bussinesssubcategory',
+            },
+          });
+        res.json({
+            message:"Show data",
+            "product & service" :data,
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
 exports.show_bformation = async (req, res) => {
     let data = await bformation.find()
     res.json({
@@ -375,11 +401,11 @@ exports.show_bcategory = async (req, res) => {
         console.log(error);
     }
 }
-exports.show_bsubcategory = async (req, res) => {
+exports.show_cat_subcat = async (req, res) => {
     try {
         let data = await bsubcategory.find().populate('bcategoryid').exec()
         res.json({
-            data: data
+            bsubcategory: data
         })
     } catch (error) {
         console.log(error);
@@ -404,7 +430,7 @@ exports.adduser = async (req, res) => {
             const userData = await user.create(req.body)
             if (userData) {
                 res.status(200).json({
-                    message: "User added successfully ",
+                    message: "User added successfully",
                     registered: userData,
                 })
             }
@@ -444,6 +470,21 @@ exports.userlogin = async (req, res) => {
                 })
             }
         }
+    } catch (error) {
+        console.log(error);
+    }
+}
+exports.updateProduct = async (req,res)=>{
+    try {
+        let data = ['65378782679bd4b1e4d5fc58','65378b22e3950333be6eb571','65364a722071072b0751ce8e']
+        const products = await product.find({
+            'bsubcategoryid': { $in: data },
+        });
+        const productValues = products.map(product => product.product);
+
+        // Send the product values in the response
+        res.json({ products: productValues });
+
     } catch (error) {
         console.log(error);
     }

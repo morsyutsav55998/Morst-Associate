@@ -29,7 +29,6 @@ app.get('/', (req, res) => {
     res.send('😊')
 })
 // Server
-
 app.listen(3000, (err) => {
     if (err) {
         console.log(err);

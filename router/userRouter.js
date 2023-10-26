@@ -21,4 +21,5 @@ router.get('/allprovider',verifyToken,allprovider)
 router.post('/search',search)
 router.get('/providerdetails/:id',providerdetails)
 
+
 module.exports = router

@@ -14,5 +14,4 @@ const providerSchema = new mongoose.Schema({
         ref: 'provider',
     }
 });
-
 module.exports = mongoose.model('provider_service', providerSchema); 

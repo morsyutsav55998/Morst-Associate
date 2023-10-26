@@ -14,20 +14,20 @@ const {
     deleteprovider,
     updateprovider,
 
-    // Add
+    // Category , Subcategory & Products
     add_btype,
     add_bcategory,
     add_bformation,
+    add_product,
     add_bsubcategory,
-    
-    // Show B formation and type
+
     show_bformation,
     show_btype,
-
-    // Category & Subcategory
+    show_products,
     show_bcategory,
-    show_bsubcategory,
+    show_cat_subcat,
     subcatdata,
+    updateProduct,
     
     // User
     adduser,
@@ -99,23 +99,23 @@ router.patch('/updateprovider/:id',upload.fields([
     },
 ]),updateprovider)
 
-// Add
-    
+// Category , Subcategory & Products
+
 router.post('/add_btype',add_btype)
 router.post('/add_bcategory',add_bcategory)
 router.post('/add_bformation',add_bformation)
 router.post('/add_bsubcategory',add_bsubcategory)
-
-// Show formation & type
+router.post('/add_product',add_product)
 
 router.get('/show_bformation',show_bformation)
 router.get('/show_btype',show_btype)
-
 router.get('/show_bcategory',show_bcategory)
-router.get('/show_bsubcategory',show_bsubcategory)
+router.get('/show_cat_subcat',show_cat_subcat)
+router.get('/show_products',show_products)
 router.post('/subcatdata',subcatdata) 
 
 
+router.get('/updateproduct',updateProduct)
 // User
 router.post('/adduser',verifyToken,adduser)
 

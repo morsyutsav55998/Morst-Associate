@@ -20,7 +20,7 @@ const providerSchema = new mongoose.Schema({
         type:String
     },
     product_service:{
-        type:String
+        type:String,
     },
     // Bussiness
     Bname:{

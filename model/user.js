@@ -18,6 +18,9 @@ const userSchema = new mongoose.Schema({
     reference:{
         type:String,
     },
+    address:{
+        type:String,
+    }
 });
 
 module.exports = mongoose.model('user', userSchema); 
