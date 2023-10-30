@@ -1,7 +1,7 @@
 const provider = require("../model/provider")
 const services = require('../model/provider_service')
 const iplink = 'http://192.168.0.113:3000/'
-
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 exports.login = async (req, res) => {
     try {
@@ -14,7 +14,10 @@ exports.login = async (req, res) => {
             });
         }
         else {
-            if (data.number == number) {
+            const providerNumber = await bcrypt.compare(number, data.password)
+
+
+            if (providerNumber) {
                 // Token genrate
                 const token = await jwt.sign({ id: data.id }, process.env.providerkey)
                 res.cookie('providertoken', token, {
@@ -55,7 +58,7 @@ exports.home = async (req, res) => {
 
 exports.addservice = async (req, res) => {
     console.log(req.body);
-    try {   
+    try {
         let {
             service,
             description
@@ -71,28 +74,28 @@ exports.addservice = async (req, res) => {
             const filepath = iplink + file.filename;
             serviceimg.push(filepath);
         }
-        const data = await services.create({service,description,providerid,serviceimg})
+        const data = await services.create({ service, description, providerid, serviceimg })
         console.log(data);
-        if(data){
+        if (data) {
             res.json({
-                status : 200,
-                message : "Provider service  added",
-                serviceData : data
+                status: 200,
+                message: "Provider service  added",
+                serviceData: data
             })
         }
     } catch (error) {
         console.log(error);
     }
 }
-exports.showservices = async (req,res)=>{
+exports.showservices = async (req, res) => {
     try {
         const providerId = req.provider
         const serviceId = await services.find({ providerid: providerId._id })
         // console.log(serviceId);
-        if(serviceId){
+        if (serviceId) {
             res.json({
-                message : "Your added services",
-                services : serviceId,
+                message: "Your added services",
+                services: serviceId,
             })
         }
     } catch (error) {

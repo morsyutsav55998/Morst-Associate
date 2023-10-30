@@ -4,7 +4,7 @@ const services = require('../model/provider_service')
 const bsubcategory = require('../model/category/bussiness_subcategory')
 const bcategory = require('../model/category/bussiness_category')
 const bcrypt = require('bcrypt')
-// const userForm = require('../model/userForm')
+const userForm = require('../model/userForm')
 const product = require('../model/category/product')
 const jwt = require('jsonwebtoken')
 
@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
       });
     }
     else {
-      const userNumber = await bcrypt.compare(number, data.number)
+      const userNumber = await bcrypt.compare(number, data.password)
       if (userNumber) {
         // Token genrate
         const token = await jwt.sign({ id: data.id }, process.env.userkey)
@@ -45,6 +45,22 @@ exports.login = async (req, res) => {
     console.log(error);
   }
 }
+
+exports.home = async (req, res) => {
+  try {
+    const userId = req.user
+    let data = await user.findById(userId.id)
+    if (data) {
+      res.json({
+        status: 200,
+        providerdata: data
+      })
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 exports.allprovider = async (req, res) => {
   try {
     var data = await provider.find().populate({
@@ -61,59 +77,6 @@ exports.allprovider = async (req, res) => {
     console.log(error);
   }
 }
-// exports.search = async (req, res) => {
-//   try {
-//     var data = await provider.find().populate({
-//       path: 'bsubcategoryid',
-//       populate: {
-//         path: 'bcategoryid bussinesssubcategory',
-//       },
-//     })
-//     function convertDataToLowerCase(data) {
-//       return JSON.parse(JSON.stringify(data).toLowerCase());
-//     }
-//     data = convertDataToLowerCase(data)
-//     var utsav = [req.body.search]
-//     var searchTerms = convertDataToLowerCase(utsav)
-//     for (const term of searchTerms) {
-//       filteredData = deepSearchObjects(data, [term])
-//     }
-//     // console.log(filteredData);
-//     // console.log(JSON.stringify(filteredData));
-//     res.json({
-//       "Data in string": JSON.stringify(filteredData),
-//       "Data in JSON": filteredData,
-
-//     })
-//     // console.log(filteredData); 
-//     function deepSearchObjects(objects, searchTerms) {
-//       return objects.filter(obj => {
-//         const containsSearchTerm = searchInObject(obj, searchTerms, 0);
-//         return containsSearchTerm;
-//       })
-//     }
-//     function searchInObject(obj, searchTerms, depth) {
-//       if (depth > 10) {
-//         return false;
-//       }
-//       for (const key in obj) {
-//         if (typeof obj[key] === 'object') {
-//           if (searchInObject(obj[key], searchTerms, depth + 1)) {
-//             return true;
-//           }
-//         } else if (typeof obj[key] === 'string') {
-//           if (searchTerms.some(term => obj[key].includes(term))) {
-//             return true;
-//           }
-//         }
-//       }
-//       return false;
-//     }
-
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
 exports.search = async (req, res) => {
   try {
     var data = await provider.find().populate({
@@ -132,7 +95,7 @@ exports.search = async (req, res) => {
     var searchTerms = convertDataToLowerCase(utsav);
 
     // Define an array of keys to exclude from the search
-    const keysToExclude = ['_id', 'profile', 'b_brochure','adharcard','pancard','gstfile','tdsfile','agreementfile'];
+    const keysToExclude = ['_id', 'profile', 'b_brochure', 'adharcard', 'pancard', 'gstfile', 'tdsfile', 'agreementfile'];
 
     for (const term of searchTerms) {
       filteredData = deepSearchObjects(data, [term], keysToExclude);
@@ -175,7 +138,7 @@ exports.search = async (req, res) => {
     console.log(error);
   }
 }
-exports.providerdetails = async (req,res)=>{
+exports.providerdetails = async (req, res) => {
   try {
     console.log(req.params.id);
     let data = await provider.findById(req.params.id).populate({
@@ -185,33 +148,51 @@ exports.providerdetails = async (req,res)=>{
       },
     });
     res.json({
-      provider : data
+      provider: data
     })
   } catch (error) {
     console.log(error);
   }
 }
-
-
 exports.show_products = async (req, res) => {
   try {
-      let data = await product.find().populate({
-          path: 'bsubcategoryid',
-          populate: {
-              path: 'bcategoryid bussinesssubcategory',
-          },
-      });
-      res.json({
-          message: "Show data",
-          "form": data,
-      })
+    let data = await product.find().populate({
+      path: 'bsubcategoryid',
+      populate: {
+        path: 'bcategoryid bussinesssubcategory',
+      },
+    });
+    res.json({
+      message: "Show data",
+      "form": data,
+    })
   } catch (error) {
-      console.log(error);
+    console.log(error);
   }
 }
-exports.userform = async (req,res)=>{
+exports.adduserform = async (req, res) => {
   try {
-    console.log(req.body);
+    let userData = req.user
+    let {
+      description,
+      productid,
+
+      otherName,
+      otherNumber,
+    } = req.body
+    let data = await userForm.create({
+      userid: userData,
+      description,
+      productid,
+      otherName,
+      otherNumber,
+    })
+    if(data){
+      res.status(200).json({
+        message : "Your data created successfully",
+        data,
+      })
+    }
   } catch (error) {
     console.log(error);
   }

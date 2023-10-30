@@ -21,13 +21,16 @@ const providerSchema = new mongoose.Schema({
         type:String
     },
     product_service:{
-        type:String,
+        type:Array,
     },
     // Bussiness
     Bname:{
         type:String
     },
     Bnumber:{
+        type:String
+    },
+    password:{
         type:String
     },
     Bemail:{

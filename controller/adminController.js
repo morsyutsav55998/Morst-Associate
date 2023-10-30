@@ -4,6 +4,7 @@ const user = require('../model/user')
 const provider = require('../model/provider');
 const bcategory = require('../model/category/bussiness_category')
 const btype = require('../model/category/bussiness_type')
+const userform = require('../model/userForm')
 const bsubcategory = require('../model/category/bussiness_subcategory')
 const product = require('../model/category/product')
 const bformation = require('../model/category/bussiness_formation')
@@ -62,7 +63,8 @@ exports.home = async (req, res) => {
 // Provider
 exports.addprovider = async (req, res) => {
     try {
-        const {
+
+        var {
             name,
             email,
             number,
@@ -95,8 +97,16 @@ exports.addprovider = async (req, res) => {
             bankIFSCcode,
             bankBranchname,
         } = req.body
+        const password = await bcrypt.hash(number, 10)
 
-        const providerNumber = await bcrypt.hash(number, 10)
+        // Split the string into an array based on commas and remove leading/trailing spaces
+        const originalArray = product_service.split(',').map(item => item.trim());
+
+        // Create a Set to remove duplicates and spread it into a new array
+        const uniqueArray = [...new Set(originalArray)];
+
+        // Sort the unique array alphabetically
+        uniqueArray.sort();
 
         let profilePath = req.files['profile'] ? iplink + req.files['profile'][0].filename : iplink + '/profile.png'
         let brochurePath = req.files['b_brochure'] ? iplink + req.files['b_brochure'][0].filename : iplink + '/dummy.jpeg'
@@ -108,20 +118,15 @@ exports.addprovider = async (req, res) => {
 
         // String to array 
         const isArray = bsubcategoryid.split(',');
-        // const subcatData_ = []
-        // var subcat = await bsubcategory.findById(i).populate('bcategoryid')
-        // subcatData_.push(subcat)
-        // console.log(subcatData_,"check");
-        // console.log(subcatData,"asaskdjadjk");
-        // const documentsPath = req.files['documents'].map(file => dirpath+file.filename);
         const providerData = await provider.create({
             name,
             email,
-            number: providerNumber,
+            number,
+            password,
             BOD,
             address,
             profile: profilePath,
-            product_service,
+            product_service: uniqueArray,
             // 
             Bname,
             Bnumber,
@@ -170,12 +175,6 @@ exports.addprovider = async (req, res) => {
 
 exports.showproviders = async (req, res) => {
     const data = await provider.find()
-    // .populate('bsubcategoryid').populate({
-    //     path: 'bsubcategoryid',
-    //     populate: {
-    //         path: 'bcategoryid', // Populate the 'bcategoryid' field within 'bsubcategoryid'
-    //     }
-    // })
     if (data) {
         res.json({
             status: 200,
@@ -235,7 +234,6 @@ exports.deleteprovider = async (req, res) => {
             filesToDelete.forEach((filePath) => {
                 if (filePath) {
                     fs.unlinkSync(filePath); // Synchronously delete the file
-                    console.log(filePath);
                 }
             });
 
@@ -260,114 +258,23 @@ exports.deleteprovider = async (req, res) => {
 
 exports.updateprovider = async (req, res) => {
     // try {
-    //     const providerId = req.params.id;
-    //     const data = await provider.findById(providerId);
-
-    //     if (data) {
-    //         // Handle file uploads (if any) and update file paths
-    //         let profilePath = req.files['profile'] ? iplink + req.files['profile'][0].filename : (data.profile || iplink + '/profile.png');
-    //         let brochurePath = req.files['b_brochure'] ? iplink + req.files['b_brochure'][0].filename : (data.b_brochure || iplink + '/dummy.jpeg');
-    //         let adharcardPath = req.files['adharcard'] ? iplink + req.files['adharcard'][0].filename : (data.adharcard || iplink + '/dummy.jpeg');
-    //         let pancardPath = req.files['pancard'] ? iplink + req.files['pancard'][0].filename : (data.pancard || iplink + '/dummy.jpeg');
-    //         let gstfilePath = req.files['gstfile'] ? iplink + req.files['gstfile'][0].filename : (data.gstfile || iplink + '/dummy.jpeg');
-    //         let tdsfilePath = req.files['tdsfile'] ? iplink + req.files['tdsfile'][0].filename : (data.tdsfile || iplink + '/dummy.jpeg');
-    //         let agreementfilePath = req.files['agreementfile'] ? iplink + req.files['agreementfile'][0].filename : (data.agreementfile || iplink + '/dummy.jpeg');
-
-    //         // Delete old files
-    //         deleteFile(data.profile);
-    //         deleteFile(data.b_brochure);
-    //         deleteFile(data.adharcard);
-    //         deleteFile(data.pancard);
-    //         deleteFile(data.gstfile);
-    //         deleteFile(data.tdsfile);
-    //         deleteFile(data.agreementfile);
-
-    //         // Update provider data
-    //         const updateData = {
-    //             name: req.body.name,
-    //             email: req.body.email,
-    //             number: req.body.number,
-    //             BOD: req.body.BOD,
-    //             address: req.body.address,
-    //             product_service: req.body.product_service,
-    //             // Update other fields as needed
-
-    //             // Update the file paths
-    //             profile: profilePath,
-    //             b_brochure: brochurePath,
-    //             adharcard: adharcardPath,
-    //             pancard: pancardPath,
-    //             gstfile: gstfilePath,
-    //             tdsfile: tdsfilePath,
-    //             agreementfile: agreementfilePath,
-    //         };  
-    //         console.log(updateData);
-    //         // Update the provider document
-    //         const updatedProvider = await provider.findByIdAndUpdate(providerId, updateData);
-
-    //         if (updatedProvider) {
-    //             res.status(200).json({
-    //                 Status: 200,
-    //                 Message: "Provider updated successfully",
-    //                 Provider: updatedProvider,
-    //             });
-    //         } else {
-    //             res.status(500).json({
-    //                 Status: 500,
-    //                 Message: "Failed to update provider",
-    //             });
+    //     console.log(req.params.id);
+    //     console.log(req.body);
+    //     let providerData = await provider.findById(req.params.id);
+    //     if (req.files['profile']) {
+    //         // Delete the old profile file if it exists
+    //         if (providerData.profile && providerData.profile !== 'http://192.168.0.113:3000//profile.png') {
+    //             fs.unlinkSync(providerData.profile.replace(iplink, './files/'));
     //         }
-    //     } else {
-    //         res.status(404).json({
-    //             Status: 404,
-    //             Message: "Provider not found",
-    //         });
+
+    //         // Save the new profile file and update the path
+    //         providerData.profile = iplink + req.files['profile'][0].filename;
     //     }
+
     // } catch (error) {
-    //     console.error(error);
-    //     res.status(500).json({
-    //         Status: 500,
-    //         Message: "Internal server error",
-    //     });
+    //     console.log(error);
     // }
 }
-
-function deleteFile(filePath) {
-    if (filePath && filePath !== iplink + '/dummy.jpeg' && filePath !== iplink + '/profile.png') {
-        const filename = filePath.split('/').pop();
-        // const pathToDelete = path.join(__dirname+'../files/'+filename);
-        try {
-            fs.unlinkSync('./files/' + filename);
-        } catch (err) {
-            console.error("Error deleting file:", err);
-        }
-    }
-}
-// exports.updateprovider = async (req, res) => {
-//     try {
-//         console.log(req.body);
-//         console.log(req.files);
-//         const data = await provider.findById(req.params.id)
-//         if (data) {
-//             console.log(data);
-//             if (req.files.length == 0) {
-//                 const provderDataupdate = await provider.findByIdAndUpdate(req.params.id, req.body)
-//                 console.log(provderDataupdate);
-//                 if (provderDataupdate) {
-//                     res.json({
-//                         status: 200,
-//                         message: "Provider updated successfully",
-//                     })
-//                 }
-//                 else {
-//                     // Directory in update profile    
-//                 }
-//             }
-//         }
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
 
 exports.add_btype = async (req, res) => {
     try {
@@ -416,7 +323,6 @@ exports.add_bformation = async (req, res) => {
 }
 exports.add_product = async (req, res) => {
     try {
-        console.log(req.body);
         let data = await product.create(req.body)
         res.json({
             message: "Product added",
@@ -460,7 +366,6 @@ exports.show_btype = async (req, res) => {
 }
 exports.add_bsubcategory = async (req, res) => {
     try {
-
         if (req.body) {
             let data = await bsubcategory.create(req.body)
             res.json({
@@ -476,8 +381,7 @@ exports.add_bsubcategory = async (req, res) => {
 exports.show_bcategory = async (req, res) => {
     try {
         let data = await bcategory.find()
-        res.json({
-            status: 200,
+        res.status(200).json({
             bcategory: data,
         })
     } catch (error) {
@@ -522,16 +426,16 @@ exports.adduser = async (req, res) => {
         let data = await user.findOne({ email: req.body.email })
         if (data) {
             res.json({
-                message : "Account Already Registered",
+                message: "Account Already Registered",
             })
         }
-        else{
-            const userNumber = await bcrypt.hash(number, 10)
+        else {
+            const password = await bcrypt.hash(number, 10)
             const userData = await user.create({
                 name,
                 email,
-                number: userNumber,
-                password: req.body.number,
+                number,
+                password,
                 DOB,
                 occupation,
                 reference,
@@ -548,46 +452,62 @@ exports.adduser = async (req, res) => {
         console.log(error);
     }
 }
-exports.userlogin = async (req, res) => {
+exports.all_userform = async (req, res) => {
     try {
-        const { email, number } = req.body
-        const data = await user.findOne({ email })
-        if (data == null) {
-            res.status(400).json({
-                status: 400,
-                message: "Sorry! Enter Valid Email",
-            });
-        }
-        else {
-            if (data.number == number) {
-                // Token genrate
-                const token = await jwt.sign({ id: data.id }, process.env.userkey)
-                res.cookie('usertoken', token, {
-                    expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
-                });
-                // localStorage.setItem('token', token);
-                res.status(200).json({
-                    status: 200,
-                    message: 'User Login Successfully',
-                    providertoken: token
-                })
+        const userForms = await userform.find().populate({
+            path: 'productid',
+            model: product,
+            populate: {
+                path: 'bsubcategoryid',
+                populate:{
+                    path : 'bcategoryid'
+                } // Assuming these are the fields in the product model
             }
-            else {
-                res.json({
-                    status: 400,
-                    message: 'Sorry! User Login Password Failed'
-                })
+        })
+        .populate({
+            path: 'userid',
+            model: user, // Replace with your actual User model name
+        })
+        .exec();
+        res.status(200).json({
+            message: "All userforms",
+            userForms,
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+exports.userform_details = async (req, res) => {
+    try {
+        console.log(req.params.id);
+        let data = await userform.findById(req.params.id).populate({
+            path: 'productid',
+            model: product,
+            populate: {
+                path: 'bsubcategoryid',
+                populate:{
+                    path : 'bcategoryid'
+                } // Assuming these are the fields in the product model
             }
-        }
+        })
+        .populate({
+            path: 'userid',
+            model: user, // Replace with your actual User model name
+        })
+        .exec();
+
+        res.json({
+            data
+        })
+
     } catch (error) {
         console.log(error);
     }
 }
 exports.showproduct = async (req, res) => {
     try {
-        // console.log(req.body);
-
         let data = req.body
+        console.log(req.body);
         const products = await product.find({
             'bsubcategoryid': { $in: data },
         });
@@ -595,6 +515,21 @@ exports.showproduct = async (req, res) => {
 
         // Send the product values in the response
         res.json({ productService: productValues });
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+exports.productid = async (req,res)=>{
+    try {
+        let data = req.body
+        let id = data[0]
+        const products = await product.find({
+            'bsubcategoryid': { $in: id},
+        });
+        // const productValues = products.map(product => product.product);
+        // Send the product values in the response
+        res.json({ productService: products });
 
     } catch (error) {
         console.log(error);

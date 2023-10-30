@@ -24,6 +24,7 @@ const {
     show_bformation,
     show_btype,
     show_products,
+    productid,
     show_bcategory,
     show_cat_subcat,
     subcatdata,
@@ -31,6 +32,8 @@ const {
     
     // User
     adduser,
+    all_userform,
+    userform_details,
 } = require('../controller/adminController')
 
 router.post('/login',login)
@@ -117,6 +120,10 @@ router.post('/subcatdata',subcatdata)
 
 router.post('/showproduct',showproduct)
 // User
+router.post('/productid',productid)
 router.post('/adduser',verifyToken,adduser)
+router.get('/all_userform',all_userform)
+router.get('/userform_details/:id',userform_details)
+
 
 module.exports = router
