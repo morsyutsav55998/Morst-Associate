@@ -13,6 +13,7 @@ const providerSchema = new mongoose.Schema({
     number:{
         type:String
     },
+    
     BOD:{
         type:String
     },
@@ -48,9 +49,6 @@ const providerSchema = new mongoose.Schema({
         type:String
     },
     Bpancardnumber:{
-        type:String
-    },
-    Btype :{
         type:String
     },
     Bformation:{

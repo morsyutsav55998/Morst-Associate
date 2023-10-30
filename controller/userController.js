@@ -3,6 +3,9 @@ const provider = require('../model/provider')
 const services = require('../model/provider_service')
 const bsubcategory = require('../model/category/bussiness_subcategory')
 const bcategory = require('../model/category/bussiness_category')
+const bcrypt = require('bcrypt')
+// const userForm = require('../model/userForm')
+const product = require('../model/category/product')
 const jwt = require('jsonwebtoken')
 
 exports.login = async (req, res) => {
@@ -16,12 +19,14 @@ exports.login = async (req, res) => {
       });
     }
     else {
-      if (data.number == number) {
+      const userNumber = await bcrypt.compare(number, data.number)
+      if (userNumber) {
         // Token genrate
         const token = await jwt.sign({ id: data.id }, process.env.userkey)
         res.cookie('usertoken', token, {
           expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
         });
+        console.log('User Login Successfully');
         res.status(200).json({
           status: 200,
           message: 'User Login Successfully',
@@ -29,6 +34,7 @@ exports.login = async (req, res) => {
         })
       }
       else {
+        console.log('Sorry! User Login Password Failed');
         res.json({
           status: 400,
           message: 'Sorry! User Login Password Failed'
@@ -181,6 +187,31 @@ exports.providerdetails = async (req,res)=>{
     res.json({
       provider : data
     })
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+exports.show_products = async (req, res) => {
+  try {
+      let data = await product.find().populate({
+          path: 'bsubcategoryid',
+          populate: {
+              path: 'bcategoryid bussinesssubcategory',
+          },
+      });
+      res.json({
+          message: "Show data",
+          "form": data,
+      })
+  } catch (error) {
+      console.log(error);
+  }
+}
+exports.userform = async (req,res)=>{
+  try {
+    console.log(req.body);
   } catch (error) {
     console.log(error);
   }

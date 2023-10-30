@@ -6,7 +6,9 @@ const {
     
     allprovider,
     search,
+    show_products,
     providerdetails,
+    userform,
     // service_details,
 } = require('../controller/userController')
 
@@ -20,6 +22,7 @@ router.get('/logout', async (req,res)=>{
 router.get('/allprovider',verifyToken,allprovider)
 router.post('/search',search)
 router.get('/providerdetails/:id',providerdetails)
-
+router.post('/userform',userform)
+router.get('/show_products',show_products)
 
 module.exports = router

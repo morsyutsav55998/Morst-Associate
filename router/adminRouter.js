@@ -27,7 +27,7 @@ const {
     show_bcategory,
     show_cat_subcat,
     subcatdata,
-    updateProduct,
+    showproduct,
     
     // User
     adduser,
@@ -115,7 +115,7 @@ router.get('/show_products',show_products)
 router.post('/subcatdata',subcatdata) 
 
 
-router.get('/updateproduct',updateProduct)
+router.post('/showproduct',showproduct)
 // User
 router.post('/adduser',verifyToken,adduser)
 

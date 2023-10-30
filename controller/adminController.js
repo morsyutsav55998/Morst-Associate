@@ -7,9 +7,11 @@ const btype = require('../model/category/bussiness_type')
 const bsubcategory = require('../model/category/bussiness_subcategory')
 const product = require('../model/category/product')
 const bformation = require('../model/category/bussiness_formation')
+const bcrypt = require('bcrypt')
 const path = require('path')
 const iplink = 'http://192.168.0.113:3000/'
-const fs = require('fs');
+var fs = require('fs');
+const { log } = require('console');
 
 // Login
 exports.login = async (req, res) => {
@@ -94,6 +96,8 @@ exports.addprovider = async (req, res) => {
             bankBranchname,
         } = req.body
 
+        const providerNumber = await bcrypt.hash(number, 10)
+
         let profilePath = req.files['profile'] ? iplink + req.files['profile'][0].filename : iplink + '/profile.png'
         let brochurePath = req.files['b_brochure'] ? iplink + req.files['b_brochure'][0].filename : iplink + '/dummy.jpeg'
         let adharcardPath = req.files['adharcard'] ? iplink + req.files['adharcard'][0].filename : iplink + '/dummy.jpeg'
@@ -113,12 +117,11 @@ exports.addprovider = async (req, res) => {
         const providerData = await provider.create({
             name,
             email,
-            number,
+            number: providerNumber,
             BOD,
             address,
             profile: profilePath,
             product_service,
-
             // 
             Bname,
             Bnumber,
@@ -183,13 +186,6 @@ exports.showproviders = async (req, res) => {
 exports.providerdetails = async (req, res) => {
     try {
         let data = await provider.findById(req.params.id)
-        // .populate('bsubcategoryid')
-        //     .populate({
-        //         path: 'bsubcategoryid',
-        //         populate: {
-        //             path: 'bcategoryid', // Populate the 'bcategoryid' field within 'bsubcategoryid'
-        //         }
-        // }).exec()
         const subcatData = []
         for (var i of data.bsubcategoryid) {
             var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
@@ -234,11 +230,12 @@ exports.deleteprovider = async (req, res) => {
             if (data.agreementfile && data.agreementfile !== dummyImagePath) {
                 filesToDelete.push(data.agreementfile.replace(iplink, './files/'));
             }
-            
+
             // Delete the files if they exist
             filesToDelete.forEach((filePath) => {
                 if (filePath) {
                     fs.unlinkSync(filePath); // Synchronously delete the file
+                    console.log(filePath);
                 }
             });
 
@@ -260,31 +257,117 @@ exports.deleteprovider = async (req, res) => {
     }
 }
 
+
 exports.updateprovider = async (req, res) => {
-    try {
-        console.log(req.body);
-        console.log(req.files);
-        // const data = await provider.findById(req.params.id)
-        // if (data) {
-        //     console.log(data);
-        //     if (req.files.length == 0) {
-        //         const provderDataupdate = await provider.findByIdAndUpdate(req.params.id, req.body)
-        //         console.log(provderDataupdate);
-        //         if (provderDataupdate) {
-        //             res.json({
-        //                 status: 200,
-        //                 message: "Provider updated successfully",
-        //             })
-        //         }
-        //         else {
-        //             // Update files in this module
-        //         }
-        //     }
-        // }
-    } catch (error) {
-        console.log(error);
+    // try {
+    //     const providerId = req.params.id;
+    //     const data = await provider.findById(providerId);
+
+    //     if (data) {
+    //         // Handle file uploads (if any) and update file paths
+    //         let profilePath = req.files['profile'] ? iplink + req.files['profile'][0].filename : (data.profile || iplink + '/profile.png');
+    //         let brochurePath = req.files['b_brochure'] ? iplink + req.files['b_brochure'][0].filename : (data.b_brochure || iplink + '/dummy.jpeg');
+    //         let adharcardPath = req.files['adharcard'] ? iplink + req.files['adharcard'][0].filename : (data.adharcard || iplink + '/dummy.jpeg');
+    //         let pancardPath = req.files['pancard'] ? iplink + req.files['pancard'][0].filename : (data.pancard || iplink + '/dummy.jpeg');
+    //         let gstfilePath = req.files['gstfile'] ? iplink + req.files['gstfile'][0].filename : (data.gstfile || iplink + '/dummy.jpeg');
+    //         let tdsfilePath = req.files['tdsfile'] ? iplink + req.files['tdsfile'][0].filename : (data.tdsfile || iplink + '/dummy.jpeg');
+    //         let agreementfilePath = req.files['agreementfile'] ? iplink + req.files['agreementfile'][0].filename : (data.agreementfile || iplink + '/dummy.jpeg');
+
+    //         // Delete old files
+    //         deleteFile(data.profile);
+    //         deleteFile(data.b_brochure);
+    //         deleteFile(data.adharcard);
+    //         deleteFile(data.pancard);
+    //         deleteFile(data.gstfile);
+    //         deleteFile(data.tdsfile);
+    //         deleteFile(data.agreementfile);
+
+    //         // Update provider data
+    //         const updateData = {
+    //             name: req.body.name,
+    //             email: req.body.email,
+    //             number: req.body.number,
+    //             BOD: req.body.BOD,
+    //             address: req.body.address,
+    //             product_service: req.body.product_service,
+    //             // Update other fields as needed
+
+    //             // Update the file paths
+    //             profile: profilePath,
+    //             b_brochure: brochurePath,
+    //             adharcard: adharcardPath,
+    //             pancard: pancardPath,
+    //             gstfile: gstfilePath,
+    //             tdsfile: tdsfilePath,
+    //             agreementfile: agreementfilePath,
+    //         };  
+    //         console.log(updateData);
+    //         // Update the provider document
+    //         const updatedProvider = await provider.findByIdAndUpdate(providerId, updateData);
+
+    //         if (updatedProvider) {
+    //             res.status(200).json({
+    //                 Status: 200,
+    //                 Message: "Provider updated successfully",
+    //                 Provider: updatedProvider,
+    //             });
+    //         } else {
+    //             res.status(500).json({
+    //                 Status: 500,
+    //                 Message: "Failed to update provider",
+    //             });
+    //         }
+    //     } else {
+    //         res.status(404).json({
+    //             Status: 404,
+    //             Message: "Provider not found",
+    //         });
+    //     }
+    // } catch (error) {
+    //     console.error(error);
+    //     res.status(500).json({
+    //         Status: 500,
+    //         Message: "Internal server error",
+    //     });
+    // }
+}
+
+function deleteFile(filePath) {
+    if (filePath && filePath !== iplink + '/dummy.jpeg' && filePath !== iplink + '/profile.png') {
+        const filename = filePath.split('/').pop();
+        // const pathToDelete = path.join(__dirname+'../files/'+filename);
+        try {
+            fs.unlinkSync('./files/' + filename);
+        } catch (err) {
+            console.error("Error deleting file:", err);
+        }
     }
 }
+// exports.updateprovider = async (req, res) => {
+//     try {
+//         console.log(req.body);
+//         console.log(req.files);
+//         const data = await provider.findById(req.params.id)
+//         if (data) {
+//             console.log(data);
+//             if (req.files.length == 0) {
+//                 const provderDataupdate = await provider.findByIdAndUpdate(req.params.id, req.body)
+//                 console.log(provderDataupdate);
+//                 if (provderDataupdate) {
+//                     res.json({
+//                         status: 200,
+//                         message: "Provider updated successfully",
+//                     })
+//                 }
+//                 else {
+//                     // Directory in update profile    
+//                 }
+//             }
+//         }
+//     } catch (error) {
+//         console.log(error);
+//     }
+// }
 
 exports.add_btype = async (req, res) => {
     try {
@@ -331,13 +414,13 @@ exports.add_bformation = async (req, res) => {
         console.log(error);
     }
 }
-exports.add_product = async (req,res)=>{
+exports.add_product = async (req, res) => {
     try {
         console.log(req.body);
         let data = await product.create(req.body)
         res.json({
-            message : "Product added",
-            "product & service" :  data    
+            message: "Product added",
+            "product & service": data
         })
     } catch (error) {
         console.log(error);
@@ -345,17 +428,17 @@ exports.add_product = async (req,res)=>{
 }
 
 
-exports.show_products = async (req,res)=>{
+exports.show_products = async (req, res) => {
     try {
         let data = await product.find().populate({
             path: 'bsubcategoryid',
             populate: {
-              path: 'bcategoryid bussinesssubcategory',
+                path: 'bcategoryid bussinesssubcategory',
             },
-          });
+        });
         res.json({
-            message:"Show data",
-            "product & service" :data,
+            message: "Show data",
+            "product & service": data,
         })
     } catch (error) {
         console.log(error);
@@ -425,9 +508,35 @@ exports.subcatdata = async (req, res) => {
 }
 // User 
 exports.adduser = async (req, res) => {
+    console.log(req.body);
     try {
-        if (req.body) {
-            const userData = await user.create(req.body)
+        const {
+            name,
+            email,
+            number,
+            DOB,
+            occupation,
+            reference,
+            address
+        } = req.body
+        let data = await user.findOne({ email: req.body.email })
+        if (data) {
+            res.json({
+                message : "Account Already Registered",
+            })
+        }
+        else{
+            const userNumber = await bcrypt.hash(number, 10)
+            const userData = await user.create({
+                name,
+                email,
+                number: userNumber,
+                password: req.body.number,
+                DOB,
+                occupation,
+                reference,
+                address
+            })
             if (userData) {
                 res.status(200).json({
                     message: "User added successfully",
@@ -474,16 +583,18 @@ exports.userlogin = async (req, res) => {
         console.log(error);
     }
 }
-exports.updateProduct = async (req,res)=>{
+exports.showproduct = async (req, res) => {
     try {
-        let data = ['65378782679bd4b1e4d5fc58','65378b22e3950333be6eb571','65364a722071072b0751ce8e']
+        // console.log(req.body);
+
+        let data = req.body
         const products = await product.find({
             'bsubcategoryid': { $in: data },
         });
         const productValues = products.map(product => product.product);
 
         // Send the product values in the response
-        res.json({ products: productValues });
+        res.json({ productService: productValues });
 
     } catch (error) {
         console.log(error);
