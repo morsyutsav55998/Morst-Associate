@@ -28,9 +28,9 @@ router.get('/logout', async (req,res)=>{
 })
 
 router.get('/allprovider',verifyToken,allprovider)
-router.post('/search',search)
+router.post('/search',verifyToken,search)
 router.get('/providerdetails/:id',providerdetails)
 router.post('/userform',verifyToken,adduserform)
-router.get('/show_products',show_products)
+router.get('/show_products',verifyToken,show_products)
 
 module.exports = router

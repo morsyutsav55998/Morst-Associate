@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
                 })
             }
             else {
-                res.json({
+                res.status(400).json({
                     status: 400,
                     message: 'Sorry! Provider Login Password Failed'
                 })

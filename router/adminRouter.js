@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const verifyToken = require('../JWT/adminjwt')
-const userverifyToken = require('../JWT/userjwt')
 const upload = require('../middleware/multer')
 const {
     login, // Admin Login
@@ -45,7 +44,7 @@ router.get('/logout', async (req,res)=>{
 })
 
 // Provider
-router.post('/addprovider',  upload.fields([
+router.post('/addprovider',verifyToken,upload.fields([
     {
         name : 'profile',
     },
@@ -72,10 +71,10 @@ router.post('/addprovider',  upload.fields([
     },
 ]),addprovider)
 
-router.get('/showproviders',showproviders)
-router.get('/providerdetails/:id',providerdetails)
-router.delete('/deleteprovider/:id',deleteprovider)
-router.patch('/updateprovider/:id',upload.fields([
+router.get('/showproviders',verifyToken,showproviders)
+router.get('/providerdetails/:id',verifyToken,providerdetails)
+router.delete('/deleteprovider/:id',verifyToken,deleteprovider)
+router.patch('/updateprovider/:id',verifyToken,upload.fields([
     {
         name : 'profile',
     },
@@ -104,26 +103,26 @@ router.patch('/updateprovider/:id',upload.fields([
 
 // Category , Subcategory & Products
 
-router.post('/add_btype',add_btype)
-router.post('/add_bcategory',add_bcategory)
-router.post('/add_bformation',add_bformation)
-router.post('/add_bsubcategory',add_bsubcategory)
-router.post('/add_product',add_product)
+router.post('/add_btype',verifyToken,add_btype)
+router.post('/add_bcategory',verifyToken,add_bcategory)
+router.post('/add_bformation',verifyToken,add_bformation)
+router.post('/add_bsubcategory',verifyToken,add_bsubcategory)
+router.post('/add_product',verifyToken,add_product)
 
-router.get('/show_bformation',show_bformation)
-router.get('/show_btype',show_btype)
-router.get('/show_bcategory',show_bcategory)
-router.get('/show_cat_subcat',show_cat_subcat)
-router.get('/show_products',show_products)
-router.post('/subcatdata',subcatdata) 
+router.get('/show_bformation',verifyToken,show_bformation)
+router.get('/show_btype',verifyToken,show_btype)
+router.get('/show_bcategory',verifyToken,show_bcategory)
+router.get('/show_cat_subcat',verifyToken,show_cat_subcat)
+router.get('/show_products',verifyToken,show_products)
+router.post('/subcatdata',verifyToken,subcatdata) 
 
 
-router.post('/showproduct',showproduct)
+router.post('/showproduct',verifyToken,showproduct)
 // User
-router.post('/productid',productid)
+router.post('/productid',verifyToken,productid)
 router.post('/adduser',verifyToken,adduser)
-router.get('/all_userform',all_userform)
-router.get('/userform_details/:id',userform_details)
+router.get('/all_userform',verifyToken,all_userform)
+router.get('/userform_details/:id',verifyToken,userform_details)
 
 
 module.exports = router
