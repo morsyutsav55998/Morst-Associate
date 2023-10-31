@@ -4,21 +4,20 @@ const verifyToken = async (req, res, next) => {
     let token = req.headers.usertoken
     if (token) {
         var userdata = await jwt.verify(token, process.env.userkey, (err, data) => {
-            if (err) {
+            if(err){
                 console.log(err);
             }
             return data
         })
         if(userdata == undefined){
-            res.json({
-                message : "Token in valid",
+            res.status(400).json({
+                message : "Token invalid",
             })
         }
         else{
             var data = await user.findById(userdata.id)
             if(data == null){
-                res.json({
-                    status : 400,
+                res.status(400).json({
                     message : "User data not found"
                 })
             }
@@ -29,8 +28,7 @@ const verifyToken = async (req, res, next) => {
         }
     }
     else{
-        res.json({
-            status : 400,
+        res.status(400).json({
             message :  'User login require'
         })
     }

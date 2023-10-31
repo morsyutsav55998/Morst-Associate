@@ -108,7 +108,8 @@ exports.addprovider = async (req, res) => {
         // Sort the unique array alphabetically
         uniqueArray.sort();
 
-        let profilePath = req.files['profile'] ? iplink + req.files['profile'][0].filename : iplink + '/profile.png'
+        let profilePath = req.files['profile'] ? iplink + req.files['profile'][0].filename : iplink + '/profile.png'  // If user not upload profile that place iplink + '/profile.png'  that address set 
+        // If user not upload any other files that place iplink + '/dummy.jpeg'  that address set 
         let brochurePath = req.files['b_brochure'] ? iplink + req.files['b_brochure'][0].filename : iplink + '/dummy.jpeg'
         let adharcardPath = req.files['adharcard'] ? iplink + req.files['adharcard'][0].filename : iplink + '/dummy.jpeg'
         let pancardPath = req.files['pancard'] ? iplink + req.files['pancard'][0].filename : iplink + '/dummy.jpeg'
@@ -257,23 +258,51 @@ exports.deleteprovider = async (req, res) => {
 
 
 exports.updateprovider = async (req, res) => {
-    // try {
-    //     console.log(req.params.id);
-    //     console.log(req.body);
-    //     let providerData = await provider.findById(req.params.id);
-    //     if (req.files['profile']) {
-    //         // Delete the old profile file if it exists
-    //         if (providerData.profile && providerData.profile !== 'http://192.168.0.113:3000//profile.png') {
-    //             fs.unlinkSync(providerData.profile.replace(iplink, './files/'));
-    //         }
+    try {
+        const providerId = req.params.id;
+        const updatedData = req.body;
+        const existingProvider = await provider.findById(providerId);
 
-    //         // Save the new profile file and update the path
-    //         providerData.profile = iplink + req.files['profile'][0].filename;
-    //     }
+        if (!existingProvider) {
+            return res.status(404).json({ message: "Provider not found" });
+        }
+        // Profile
+        if (req.files['profile']) {
+            // Handle file update logic (e.g., delete old file and upload new file)
+            const newProfilePath = iplink + req.files['profile'][0].filename;
 
-    // } catch (error) {
-    //     console.log(error);
-    // }
+            // Delete the old profile image if it's different from the default (dummy) image
+            if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
+                const oldProfilePath = existingProvider.profile.replace(iplink, './files/');
+                fs.unlinkSync(oldProfilePath);
+            }
+            // Update the profile field in the provider data with the new path
+            updatedData.profile = newProfilePath;
+        }
+        else {
+            // If no new profile is uploaded, set the default path
+            const oldProfilePath = existingProvider.profile.replace(iplink, './files/');
+            console.log(oldProfilePath)
+            fs.unlinkSync(oldProfilePath);
+            updatedData.profile = iplink + '/profile.png';
+        }
+
+
+        existingProvider.profile = updatedData.profile  
+        existingProvider.name = updatedData.name;
+        existingProvider.email = updatedData.email;
+        existingProvider.number = updatedData.number;
+        // Update other fields as needed...
+
+
+        const updatedProvider = await existingProvider.save()
+        res.status(200).json({
+            message: "Provider updated successfully",
+            provider: updatedProvider
+        });
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 exports.add_btype = async (req, res) => {
@@ -413,6 +442,15 @@ exports.subcatdata = async (req, res) => {
 // User 
 exports.adduser = async (req, res) => {
     console.log(req.body);
+    var data = await user.find({})
+    data=data.slice(-1)
+    var ids = 0
+    if(data[0] == undefined || data.length == 0){
+        ids = 1;
+    }else{
+        ids = data[0].ids+1
+    }
+    console.log(data.slice(-1));
     try {
         const {
             name,
@@ -421,6 +459,7 @@ exports.adduser = async (req, res) => {
             DOB,
             occupation,
             reference,
+            ref_no,
             address
         } = req.body
         let data = await user.findOne({ email: req.body.email })
@@ -439,7 +478,9 @@ exports.adduser = async (req, res) => {
                 DOB,
                 occupation,
                 reference,
-                address
+                ref_no,
+                address,
+                ids
             })
             if (userData) {
                 res.status(200).json({
@@ -448,6 +489,17 @@ exports.adduser = async (req, res) => {
                 })
             }
         }
+    } catch (error) {
+        console.log(error);
+    }
+}
+exports.alluser = async (req,res)=>{
+    try {
+        let data = await user.find()
+        res.status(200).json({
+            message:"All Users",
+            users:data 
+        })
     } catch (error) {
         console.log(error);
     }
@@ -487,12 +539,12 @@ exports.userform_details = async (req, res) => {
                 path: 'bsubcategoryid',
                 populate:{
                     path : 'bcategoryid'
-                } // Assuming these are the fields in the product model
+                } 
             }
         })
         .populate({
             path: 'userid',
-            model: user, // Replace with your actual User model name
+            model: user, 
         })
         .exec();
 

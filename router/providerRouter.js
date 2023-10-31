@@ -12,7 +12,7 @@ const {
 
 router.post('/login',login)
 router.get('/home',verifyToken,home)
-router.get('/logout', async (req,res)=>{
+router.get('/logout',(req,res)=>{
     res.cookie("providertoken","")
     res.clearCookie()
     res.status(200).json({message:'logout successfully'})

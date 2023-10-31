@@ -10,15 +10,14 @@ const verifyToken = async (req, res, next) => {
             return data
         })
         if(providerdata == undefined){
-            res.json({
+            res.status(200).json({
                 message : "Token in valid",
             })
         }
         else{
             var data = await provider.findById(providerdata.id)
             if(data == null){
-                res.json({
-                    status : 400,
+                res.status(400).json({
                     message : "Provider data not found"
                 })
             }
@@ -29,7 +28,7 @@ const verifyToken = async (req, res, next) => {
         }
     }
     else{
-        res.json({
+        res.status(200).json({
             status : 400,
             message :  'Provider login require'
         })

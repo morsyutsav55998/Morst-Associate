@@ -31,6 +31,7 @@ const {
     
     // User
     adduser,
+    alluser,
     all_userform,
     userform_details,
 } = require('../controller/adminController')
@@ -42,7 +43,6 @@ router.get('/logout', async (req,res)=>{
     res.clearCookie()
     res.status(200).json({message:'logout successfully'})
 })
-
 // Provider
 router.post('/addprovider',verifyToken,upload.fields([
     {
@@ -116,11 +116,11 @@ router.get('/show_cat_subcat',verifyToken,show_cat_subcat)
 router.get('/show_products',verifyToken,show_products)
 router.post('/subcatdata',verifyToken,subcatdata) 
 
-
 router.post('/showproduct',verifyToken,showproduct)
 // User
 router.post('/productid',verifyToken,productid)
 router.post('/adduser',verifyToken,adduser)
+router.get('/alluser',verifyToken,alluser)
 router.get('/all_userform',verifyToken,all_userform)
 router.get('/userform_details/:id',verifyToken,userform_details)
 

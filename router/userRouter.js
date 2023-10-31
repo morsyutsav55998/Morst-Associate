@@ -21,12 +21,6 @@ router.get('/logout', async (req,res)=>{
 })
 router.get('/home',verifyToken,home)
 
-router.get('/logout', async (req,res)=>{
-    res.cookie("token","")
-    res.clearCookie()
-    res.status(200).json({message:'logout successfully'})
-})
-
 router.get('/allprovider',verifyToken,allprovider)
 router.post('/search',verifyToken,search)
 router.get('/providerdetails/:id',providerdetails)

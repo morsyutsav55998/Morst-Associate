@@ -5,6 +5,7 @@ const bsubcategory = require('../model/category/bussiness_subcategory')
 const bcategory = require('../model/category/bussiness_category')
 const bcrypt = require('bcrypt')
 const userForm = require('../model/userForm')
+const nodemailer = require('nodemailer')
 const product = require('../model/category/product')
 const jwt = require('jsonwebtoken')
 
@@ -28,15 +29,13 @@ exports.login = async (req, res) => {
         });
         console.log('User Login Successfully');
         res.status(200).json({
-          status: 200,
           message: 'User Login Successfully',
           usertoken: token
         })
       }
       else {
         console.log('Sorry! User Login Password Failed');
-        res.json({
-          status: 400,
+        res.status(200).json({
           message: 'Sorry! User Login Password Failed'
         })
       }
@@ -51,9 +50,8 @@ exports.home = async (req, res) => {
     const userId = req.user
     let data = await user.findById(userId.id)
     if (data) {
-      res.json({
-        status: 200,
-        providerdata: data
+      res.status(200).json({
+        Memberdata: data
       })
     }
   } catch (error) {
@@ -188,6 +186,7 @@ exports.adduserform = async (req, res) => {
       otherNumber,
     })
     if(data){
+
       res.status(200).json({
         message : "Your data created successfully",
         data,

@@ -5,7 +5,7 @@ const morgan = require('morgan')
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const mongoose = require('./middleware/mongoose')
-const helmet = require('helmet')
+// const helmet = require('helmet')
 const path = require('path')
 
 // Static for files
@@ -15,20 +15,17 @@ app.use(express.static(path.join(__dirname, 'sample')))
 // Call functions
 
 require('dotenv').config()
-app.use(helmet())
+// app.use(helmet())
 app.disable("x-powered-by");
 // Ask Helmet to ignore the X-Powered-By header.
-app.use(
-  helmet({
-    xPoweredBy: false,
-    xXssProtection: false,
-  })
-);
+// app.use(
+//   helmet({
+//     xPoweredBy: false,
+//     xXssProtection: false,
+//   })
+// );
 app.use(morgan('dev'))
-const corsOptions = {
-  origin: 'http://192.168.0.111:3000'
-};
-app.use(cors(corsOptions))  
+app.use(cors())  
 app.use(bodyParser.json());
 app.use(express.urlencoded({
     extended: true

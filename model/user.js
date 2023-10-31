@@ -21,8 +21,14 @@ const userSchema = new mongoose.Schema({
     reference:{
         type:String,
     },
+    ref_no:{
+        type:Number,
+    },
     address:{
         type:String,
+    },
+    ids:{
+        type:Number
     }
 });
 
