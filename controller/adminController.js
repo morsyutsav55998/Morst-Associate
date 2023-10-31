@@ -261,6 +261,7 @@ exports.updateprovider = async (req, res) => {
     try {
         const providerId = req.params.id;
         const updatedData = req.body;
+        console.log(updatedData);
         const existingProvider = await provider.findById(providerId);
 
         if (!existingProvider) {
@@ -268,33 +269,169 @@ exports.updateprovider = async (req, res) => {
         }
         // Profile
         if (req.files['profile']) {
-            // Handle file update logic (e.g., delete old file and upload new file)
             const newProfilePath = iplink + req.files['profile'][0].filename;
 
-            // Delete the old profile image if it's different from the default (dummy) image
             if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
                 const oldProfilePath = existingProvider.profile.replace(iplink, './files/');
                 fs.unlinkSync(oldProfilePath);
             }
-            // Update the profile field in the provider data with the new path
             updatedData.profile = newProfilePath;
         }
         else {
-            // If no new profile is uploaded, set the default path
-            const oldProfilePath = existingProvider.profile.replace(iplink, './files/');
-            console.log(oldProfilePath)
-            fs.unlinkSync(oldProfilePath);
+            if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
+                const oldProfilePath = path.join('./files', existingProvider.profile.replace(iplink, ''));
+                fs.unlinkSync(oldProfilePath);
+            }
             updatedData.profile = iplink + '/profile.png';
         }
+        // b_brochure
+        if (req.files['b_brochure']) {
+            const newProfilePath = iplink + req.files['b_brochure'][0].filename;
 
+            if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = existingProvider.b_brochure.replace(iplink, './files/');
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.b_brochure = newProfilePath;
+        }
+        else {
+            if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = path.join('./files', existingProvider.b_brochure.replace(iplink, ''));
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.b_brochure = iplink + '/dummy.jpeg';
+        }
+        //adharcard
+        if (req.files['adharcard']) {
+            const newProfilePath = iplink + req.files['adharcard'][0].filename;
 
-        existingProvider.profile = updatedData.profile  
+            if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = existingProvider.adharcard.replace(iplink, './files/');
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.adharcard = newProfilePath;
+        }
+        else {
+            if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = path.join('./files', existingProvider.adharcard.replace(iplink, ''));
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.adharcard = iplink + '/dummy.jpeg';
+        }
+        //pancard
+        if (req.files['pancard']) {
+            const newProfilePath = iplink + req.files['pancard'][0].filename;
+
+            if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = existingProvider.pancard.replace(iplink, './files/');
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.pancard = newProfilePath;
+        }
+        else {
+            if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = path.join('./files', existingProvider.pancard.replace(iplink, ''));
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.pancard = iplink + '/dummy.jpeg';
+        }
+        //gstfile
+        if (req.files['gstfile']) {
+            const newProfilePath = iplink + req.files['gstfile'][0].filename;
+
+            if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = existingProvider.gstfile.replace(iplink, './files/');
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.gstfile = newProfilePath;
+        }
+        else {
+            if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = path.join('./files', existingProvider.gstfile.replace(iplink, ''));
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.gstfile = iplink + '/dummy.jpeg';
+        }
+        //tdsfile
+        if (req.files['tdsfile']) {
+            const newProfilePath = iplink + req.files['tdsfile'][0].filename;
+
+            if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = existingProvider.tdsfile.replace(iplink, './files/');
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.tdsfile = newProfilePath;
+        }
+        else {
+            if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = path.join('./files', existingProvider.tdsfile.replace(iplink, ''));
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.tdsfile = iplink + '/dummy.jpeg';
+        }
+        //agreementfile
+        if (req.files['agreementfile']) {
+            const newProfilePath = iplink + req.files['agreementfile'][0].filename;
+
+            if (existingProvider.tdsfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = existingProvider.agreementfile.replace(iplink, './files/');
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.agreementfile = newProfilePath;
+        }
+        else {
+            if (existingProvider.agreementfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
+                const oldProfilePath = path.join('./files', existingProvider.agreementfile.replace(iplink, ''));
+                fs.unlinkSync(oldProfilePath);
+            }
+            updatedData.agreementfile = iplink + '/dummy.jpeg';
+        }
+
+        existingProvider.profile = updatedData.profile
+        existingProvider.b_brochure = updatedData.b_brochure
+        existingProvider.adharcard = updatedData.adharcard
+        existingProvider.pancard = updatedData.pancard
+        existingProvider.gstfile = updatedData.gstfile
+        existingProvider.tdsfile = updatedData.tdsfile
+        existingProvider.agreementfile = updatedData.agreementfile
+        // 
+        const password = await bcrypt.hash(updatedData.number, 10)
+        const product_service_ = updatedData.product_service
+        const originalArray = product_service_.split(',').map(item => item.trim());
+        // Create a Set to remove duplicates and spread it into a new array
+        const uniqueArray = [...new Set(originalArray)];
+        // Sort the unique array alphabetically
+        uniqueArray.sort();
         existingProvider.name = updatedData.name;
         existingProvider.email = updatedData.email;
         existingProvider.number = updatedData.number;
+        existingProvider.BOD = updatedData.BOD;
+        existingProvider.address = updatedData.address;
+        existingProvider.product_service = uniqueArray
+        existingProvider.Bname = updatedData.Bname;
+        existingProvider.Bnumber = updatedData.Bnumber;
+        existingProvider.password = password;
+        existingProvider.Bemail = updatedData.Bemail;
+        existingProvider.Bsocialmedia = updatedData.Bsocialmedia;
+        existingProvider.B_GSTnumber = updatedData.B_GSTnumber;
+        existingProvider.Btype = updatedData.Btype;
+        existingProvider.Bdetails = updatedData.Bdetails;
+        existingProvider.Btdsdetails = updatedData.Btdsdetails;
+        existingProvider.Bpancardnumber = updatedData.Bpancardnumber;
+        existingProvider.Bformation = updatedData.Bformation;
+        existingProvider.bsubcategoryid = updatedData.bsubcategoryid;
+        existingProvider.Baddress = updatedData.Baddress;
+        existingProvider.collaborationDetails = updatedData.collaborationDetails;
+        existingProvider.salespersonName = updatedData.salespersonName;
+        existingProvider.salespersonNumber = updatedData.salespersonNumber;
+        existingProvider.salespersonEmail = updatedData.salespersonEmail;
+        existingProvider.salespersonPosition = updatedData.salespersonPosition;
+        existingProvider.bankName = updatedData.bankName;
+        existingProvider.bankAccountnumber = updatedData.bankAccountnumber;
+        existingProvider.bankIFSCcode = updatedData.bankIFSCcode;
+        existingProvider.bankBranchname = updatedData.bankBranchname;
+
         // Update other fields as needed...
-
-
         const updatedProvider = await existingProvider.save()
         res.status(200).json({
             message: "Provider updated successfully",
@@ -304,7 +441,6 @@ exports.updateprovider = async (req, res) => {
         console.log(error);
     }
 }
-
 exports.add_btype = async (req, res) => {
     try {
 
@@ -443,12 +579,12 @@ exports.subcatdata = async (req, res) => {
 exports.adduser = async (req, res) => {
     console.log(req.body);
     var data = await user.find({})
-    data=data.slice(-1)
+    data = data.slice(-1)
     var ids = 0
-    if(data[0] == undefined || data.length == 0){
+    if (data[0] == undefined || data.length == 0) {
         ids = 1;
-    }else{
-        ids = data[0].ids+1
+    } else {
+        ids = data[0].ids + 1
     }
     console.log(data.slice(-1));
     try {
@@ -493,12 +629,12 @@ exports.adduser = async (req, res) => {
         console.log(error);
     }
 }
-exports.alluser = async (req,res)=>{
+exports.alluser = async (req, res) => {
     try {
         let data = await user.find()
         res.status(200).json({
-            message:"All Users",
-            users:data 
+            message: "All Users",
+            users: data
         })
     } catch (error) {
         console.log(error);
@@ -511,16 +647,16 @@ exports.all_userform = async (req, res) => {
             model: product,
             populate: {
                 path: 'bsubcategoryid',
-                populate:{
-                    path : 'bcategoryid'
+                populate: {
+                    path: 'bcategoryid'
                 } // Assuming these are the fields in the product model
             }
         })
-        .populate({
-            path: 'userid',
-            model: user, // Replace with your actual User model name
-        })
-        .exec();
+            .populate({
+                path: 'userid',
+                model: user, // Replace with your actual User model name
+            })
+            .exec();
         res.status(200).json({
             message: "All userforms",
             userForms,
@@ -537,16 +673,16 @@ exports.userform_details = async (req, res) => {
             model: product,
             populate: {
                 path: 'bsubcategoryid',
-                populate:{
-                    path : 'bcategoryid'
-                } 
+                populate: {
+                    path: 'bcategoryid'
+                }
             }
         })
-        .populate({
-            path: 'userid',
-            model: user, 
-        })
-        .exec();
+            .populate({
+                path: 'userid',
+                model: user,
+            })
+            .exec();
 
         res.json({
             data
@@ -572,12 +708,12 @@ exports.showproduct = async (req, res) => {
         console.log(error);
     }
 }
-exports.productid = async (req,res)=>{
+exports.productid = async (req, res) => {
     try {
         let data = req.body
         let id = data[0]
         const products = await product.find({
-            'bsubcategoryid': { $in: id},
+            'bsubcategoryid': { $in: id },
         });
         // const productValues = products.map(product => product.product);
         // Send the product values in the response
