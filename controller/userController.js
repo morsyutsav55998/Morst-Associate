@@ -186,7 +186,36 @@ exports.adduserform = async (req, res) => {
       otherNumber,
     })
     if(data){
-
+      let productId = data.productid
+      console.log(productId);
+      let productData = await product.findById(productId).populate({
+        path: 'bsubcategoryid',
+        populate: {
+          path: 'bcategoryid bussinesssubcategory',
+        },
+      });
+      const transporter = nodemailer.createTransport({
+        service: 'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook', etc.
+        auth: {
+          user: 'utsavgarchar63@gmail.com', // Your email address
+          pass: 'xzhv bdmj kapn eqgn' // Your email password or app-specific password
+        }
+      });
+      const mailOptions = {
+        from: 'utsavgarchar63@gmail.com',
+        to: '2in1fun2021@gmail.com', // Recipient's email address
+        subject: 'Member Order',
+        html : `<h2>Member : ${userData.name}</h2> 
+        <h3>Product & Service : ${productData.product}</h3> 
+        `
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending email: ' + error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });       
       res.status(200).json({
         message : "Your data created successfully",
         data,
