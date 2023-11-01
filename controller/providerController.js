@@ -38,7 +38,9 @@ exports.login = async (req, res) => {
             }
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.home = async (req, res) => {
@@ -52,7 +54,9 @@ exports.home = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 
@@ -84,7 +88,9 @@ exports.addservice = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.showservices = async (req, res) => {
@@ -99,6 +105,8 @@ exports.showservices = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }   

@@ -31,6 +31,9 @@ const {
     
     // User
     adduser,
+    userdetails,
+    deleteuser,
+    updateuser,
     alluser,
     all_userform,
     userform_details,
@@ -47,27 +50,34 @@ router.get('/logout', async (req,res)=>{
 router.post('/addprovider',verifyToken,upload.fields([
     {
         name : 'profile',
+        maxCount: 1,
     },
     {
         name : 'b_brochure',
+        maxCount: 1,
     },
     // {
     //     name :'documents',
     // }
     {
         name : 'adharcard',
+        maxCount: 1,
     },
     {
         name : 'pancard',
+        maxCount: 1,
     },
     {
         name : 'gstfile',
+        maxCount: 1,
     },
     {
         name : 'tdsfile',
+        maxCount: 1,
     },
     {
         name : 'agreementfile',
+        maxCount: 1,
     },
 ]),addprovider)
 
@@ -77,27 +87,34 @@ router.delete('/deleteprovider/:id',verifyToken,deleteprovider)
 router.patch('/updateprovider/:id',verifyToken,upload.fields([
     {
         name : 'profile',
+        maxCount: 1,
     },
     {
         name : 'b_brochure',
+        maxCount: 1,
     },
     // {
     //     name :'documents',
     // }
     {
         name : 'adharcard',
+        maxCount: 1,
     },
     {
         name : 'pancard',
+        maxCount: 1,
     },
     {
         name : 'gstfile',
+        maxCount: 1,
     },
     {
         name : 'tdsfile',
+        maxCount: 1,
     },
     {
         name : 'agreementfile',
+        maxCount: 1,
     },
 ]),updateprovider)
 
@@ -120,9 +137,12 @@ router.post('/showproduct',verifyToken,showproduct)
 // User
 router.post('/productid',verifyToken,productid)
 router.post('/adduser',verifyToken,adduser)
+router.get('/userdetails/:id',userdetails)
+router.delete('/deleteuser/:id',deleteuser)
+router.patch('/updateuser/:id',updateuser)
 router.get('/alluser',verifyToken,alluser)
 router.get('/all_userform',verifyToken,all_userform)
-router.get('/userform_details/:id',verifyToken,userform_details)
+router.get('/userform_details/:id',verifyToken,userform_details)    
 
 
 module.exports = router

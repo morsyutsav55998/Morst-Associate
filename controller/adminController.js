@@ -13,7 +13,14 @@ const path = require('path')
 const iplink = 'http://192.168.0.113:3000/'
 var fs = require('fs');
 const { log } = require('console');
-
+function emptyobj(obj) {
+    for (const key in obj) {
+        if (obj[key] === null || obj[key] === undefined || obj[key] === '') {
+            return true; // Found an empty, undefined, or null field
+        }
+    }
+    return false; // No empty, undefined, or null fields found
+}
 // Login
 exports.login = async (req, res) => {
     try {
@@ -47,7 +54,9 @@ exports.login = async (req, res) => {
             }
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.home = async (req, res) => {
@@ -63,7 +72,6 @@ exports.home = async (req, res) => {
 // Provider
 exports.addprovider = async (req, res) => {
     try {
-
         var {
             name,
             email,
@@ -97,6 +105,13 @@ exports.addprovider = async (req, res) => {
             bankIFSCcode,
             bankBranchname,
         } = req.body
+
+        if (emptyobj(req.body)) {
+            res.status(400).json({
+                message: "All field required !"
+            })
+
+        }
         const password = await bcrypt.hash(number, 10)
 
         // Split the string into an array based on commas and remove leading/trailing spaces
@@ -170,7 +185,9 @@ exports.addprovider = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 
@@ -186,17 +203,27 @@ exports.showproviders = async (req, res) => {
 exports.providerdetails = async (req, res) => {
     try {
         let data = await provider.findById(req.params.id)
-        const subcatData = []
-        for (var i of data.bsubcategoryid) {
-            var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
-            subcatData.push(subcat)
+        if (data) {
+            const subcatData = []
+            for (var i of data.bsubcategoryid) {
+                var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
+                if (subcat) {
+                    subcatData.push(subcat)
+                }
+            }
+            res.json({
+                message: "Provider all details",
+                providers: data, subcatData
+            })
         }
-        res.json({
-            message: "Provider all details",
-            providers: data, subcatData
-        })
+        else {
+            res.status(400).json({
+                message: "Provider not found !"
+            })
+        }
+
     } catch (error) {
-        console.log(error);
+        res.json({ message: "internal server error" })
     }
 }
 // This is my delete function
@@ -253,6 +280,7 @@ exports.deleteprovider = async (req, res) => {
         }
     } catch (error) {
         console.log(error)
+        res.json({ message: "internal server error" })
     }
 }
 
@@ -260,12 +288,12 @@ exports.updateprovider = async (req, res) => {
     try {
         const providerId = req.params.id;
         const updatedData = req.body;
-        console.log(req.body, "sdhkasjhkawdsjhk");
         const password = await bcrypt.hash(updatedData.number, 10)
-        const originalArray = updatedData.productService.split(',').map(item => item.trim());
+        // const originalArray = updatedData.productService.split(',').map(item => item.trim());
+        const originalArray = updatedData.productService ? updatedData.productService.split(',').map(item => item.trim()) : [];
 
         const uniqueArray = [...new Set(originalArray)];
-        
+
         uniqueArray.sort();
 
         const subcat = updatedData.sbcatid
@@ -401,7 +429,7 @@ exports.updateprovider = async (req, res) => {
         existingProvider.tdsfile = updatedData.tdsfile
         existingProvider.agreementfile = updatedData.agreementfile
 
-        
+
         existingProvider.name = updatedData.name;
         existingProvider.email = updatedData.email;
         existingProvider.number = updatedData.number;
@@ -439,193 +467,12 @@ exports.updateprovider = async (req, res) => {
             provider: updatedProvider
         });
     } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
         console.log(error);
     }
 }
-// exports.updateprovider = async (req, res) => {
-//     try {
-//         const providerId = req.params.id;
-//         const updatedData = req.body;
-//         console.log(updatedData);
-//         const existingProvider = await provider.findById(providerId);
-
-//         if (!existingProvider) {
-//             return res.status(404).json({ message: "Provider not found" });
-//         }
-//         // Profile
-//         if (req.files['profile']) {
-//             const newProfilePath = iplink + req.files['profile'][0].filename;
-
-//             if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
-//                 const oldProfilePath = existingProvider.profile.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.profile = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
-//                 const oldProfilePath = path.join('./files', existingProvider.profile.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.profile = iplink + '/profile.png';
-//         }
-//         // b_brochure
-//         if (req.files['b_brochure']) {
-//             const newProfilePath = iplink + req.files['b_brochure'][0].filename;
-
-//             if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.b_brochure.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.b_brochure = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.b_brochure.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.b_brochure = iplink + '/dummy.jpeg';
-//         }
-//         //adharcard
-//         if (req.files['adharcard']) {
-//             const newProfilePath = iplink + req.files['adharcard'][0].filename;
-
-//             if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.adharcard.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.adharcard = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.adharcard.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.adharcard = iplink + '/dummy.jpeg';
-//         }
-//         //pancard
-//         if (req.files['pancard']) {
-//             const newProfilePath = iplink + req.files['pancard'][0].filename;
-
-//             if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.pancard.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.pancard = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.pancard.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.pancard = iplink + '/dummy.jpeg';
-//         }
-//         //gstfile
-//         if (req.files['gstfile']) {
-//             const newProfilePath = iplink + req.files['gstfile'][0].filename;
-
-//             if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.gstfile.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.gstfile = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.gstfile.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.gstfile = iplink + '/dummy.jpeg';
-//         }
-//         //tdsfile
-//         if (req.files['tdsfile']) {
-//             const newProfilePath = iplink + req.files['tdsfile'][0].filename;
-
-//             if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.tdsfile.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.tdsfile = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.tdsfile.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.tdsfile = iplink + '/dummy.jpeg';
-//         }
-//         //agreementfile
-//         if (req.files['agreementfile']) {
-//             const newProfilePath = iplink + req.files['agreementfile'][0].filename;
-
-//             if (existingProvider.tdsfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.agreementfile.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.agreementfile = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.agreementfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.agreementfile.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.agreementfile = iplink + '/dummy.jpeg';
-//         }
-
-//         existingProvider.profile = updatedData.profile
-//         existingProvider.b_brochure = updatedData.b_brochure
-//         existingProvider.adharcard = updatedData.adharcard
-//         existingProvider.pancard = updatedData.pancard
-//         existingProvider.gstfile = updatedData.gstfile
-//         existingProvider.tdsfile = updatedData.tdsfile
-//         existingProvider.agreementfile = updatedData.agreementfile
-//         // 
-//         const password = await bcrypt.hash(updatedData.number, 10)
-//         const product_service_ = updatedData.product_service
-//         const originalArray = product_service_.split(',').map(item => item.trim());
-//         // Create a Set to remove duplicates and spread it into a new array
-//         const uniqueArray = [...new Set(originalArray)];
-//         // Sort the unique array alphabetically
-//         uniqueArray.sort();
-//         existingProvider.name = updatedData.name;
-//         existingProvider.email = updatedData.email;
-//         existingProvider.number = updatedData.number;
-//         existingProvider.BOD = updatedData.BOD;
-//         existingProvider.address = updatedData.address;
-//         existingProvider.product_service = uniqueArray
-//         existingProvider.Bname = updatedData.Bname;
-//         existingProvider.Bnumber = updatedData.Bnumber;
-//         existingProvider.password = password;
-//         existingProvider.Bemail = updatedData.Bemail;
-//         existingProvider.Bsocialmedia = updatedData.Bsocialmedia;
-//         existingProvider.B_GSTnumber = updatedData.B_GSTnumber;
-//         existingProvider.Btype = updatedData.Btype;
-//         existingProvider.Bdetails = updatedData.Bdetails;
-//         existingProvider.Btdsdetails = updatedData.Btdsdetails;
-//         existingProvider.Bpancardnumber = updatedData.Bpancardnumber;
-//         existingProvider.Bformation = updatedData.Bformation;
-//         existingProvider.bsubcategoryid = updatedData.bsubcategoryid;
-//         existingProvider.Baddress = updatedData.Baddress;
-//         existingProvider.collaborationDetails = updatedData.collaborationDetails;
-//         existingProvider.salespersonName = updatedData.salespersonName;
-//         existingProvider.salespersonNumber = updatedData.salespersonNumber;
-//         existingProvider.salespersonEmail = updatedData.salespersonEmail;
-//         existingProvider.salespersonPosition = updatedData.salespersonPosition;
-//         existingProvider.bankName = updatedData.bankName;
-//         existingProvider.bankAccountnumber = updatedData.bankAccountnumber;
-//         existingProvider.bankIFSCcode = updatedData.bankIFSCcode;
-//         existingProvider.bankBranchname = updatedData.bankBranchname;
-
-//         // Update other fields as needed...
-//         const updatedProvider = await existingProvider.save()
-//         res.status(200).json({
-//             message: "Provider updated successfully",
-//             provider: updatedProvider
-//         });
-//     } catch (error) {
-//         console.log(error);
-//     }
-// }
 exports.add_btype = async (req, res) => {
     try {
 
@@ -638,22 +485,27 @@ exports.add_btype = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.add_bcategory = async (req, res) => {
     try {
-
         if (req.body) {
             let data = await bcategory.create(req.body)
-            res.json({
-                status: 200,
-                message: "Bussiness category added",
-                bussinessCategory: data
-            })
+            if (data) {
+                res.json({
+                    status: 200,
+                    message: "Bussiness category added",
+                    bussinessCategory: data
+                })
+            }
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.add_bformation = async (req, res) => {
@@ -661,25 +513,35 @@ exports.add_bformation = async (req, res) => {
 
         if (req.body) {
             let data = await bformation.create(req.body)
-            res.json({
-                status: 200,
-                message: "Bussiness Formation category added",
-                bussinessformation: data
-            })
+            if (data) {
+                res.json({
+                    status: 200,
+                    message: "Bussiness Formation category added",
+                    bussinessformation: data
+                })
+            }
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.add_product = async (req, res) => {
     try {
-        let data = await product.create(req.body)
-        res.json({
-            message: "Product added",
-            "product & service": data
-        })
+        if (req.body) {
+            let data = await product.create(req.body)
+            if (data) {
+                res.json({
+                    message: "Product added",
+                    "product & service": data
+                })
+            }
+        }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 
@@ -692,12 +554,21 @@ exports.show_products = async (req, res) => {
                 path: 'bcategoryid bussinesssubcategory',
             },
         });
-        res.json({
-            message: "Show data",
-            "product & service": data,
-        })
+        if (data) {
+            res.json({
+                message: "Show data",
+                "product & service": data,
+            })
+        }
+        else {
+            res.status(200).json({
+                message: "Data Empty"
+            })
+        }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.show_bformation = async (req, res) => {
@@ -725,7 +596,9 @@ exports.add_bsubcategory = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.show_bcategory = async (req, res) => {
@@ -735,7 +608,9 @@ exports.show_bcategory = async (req, res) => {
             bcategory: data,
         })
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.show_cat_subcat = async (req, res) => {
@@ -745,7 +620,9 @@ exports.show_cat_subcat = async (req, res) => {
             bsubcategory: data
         })
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.subcatdata = async (req, res) => {
@@ -757,7 +634,9 @@ exports.subcatdata = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 // User 
@@ -811,7 +690,9 @@ exports.adduser = async (req, res) => {
             }
         }
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.alluser = async (req, res) => {
@@ -822,7 +703,110 @@ exports.alluser = async (req, res) => {
             users: data
         })
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.userdetails = async (req, res) => {
+    try {
+        let data = await user.findById(req.params.id)
+        if (!data) {
+            res.status(400).json({
+                message: "User not found !"
+            })
+        }
+        else {
+            res.status(200).json({
+                message: "User data",
+                user: data,
+            })
+        }
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.deleteuser = async (req, res) => {
+    try {
+        console.log(req.params.id)
+        let dataid = await user.findById(req.params.id)
+        if (!dataid) {
+            res.status(400).json({
+                message: "User not found !"
+            })
+        }
+        else {
+            let data = await user.findByIdAndDelete(req.params.id)
+            if (data) {
+                res.status(200).json({
+                    message: "User deleted successfully"
+                })
+            }
+        }
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.updateuser = async (req, res) => {  1
+    try {
+        var data = await user.find({})
+        data = data.slice(-1)
+        var ids = 0
+        if (data[0] == undefined || data.length == 0) {
+            ids = 1;
+        } else {
+            ids = data[0].ids + 1
+        }
+        
+        const {
+            name,
+            email,
+            number,
+            DOB,
+            occupation,
+            reference,
+            ref_no,
+            address
+        } = req.body
+        const password = await bcrypt.hash(number,10)
+        
+        let dataid = await user.findById(req.params.id)
+        if (!dataid) {
+            res.status(400).json({
+                message: "User not found !"
+            })
+        }
+        else {
+            if (req.body) {
+                let data = await user.findByIdAndUpdate(req.params.id, {
+                    name,
+                    email,
+                    number,
+                    password,
+                    DOB,
+                    occupation,
+                    reference,
+                    ref_no,
+                    address,
+                    ids
+                })
+                if (data) {
+                    res.status(200).json({
+                        message: "User updated successfully",
+                        data,
+                    })
+                }
+            }
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.all_userform = async (req, res) => {
@@ -847,7 +831,9 @@ exports.all_userform = async (req, res) => {
             userForms,
         })
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.userform_details = async (req, res) => {
@@ -874,13 +860,14 @@ exports.userform_details = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.showproduct = async (req, res) => {
     try {
         let data = req.body
-        console.log(req.body, "fgndfgsdv");
         const products = await product.find({
             'bsubcategoryid': { $in: data },
         });
@@ -890,7 +877,9 @@ exports.showproduct = async (req, res) => {
         res.json({ productService: productValues });
 
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
 exports.productid = async (req, res) => {
@@ -905,6 +894,8 @@ exports.productid = async (req, res) => {
         res.json({ productService: products });
 
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
