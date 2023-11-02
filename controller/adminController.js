@@ -751,17 +751,8 @@ exports.deleteuser = async (req, res) => {
         })
     }
 }
-exports.updateuser = async (req, res) => {  1
+exports.updateuser = async (req, res) => {
     try {
-        var data = await user.find({})
-        data = data.slice(-1)
-        var ids = 0
-        if (data[0] == undefined || data.length == 0) {
-            ids = 1;
-        } else {
-            ids = data[0].ids + 1
-        }
-        
         const {
             name,
             email,
@@ -772,34 +763,29 @@ exports.updateuser = async (req, res) => {  1
             ref_no,
             address
         } = req.body
-        const password = await bcrypt.hash(number,10)
-        
-        let dataid = await user.findById(req.params.id)
-        if (!dataid) {
-            res.status(400).json({
-                message: "User not found !"
+        const password = await bcrypt.hash(number, 10);
+        if (emptyobj(req.body)) {
+            res.status(200).json({
+                message : "All field required !"
             })
         }
-        else {
-            if (req.body) {
-                let data = await user.findByIdAndUpdate(req.params.id, {
-                    name,
-                    email,
-                    number,
-                    password,
-                    DOB,
-                    occupation,
-                    reference,
-                    ref_no,
-                    address,
-                    ids
+        else{
+            let data = await user.findByIdAndUpdate(req.params.id, {
+                name,
+                email,
+                number,
+                password,
+                DOB,
+                occupation,
+                reference,
+                ref_no,
+                address,
+            })
+            if (data) {
+                res.status(200).json({
+                    message: "User updated successfully",
+                    data,
                 })
-                if (data) {
-                    res.status(200).json({
-                        message: "User updated successfully",
-                        data,
-                    })
-                }
             }
         }
     } catch (error) {
