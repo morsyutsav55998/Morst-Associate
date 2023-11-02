@@ -1,4 +1,7 @@
 var manager = require('../model/manager')
+var orders = require("../model/userForm")
+var product = require("../model/category/product")
+var user = require('../model/user')
 var bcrypt = require('bcrypt')
 var jwt = require('jsonwebtoken')
 exports.login = async (req, res) => {
@@ -48,6 +51,47 @@ exports.home = async (req,res)=>{
             })
         }
     } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.showorders = async (req,res)=>{
+    try {
+        const managerId = req.manager
+        let data = await manager.findById(managerId.id)
+        const orderIds = data.orderids; 
+        const orderData = [];
+        for (const orderId of orderIds) {
+            const order = await orders.findById(orderId).populate({
+                path: 'productid',
+                model: product,
+                populate: {
+                    path: 'bsubcategoryid',
+                    populate: {
+                        path: 'bcategoryid'
+                    }
+                }
+            })
+                .populate({
+                    path: 'userid',
+                    model: user,
+                })
+                .exec();
+            if (order) {
+                orderData.push(order);
+            } else {
+                orderData.push({ error: `Order with ID ${orderId} not found` });
+            }
+        }
+        res.json({
+            message: "👍",
+            data: {
+                orders: orderData,
+            },
+        });
+    } catch (error) {
+        console.log(error);
         res.status(400).json({
             message: "Internal server error"
         })

@@ -72,14 +72,13 @@ exports.home = async (req, res) => {
 // Provider
 exports.addprovider = async (req, res) => {
     try {
-        var {
+        const {
             name,
             email,
             number,
             BOD,
             address,
             product_service,
-            // 
             Bname,
             Bnumber,
             Bemail,
@@ -93,101 +92,48 @@ exports.addprovider = async (req, res) => {
             bsubcategoryid,
             Baddress,
             collaborationDetails,
-
-            // 
             salespersonName,
             salespersonNumber,
             salespersonEmail,
             salespersonPosition,
-            // 
             bankName,
             bankAccountnumber,
             bankIFSCcode,
             bankBranchname,
-        } = req.body
+        } = req.body;
 
-        if (emptyobj(req.body)) {
-            res.status(400).json({
-                message: "All field required !"
-            })
+        const password = await bcrypt.hash(number, 10);
+        const processFile = (fieldName, defaultValue) => (req.files[fieldName] ? iplink + req.files[fieldName][0].filename : defaultValue);
+        const processArrayField = (fieldName) => [...new Set(req.body[fieldName].split(',').map(item => item.trim()))].sort();
 
-        }
-        const password = await bcrypt.hash(number, 10)
+        const fileFields = ['profile', 'b_brochure', 'adharcard', 'pancard', 'gstfile', 'tdsfile', 'agreementfile'];
+        const fileFieldPaths = fileFields.reduce((paths, field) => {
+            paths[field] = processFile(field, iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg'));
+            return paths;
+        }, {});
 
-        // Split the string into an array based on commas and remove leading/trailing spaces
-        const originalArray = product_service.split(',').map(item => item.trim());
-
-        // Create a Set to remove duplicates and spread it into a new array
-        const uniqueArray = [...new Set(originalArray)];
-
-        // Sort the unique array alphabetically
-        uniqueArray.sort();
-
-        let profilePath = req.files['profile'] ? iplink + req.files['profile'][0].filename : iplink + '/profile.png'  // If user not upload profile that place iplink + '/profile.png'  that address set 
-        // If user not upload any other files that place iplink + '/dummy.jpeg'  that address set 
-        let brochurePath = req.files['b_brochure'] ? iplink + req.files['b_brochure'][0].filename : iplink + '/dummy.jpeg'
-        let adharcardPath = req.files['adharcard'] ? iplink + req.files['adharcard'][0].filename : iplink + '/dummy.jpeg'
-        let pancardPath = req.files['pancard'] ? iplink + req.files['pancard'][0].filename : iplink + '/dummy.jpeg'
-        let gstfilePath = req.files['gstfile'] ? iplink + req.files['gstfile'][0].filename : iplink + '/dummy.jpeg'
-        let tdsfilePath = req.files['tdsfile'] ? iplink + req.files['tdsfile'][0].filename : iplink + '/dummy.jpeg'
-        let agreementfilePath = req.files['agreementfile'] ? iplink + req.files['agreementfile'][0].filename : iplink + '/dummy.jpeg'
-
-        // String to array 
         const isArray = bsubcategoryid.split(',');
+
         const providerData = await provider.create({
-            name,
-            email,
-            number,
-            password,
-            BOD,
-            address,
-            profile: profilePath,
-            product_service: uniqueArray,
-            // 
-            Bname,
-            Bnumber,
-            Bemail,
-            Bsocialmedia,
-            B_GSTnumber,
-            Btype,
-            Bdetails,
-            Btdsdetails,
-            Bpancardnumber,
-            Btype,
-            Bformation,
-            bsubcategoryid: isArray,
-            Baddress,
-            collaborationDetails,
-            b_brochure: brochurePath,
-            // 
-            salespersonName,
-            salespersonNumber,
-            salespersonEmail,
-            salespersonPosition,
-            // 
-            bankName,
-            bankAccountnumber,
-            bankIFSCcode,
-            bankBranchname,
-            // documents : documentsPath,
-            // 
-            adharcard: adharcardPath,
-            pancard: pancardPath,
-            gstfile: gstfilePath,
-            tdsfile: tdsfilePath,
-            agreementfile: agreementfilePath,
-        })
-        if (providerData) {
-            res.status(200).json({
-                Status: 200,
-                Message: "Provider added successfully",
-                Provider: providerData
-            })
-        }
+            name, email, number, password, BOD, address, profile: fileFieldPaths.profile,
+            product_service: processArrayField('product_service'),
+            Bname, Bnumber, Bemail, Bsocialmedia, B_GSTnumber, Btype, Bdetails, Btdsdetails, Bpancardnumber,
+            Btype, Bformation, bsubcategoryid: isArray, Baddress, collaborationDetails,
+            b_brochure: fileFieldPaths.b_brochure,
+            salespersonName, salespersonNumber, salespersonEmail, salespersonPosition,
+            bankName, bankAccountnumber, bankIFSCcode, bankBranchname,
+            adharcard: fileFieldPaths.adharcard, pancard: fileFieldPaths.pancard,
+            gstfile: fileFieldPaths.gstfile, tdsfile: fileFieldPaths.tdsfile,
+            agreementfile: fileFieldPaths.agreementfile,
+        });
+
+        return res.status(200).json({
+            Status: 200,
+            Message: "Provider added successfully",
+            Provider: providerData
+        });
     } catch (error) {
-        res.status(400).json({
-            message: "Internal server error"
-        })
+        return res.status(400).json({ message: "Internal server error" });
     }
 }
 
@@ -283,195 +229,257 @@ exports.deleteprovider = async (req, res) => {
     }
 }
 
+// exports.updateprovider = async (req, res) => {
+//     try {
+//         const providerId = req.params.id;
+//         const updatedData = req.body;
+//         const password = await bcrypt.hash(updatedData.number, 10)
+//         // const originalArray = updatedData.productService.split(',').map(item => item.trim());
+//         const originalArray = updatedData.productService ? updatedData.productService.split(',').map(item => item.trim()) : [];
+
+//         const uniqueArray = [...new Set(originalArray)];
+
+//         uniqueArray.sort();
+
+//         const subcat = updatedData.sbcatid
+//         const isArray = subcat.split(',');
+//         const existingProvider = await provider.findById(providerId);
+
+//         if (!existingProvider) {
+//             return res.status(404).json({ message: "Provider not found" });
+//         }
+//         // Profile
+//         if (req.files['profile']) {
+//             const newProfilePath = iplink + req.files['profile'][0].filename;
+//             if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
+//                 const oldProfilePath = existingProvider.profile.replace(iplink, './files/');
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.profile = newProfilePath;
+//         }
+//         else {
+//             if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
+//                 const oldProfilePath = path.join('./files', existingProvider.profile.replace(iplink, ''));
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.profile = iplink + '/profile.png';
+//         }
+//         // b_brochure
+//         if (req.files['b_brochure']) {
+//             const newProfilePath = iplink + req.files['b_brochure'][0].filename;
+
+//             if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = existingProvider.b_brochure.replace(iplink, './files/');
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.b_brochure = newProfilePath;
+//         }
+//         else {
+//             if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = path.join('./files', existingProvider.b_brochure.replace(iplink, ''));
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.b_brochure = iplink + '/dummy.jpeg';
+//         }
+//         //adharcard
+//         if (req.files['adharcard']) {
+//             const newProfilePath = iplink + req.files['adharcard'][0].filename;
+
+//             if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = existingProvider.adharcard.replace(iplink, './files/');
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.adharcard = newProfilePath;
+//         }
+//         else {
+//             if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = path.join('./files', existingProvider.adharcard.replace(iplink, ''));
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.adharcard = iplink + '/dummy.jpeg';
+//         }
+//         //pancard
+//         if (req.files['pancard']) {
+//             const newProfilePath = iplink + req.files['pancard'][0].filename;
+
+//             if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = existingProvider.pancard.replace(iplink, './files/');
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.pancard = newProfilePath;
+//         }
+//         else {
+//             if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = path.join('./files', existingProvider.pancard.replace(iplink, ''));
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.pancard = iplink + '/dummy.jpeg';
+//         }
+//         //gstfile
+//         if (req.files['gstfile']) {
+//             const newProfilePath = iplink + req.files['gstfile'][0].filename;
+
+//             if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = existingProvider.gstfile.replace(iplink, './files/');
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.gstfile = newProfilePath;
+//         }
+//         else {
+//             if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = path.join('./files', existingProvider.gstfile.replace(iplink, ''));
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.gstfile = iplink + '/dummy.jpeg';
+//         }
+//         //tdsfile
+//         if (req.files['tdsfile']) {
+//             const newProfilePath = iplink + req.files['tdsfile'][0].filename;
+
+//             if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = existingProvider.tdsfile.replace(iplink, './files/');
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.tdsfile = newProfilePath;
+//         }
+//         else {
+//             if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = path.join('./files', existingProvider.tdsfile.replace(iplink, ''));
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.tdsfile = iplink + '/dummy.jpeg';
+//         }
+//         //agreementfile
+//         if (req.files['agreementfile']) {
+//             const newProfilePath = iplink + req.files['agreementfile'][0].filename;
+
+//             if (existingProvider.tdsfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = existingProvider.agreementfile.replace(iplink, './files/');
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.agreementfile = newProfilePath;
+//         }
+//         else {
+//             if (existingProvider.agreementfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
+//                 const oldProfilePath = path.join('./files', existingProvider.agreementfile.replace(iplink, ''));
+//                 fs.unlinkSync(oldProfilePath);
+//             }
+//             updatedData.agreementfile = iplink + '/dummy.jpeg';
+//         }
+//         existingProvider.profile = updatedData.profile
+//         existingProvider.b_brochure = updatedData.b_brochure
+//         existingProvider.adharcard = updatedData.adharcard
+//         existingProvider.pancard = updatedData.pancard
+//         existingProvider.gstfile = updatedData.gstfile
+//         existingProvider.tdsfile = updatedData.tdsfile
+//         existingProvider.agreementfile = updatedData.agreementfile
+
+
+//         existingProvider.name = updatedData.name;
+//         existingProvider.email = updatedData.email;
+//         existingProvider.number = updatedData.number;
+//         existingProvider.BOD = updatedData.BOD;
+//         existingProvider.address = updatedData.address;
+//         existingProvider.product_service = uniqueArray
+//         existingProvider.product_service = updatedData.productService
+//         existingProvider.Bname = updatedData.Bname;
+//         existingProvider.Bnumber = updatedData.Bnumber;
+//         existingProvider.password = password;
+//         existingProvider.Bemail = updatedData.Bemail;
+//         existingProvider.Bsocialmedia = updatedData.Bsocialmedia;
+//         existingProvider.B_GSTnumber = updatedData.B_GSTnumber;
+//         existingProvider.Btype = updatedData.Btype;
+//         existingProvider.Bdetails = updatedData.Bdetails;
+//         existingProvider.Btdsdetails = updatedData.Btdsdetails;
+//         existingProvider.Bpancardnumber = updatedData.Bpancardnumber;
+//         existingProvider.Bformation = updatedData.Bformation;
+//         existingProvider.bsubcategoryid = isArray;
+//         existingProvider.Baddress = updatedData.Baddress;
+//         existingProvider.collaborationDetails = updatedData.collaborationDetails;
+//         existingProvider.salespersonName = updatedData.salespersonName;
+//         existingProvider.salespersonNumber = updatedData.salespersonNumber;
+//         existingProvider.salespersonEmail = updatedData.salespersonEmail;
+//         existingProvider.salespersonPosition = updatedData.salespersonPosition;
+//         existingProvider.bankName = updatedData.bankName;
+//         existingProvider.bankAccountnumber = updatedData.bankAccountnumber;
+//         existingProvider.bankIFSCcode = updatedData.bankIFSCcode;
+//         existingProvider.bankBranchname = updatedData.bankBranchname;
+
+//         // Update other fields as needed...
+//         const updatedProvider = await existingProvider.save()
+//         res.status(200).json({
+//             message: "Provider updated successfully",
+//             provider: updatedProvider
+//         });
+//     } catch (error) {
+//         res.status(400).json({
+//             message: "Internal server error"
+//         })
+//         console.log(error);
+//         res.status(400).json({
+//             message: "Internal server error"
+//         })
+//     }
+// }
 exports.updateprovider = async (req, res) => {
     try {
         const providerId = req.params.id;
         const updatedData = req.body;
-        const password = await bcrypt.hash(updatedData.number, 10)
-        // const originalArray = updatedData.productService.split(',').map(item => item.trim());
-        const originalArray = updatedData.productService ? updatedData.productService.split(',').map(item => item.trim()) : [];
+        const password = await bcrypt.hash(updatedData.number, 10);
+        const fieldsToUpdate = [
+            'name', 'email', 'number', 'BOD', 'address', 'productService',
+            'Bname', 'Bnumber', 'Bemail', 'Bsocialmedia', 'B_GSTnumber',
+            'Btype', 'Bdetails', 'Btdsdetails', 'Bpancardnumber', 'Bformation',
+            'Baddress', 'collaborationDetails', 'salespersonName', 'salespersonNumber',
+            'salespersonEmail', 'salespersonPosition', 'bankName', 'bankAccountnumber',
+            'bankIFSCcode', 'bankBranchname'
+        ];
 
-        const uniqueArray = [...new Set(originalArray)];
+        const filesToUpdate = [
+            'profile', 'b_brochure', 'adharcard', 'pancard', 'gstfile', 'tdsfile', 'agreementfile'
+        ];
 
-        uniqueArray.sort();
+        for (const field of fieldsToUpdate) {
+            if (updatedData.hasOwnProperty(field)) {
+                existingProvider[field] = updatedData[field];
+            }
+        }
 
-        const subcat = updatedData.sbcatid
-        const isArray = subcat.split(',');
-        const existingProvider = await provider.findById(providerId);
+        for (const file of filesToUpdate) {
+            if (req.files[file]) {
+                const newFilePath = iplink + req.files[file][0].filename;
+                if (existingProvider[file] && existingProvider[file] !== iplink + '/dummy.jpeg') {
+                    const oldFilePath = existingProvider[file].replace(iplink, './files/');
+                    fs.unlinkSync(oldFilePath);
+                }
+                existingProvider[file] = newFilePath;
+            } else {
+                if (existingProvider[file] && existingProvider[file] !== iplink + '/dummy.jpeg') {
+                    const oldFilePath = path.join('./files', existingProvider[file].replace(iplink, ''));
+                    fs.unlinkSync(oldFilePath);
+                }
+                existingProvider[file] = iplink + '/dummy.jpeg';
+            }
+        }
 
-        if (!existingProvider) {
-            return res.status(404).json({ message: "Provider not found" });
-        }
-        // Profile
-        if (req.files['profile']) {
-            const newProfilePath = iplink + req.files['profile'][0].filename;
-            if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
-                const oldProfilePath = existingProvider.profile.replace(iplink, './files/');
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.profile = newProfilePath;
-        }
-        else {
-            if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
-                const oldProfilePath = path.join('./files', existingProvider.profile.replace(iplink, ''));
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.profile = iplink + '/profile.png';
-        }
-        // b_brochure
-        if (req.files['b_brochure']) {
-            const newProfilePath = iplink + req.files['b_brochure'][0].filename;
+        // Additional logic for uniqueArray...
 
-            if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = existingProvider.b_brochure.replace(iplink, './files/');
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.b_brochure = newProfilePath;
-        }
-        else {
-            if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = path.join('./files', existingProvider.b_brochure.replace(iplink, ''));
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.b_brochure = iplink + '/dummy.jpeg';
-        }
-        //adharcard
-        if (req.files['adharcard']) {
-            const newProfilePath = iplink + req.files['adharcard'][0].filename;
-
-            if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = existingProvider.adharcard.replace(iplink, './files/');
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.adharcard = newProfilePath;
-        }
-        else {
-            if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = path.join('./files', existingProvider.adharcard.replace(iplink, ''));
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.adharcard = iplink + '/dummy.jpeg';
-        }
-        //pancard
-        if (req.files['pancard']) {
-            const newProfilePath = iplink + req.files['pancard'][0].filename;
-
-            if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = existingProvider.pancard.replace(iplink, './files/');
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.pancard = newProfilePath;
-        }
-        else {
-            if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = path.join('./files', existingProvider.pancard.replace(iplink, ''));
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.pancard = iplink + '/dummy.jpeg';
-        }
-        //gstfile
-        if (req.files['gstfile']) {
-            const newProfilePath = iplink + req.files['gstfile'][0].filename;
-
-            if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = existingProvider.gstfile.replace(iplink, './files/');
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.gstfile = newProfilePath;
-        }
-        else {
-            if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = path.join('./files', existingProvider.gstfile.replace(iplink, ''));
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.gstfile = iplink + '/dummy.jpeg';
-        }
-        //tdsfile
-        if (req.files['tdsfile']) {
-            const newProfilePath = iplink + req.files['tdsfile'][0].filename;
-
-            if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = existingProvider.tdsfile.replace(iplink, './files/');
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.tdsfile = newProfilePath;
-        }
-        else {
-            if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = path.join('./files', existingProvider.tdsfile.replace(iplink, ''));
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.tdsfile = iplink + '/dummy.jpeg';
-        }
-        //agreementfile
-        if (req.files['agreementfile']) {
-            const newProfilePath = iplink + req.files['agreementfile'][0].filename;
-
-            if (existingProvider.tdsfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = existingProvider.agreementfile.replace(iplink, './files/');
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.agreementfile = newProfilePath;
-        }
-        else {
-            if (existingProvider.agreementfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
-                const oldProfilePath = path.join('./files', existingProvider.agreementfile.replace(iplink, ''));
-                fs.unlinkSync(oldProfilePath);
-            }
-            updatedData.agreementfile = iplink + '/dummy.jpeg';
-        }
-        existingProvider.profile = updatedData.profile
-        existingProvider.b_brochure = updatedData.b_brochure
-        existingProvider.adharcard = updatedData.adharcard
-        existingProvider.pancard = updatedData.pancard
-        existingProvider.gstfile = updatedData.gstfile
-        existingProvider.tdsfile = updatedData.tdsfile
-        existingProvider.agreementfile = updatedData.agreementfile
-
-
-        existingProvider.name = updatedData.name;
-        existingProvider.email = updatedData.email;
-        existingProvider.number = updatedData.number;
-        existingProvider.BOD = updatedData.BOD;
-        existingProvider.address = updatedData.address;
-        existingProvider.product_service = uniqueArray
-        // existingProvider.product_service = updatedData.productService
-        existingProvider.Bname = updatedData.Bname;
-        existingProvider.Bnumber = updatedData.Bnumber;
+        existingProvider.product_service = uniqueArray;
         existingProvider.password = password;
-        existingProvider.Bemail = updatedData.Bemail;
-        existingProvider.Bsocialmedia = updatedData.Bsocialmedia;
-        existingProvider.B_GSTnumber = updatedData.B_GSTnumber;
-        existingProvider.Btype = updatedData.Btype;
-        existingProvider.Bdetails = updatedData.Bdetails;
-        existingProvider.Btdsdetails = updatedData.Btdsdetails;
-        existingProvider.Bpancardnumber = updatedData.Bpancardnumber;
-        existingProvider.Bformation = updatedData.Bformation;
-        existingProvider.bsubcategoryid = isArray;
-        existingProvider.Baddress = updatedData.Baddress;
-        existingProvider.collaborationDetails = updatedData.collaborationDetails;
-        existingProvider.salespersonName = updatedData.salespersonName;
-        existingProvider.salespersonNumber = updatedData.salespersonNumber;
-        existingProvider.salespersonEmail = updatedData.salespersonEmail;
-        existingProvider.salespersonPosition = updatedData.salespersonPosition;
-        existingProvider.bankName = updatedData.bankName;
-        existingProvider.bankAccountnumber = updatedData.bankAccountnumber;
-        existingProvider.bankIFSCcode = updatedData.bankIFSCcode;
-        existingProvider.bankBranchname = updatedData.bankBranchname;
 
-        // Update other fields as needed...
-        const updatedProvider = await existingProvider.save()
+        const updatedProvider = await existingProvider.save();
         res.status(200).json({
             message: "Provider updated successfully",
             provider: updatedProvider
         });
     } catch (error) {
-        res.status(400).json({
+        console.error(error);
+        res.status(500).json({
             message: "Internal server error"
-        })
-        console.log(error);
+        });
     }
-}
+};
+
 exports.add_btype = async (req, res) => {
     try {
 
@@ -760,9 +768,15 @@ exports.updateuser = async (req, res) => {
             address
         } = req.body
         const password = await bcrypt.hash(number, 10);
+        let data = await user.findOne({ email: req.body.email })
         if (emptyobj(req.body)) {
             res.status(200).json({
                 message: "All field required !"
+            })
+        }
+        if(data){
+            res.status(400).json({
+                message: "User not found !"
             })
         }
         else {
@@ -837,7 +851,7 @@ exports.userform_details = async (req, res) => {
             .exec();
 
         res.status(200).json({
-            order:data
+            order: data
         })
 
     } catch (error) {
@@ -878,11 +892,45 @@ exports.today_order = async (req, res) => {
         })
     } catch (error) {
         console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
     }
 }
-exports.forward_order = async (req,res)=>{
-    console.log(req.body);
-
+exports.forward_order = async (req, res) => {
+    try {
+        if (req.body) {
+            const orderids = req.body.Orderid;
+            const managerids = req.body.Managerid;
+            if (!Array.isArray(orderids) || !Array.isArray(managerids)) {
+                return res.status(400).json({
+                    message: "Invalid input data"
+                });
+            }
+            for (const managerId of managerids) {
+                const Managerdata = await manager.findById(managerId);
+                if (!Managerdata) {
+                    return res.status(404).json({
+                        message: `Manager with ID ${managerId} not found`
+                    });
+                }
+                Managerdata.orderids = Managerdata.orderids.concat(orderids);
+                await Managerdata.save();
+            }
+            res.status(200).json({
+                message: "Orderids updated for the managers"
+            });
+        } else {
+            res.status(400).json({
+                message: "Invalid request data"
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
 }
 exports.showproduct = async (req, res) => {
     try {
@@ -921,30 +969,36 @@ exports.productid = async (req, res) => {
 
 // Manager
 
-exports.addmanager = async (req,res)=>{
+exports.addmanager = async (req, res) => {
     try {
         let {
             name,
             email,
             number,
         } = req.body
-        if(emptyobj(req.body)){
+        if (emptyobj(req.body)) {
             res.status(200).json({
-                message : "All field required !"
+                message: "All field required !"
             })
         }
-        else{
-            let password = await bcrypt.hash(number,10)
+        let data = await manager.findOne({ email: req.body.email })
+        if (data) {
+            res.json({
+                message: "Account Already Registered",
+            })
+        }
+        else {
+            let password = await bcrypt.hash(number, 10)
             let data = await manager.create({
                 name,
                 email,
                 number,
                 password
             })
-            if(data){
+            if (data) {
                 res.status(200).json({
-                    message  : "Manager added successfullt 👍",
-                    manager : data
+                    message: "Manager added successfully 👍",
+                    manager: data
                 })
             }
         }
@@ -954,14 +1008,14 @@ exports.addmanager = async (req,res)=>{
         })
     }
 }
-exports.allmanager = async (req,res)=>{
+exports.allmanager = async (req, res) => {
     try {
         let data = await manager.find()
         res.status(200).json({
-            message:"All manager",
-            managers:data
+            message: "All manager",
+            managers: data
         })
-    } catch{
+    } catch {
         res.status(400).json({
             message: "Internal server error"
         })

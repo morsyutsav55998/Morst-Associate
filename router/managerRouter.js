@@ -4,9 +4,14 @@ var verifyToken = require('../JWT/managerjwt')
 
 var {
     login,
-    home 
+    home,
+    
+    showorders,
+
 } = require('../controller/managerController')
 
 router.post('/login',login)
 router.get('/home',verifyToken,home)
+
+router.get('/showorders',verifyToken,showorders)
 module.exports = router

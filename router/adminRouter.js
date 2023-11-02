@@ -63,9 +63,6 @@ router.post('/addprovider',verifyToken,upload.fields([
         name : 'b_brochure',
         maxCount: 1,
     },
-    // {
-    //     name :'documents',
-    // }
     {
         name : 'adharcard',
         maxCount: 1,
@@ -99,10 +96,7 @@ router.patch('/updateprovider/:id',verifyToken,upload.fields([
     {
         name : 'b_brochure',
         maxCount: 1,
-    },
-    // {
-    //     name :'documents',
-    // }
+    },  
     {
         name : 'adharcard',
         maxCount: 1,
@@ -159,4 +153,5 @@ router.get('/userform_details/:id',verifyToken,userform_details)
 router.get('/all_userform',verifyToken,all_userform)
 router.get('/today_order',verifyToken,today_order)
 router.post('/forward_order',verifyToken,forward_order)
+
 module.exports = router

@@ -1,5 +1,4 @@
 const provider = require("../model/provider")
-const services = require('../model/provider_service')
 const iplink = 'http://192.168.0.113:3000/'
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
@@ -15,8 +14,6 @@ exports.login = async (req, res) => {
         }
         else {
             const providerNumber = await bcrypt.compare(number, data.password)
-
-
             if (providerNumber) {
                 // Token genrate
                 const token = await jwt.sign({ id: data.id }, process.env.providerkey)
@@ -59,54 +56,3 @@ exports.home = async (req, res) => {
         })
     }
 }
-
-exports.addservice = async (req, res) => {
-    console.log(req.body);
-    try {
-        let {
-            service,
-            description
-        } = req.body
-
-        const loginProvider = req.provider
-        let providerid = loginProvider.id
-
-        const files2 = req.files;
-        const serviceimg = [];
-
-        for (const file of files2) {
-            const filepath = iplink + file.filename;
-            serviceimg.push(filepath);
-        }
-        const data = await services.create({ service, description, providerid, serviceimg })
-        console.log(data);
-        if (data) {
-            res.json({
-                status: 200,
-                message: "Provider service  added",
-                serviceData: data
-            })
-        }
-    } catch (error) {
-        res.status(400).json({
-            message: "Internal server error"
-        })
-    }
-}
-exports.showservices = async (req, res) => {
-    try {
-        const providerId = req.provider
-        const serviceId = await services.find({ providerid: providerId._id })
-        // console.log(serviceId);
-        if (serviceId) {
-            res.json({
-                message: "Your added services",
-                services: serviceId,
-            })
-        }
-    } catch (error) {
-        res.status(400).json({
-            message: "Internal server error"
-        })
-    }
-}   

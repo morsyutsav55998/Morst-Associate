@@ -6,8 +6,6 @@ const {
     login,
     home,
 
-    addservice,
-    showservices,
 } = require('../controller/providerController')
 
 router.post('/login',login)
@@ -17,6 +15,4 @@ router.get('/logout',(req,res)=>{
     res.clearCookie()
     res.status(200).json({message:'logout successfully'})
 })
-router.post('/addservice',verifyToken,upload.array('serviceimg'),addservice)
-router.get('/showservices',verifyToken,showservices)
 module.exports = router

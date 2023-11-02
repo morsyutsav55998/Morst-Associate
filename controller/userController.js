@@ -1,6 +1,5 @@
 const user = require('../model/user')
 const provider = require('../model/provider')
-const services = require('../model/provider_service')
 const bsubcategory = require('../model/category/bussiness_subcategory')
 const bcategory = require('../model/category/bussiness_category')
 const bcrypt = require('bcrypt')
