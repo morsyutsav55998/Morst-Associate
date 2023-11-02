@@ -1,18 +1,18 @@
-const admin = require('../model/admin')
-const jwt = require('jsonwebtoken');
-const user = require('../model/user')
-const provider = require('../model/provider');
-const bcategory = require('../model/category/bussiness_category')
-const btype = require('../model/category/bussiness_type')
-const userform = require('../model/userForm')
-const bsubcategory = require('../model/category/bussiness_subcategory')
-const product = require('../model/category/product')
-const bformation = require('../model/category/bussiness_formation')
-const bcrypt = require('bcrypt')
-const path = require('path')
-const iplink = 'http://192.168.0.113:3000/'
+var admin = require('../model/admin')
+var jwt = require('jsonwebtoken');
+var user = require('../model/user')
+var provider = require('../model/provider');
+var bcategory = require('../model/category/bussiness_category')
+var btype = require('../model/category/bussiness_type')
+var userform = require('../model/userForm')
+var bsubcategory = require('../model/category/bussiness_subcategory')
+var product = require('../model/category/product')
+var bformation = require('../model/category/bussiness_formation')
+var bcrypt = require('bcrypt')
+var path = require('path')
+var iplink = 'http://192.168.0.113:3000/'
 var fs = require('fs');
-const manager = require('../model/manager');
+var manager = require('../model/manager');
 function emptyobj(obj) {
     for (const key in obj) {
         if (obj[key] === null || obj[key] === undefined || obj[key] === '') {
@@ -1008,6 +1008,64 @@ exports.addmanager = async (req, res) => {
             }
         }
     } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.delete_manager = async (req,res)=>{
+    try {
+        let dataid = await manager.findById(req.params.id)
+        if (!dataid) {
+            res.status(400).json({
+                message: "Manager not found !"
+            })
+        }
+        else {
+            let data = await manager.findByIdAndDelete(req.params.id)
+            if (data) {
+                res.status(200).json({
+                    message: "Manager deleted successfully 👍"
+                })
+            }
+        }
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.update_manager = async (req,res)=>{
+    try {
+        const {
+            name,
+            email,
+            number,
+        } = req.body
+        const password = await bcrypt.hash(number, 10);
+        let data = await manager.findOne({ email: req.body.email })
+        
+        if (data) {
+            res.status(400).json({
+                message: "Manager not found !"
+            })
+        }
+        else {
+            let data = await manager.findByIdAndUpdate(req.params.id, {
+                name,
+                email,
+                number,
+                password,
+            })
+            if (data) {
+                res.status(200).json({
+                    message: "Manager updated successfully 👍",
+                    data,
+                })
+            }
+        }
+    } catch (error) {
+        console.log(error);
         res.status(400).json({
             message: "Internal server error"
         })
