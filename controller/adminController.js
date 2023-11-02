@@ -229,7 +229,6 @@ exports.providerdetails = async (req, res) => {
 // This is my delete function
 exports.deleteprovider = async (req, res) => {
     try {
-        // How to delete file
         const data = await provider.findById(req.params.id)
         if (data) {
             const filesToDelete = [];
@@ -641,7 +640,6 @@ exports.subcatdata = async (req, res) => {
 }
 // User 
 exports.adduser = async (req, res) => {
-    console.log(req.body);
     var data = await user.find({})
     data = data.slice(-1)
     var ids = 0
@@ -650,7 +648,6 @@ exports.adduser = async (req, res) => {
     } else {
         ids = data[0].ids + 1
     }
-    console.log(data.slice(-1));
     try {
         const {
             name,
@@ -730,7 +727,6 @@ exports.userdetails = async (req, res) => {
 }
 exports.deleteuser = async (req, res) => {
     try {
-        console.log(req.params.id)
         let dataid = await user.findById(req.params.id)
         if (!dataid) {
             res.status(400).json({
@@ -824,7 +820,6 @@ exports.all_userform = async (req, res) => {
 }
 exports.userform_details = async (req, res) => {
     try {
-        console.log(req.params.id);
         let data = await userform.findById(req.params.id).populate({
             path: 'productid',
             model: product,

@@ -35,7 +35,7 @@ app.use(express.urlencoded({
 app.use('/user', require('./router/userRouter'))
 app.use('/admin', require('./router/adminRouter'))
 app.use('/provider', require('./router/providerRouter'))
-
+app.use('/manager',require('./router/managerRouter'))
 app.get('/', (req, res) => {
     res.send('😊')
 })

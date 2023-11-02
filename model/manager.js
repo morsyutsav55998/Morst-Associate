@@ -12,6 +12,9 @@ const managerSchema = new mongoose.Schema({
     password:{
         type:String,
     },
-});
+    orderids:[{
+        type : mongoose.Schema.Types.ObjectId,
+    }]
+})
 
 module.exports = mongoose.model('manager', managerSchema); 
