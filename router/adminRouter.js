@@ -29,14 +29,21 @@ const {
     subcatdata,
     showproduct,
     
+    // Manager
+    addmanager,
+    allmanager,
     // User
     adduser,
     userdetails,
     deleteuser,
     updateuser,
     alluser,
-    all_userform,
     userform_details,
+
+    // Order
+    all_userform,
+    today_order,
+    forward_order,
 } = require('../controller/adminController')
 
 router.post('/login',login)
@@ -134,6 +141,11 @@ router.get('/show_products',verifyToken,show_products)
 router.post('/subcatdata',verifyToken,subcatdata) 
 
 router.post('/showproduct',verifyToken,showproduct)
+
+// Manager
+router.post('/addmanager',verifyToken,addmanager)
+router.get('/allmanager',verifyToken,allmanager)
+
 // User
 router.post('/productid',verifyToken,productid)
 router.post('/adduser',verifyToken,adduser)
@@ -141,8 +153,10 @@ router.get('/userdetails/:id',verifyToken,userdetails)
 router.delete('/deleteuser/:id',verifyToken,deleteuser)
 router.patch('/updateuser/:id',verifyToken,updateuser)
 router.get('/alluser',verifyToken,alluser)
-router.get('/all_userform',verifyToken,all_userform)
 router.get('/userform_details/:id',verifyToken,userform_details)    
 
-
+// Order
+router.get('/all_userform',verifyToken,all_userform)
+router.get('/today_order',verifyToken,today_order)
+router.post('/forward_order',verifyToken,forward_order)
 module.exports = router

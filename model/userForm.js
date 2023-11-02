@@ -20,6 +20,8 @@ const userformSchema = new mongoose.Schema({
     otherNumber: {
         type: String,
     },
+},{
+  timestamps:true
 });
 userformSchema.pre('save', async function (next) {
     try {

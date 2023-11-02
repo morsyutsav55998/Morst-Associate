@@ -12,7 +12,7 @@ const bcrypt = require('bcrypt')
 const path = require('path')
 const iplink = 'http://192.168.0.113:3000/'
 var fs = require('fs');
-const { log } = require('console');
+const manager = require('../model/manager');
 function emptyobj(obj) {
     for (const key in obj) {
         if (obj[key] === null || obj[key] === undefined || obj[key] === '') {
@@ -766,10 +766,10 @@ exports.updateuser = async (req, res) => {
         const password = await bcrypt.hash(number, 10);
         if (emptyobj(req.body)) {
             res.status(200).json({
-                message : "All field required !"
+                message: "All field required !"
             })
         }
-        else{
+        else {
             let data = await user.findByIdAndUpdate(req.params.id, {
                 name,
                 email,
@@ -841,8 +841,8 @@ exports.userform_details = async (req, res) => {
             })
             .exec();
 
-        res.json({
-            data
+        res.status(200).json({
+            order:data
         })
 
     } catch (error) {
@@ -850,6 +850,44 @@ exports.userform_details = async (req, res) => {
             message: "Internal server error"
         })
     }
+}
+exports.today_order = async (req, res) => {
+    try {
+        // 24 hours set 
+        const twentyFourHoursAgo = new Date();
+        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
+        const todayOrder = await userform.find({
+            createdAt: {
+                $gte: twentyFourHoursAgo, // Greater than or equal to 24 hours ago
+                $lt: new Date() // Less than the current time
+            }
+        }).populate({
+            path: 'productid',
+            model: product,
+            populate: {
+                path: 'bsubcategoryid',
+                populate: {
+                    path: 'bcategoryid'
+                }
+            }
+        })
+            .populate({
+                path: 'userid',
+                model: user,
+            })
+            .exec();
+        res.status(200).json({
+            message: "Today orders",
+            orders: todayOrder
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+exports.forward_order = async (req,res)=>{
+    console.log(req.body);
+
 }
 exports.showproduct = async (req, res) => {
     try {
@@ -880,6 +918,55 @@ exports.productid = async (req, res) => {
         res.json({ productService: products });
 
     } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+
+// Manager
+
+exports.addmanager = async (req,res)=>{
+    try {
+        let {
+            name,
+            email,
+            number,
+        } = req.body
+        if(emptyobj(req.body)){
+            res.status(200).json({
+                message : "All field required !"
+            })
+        }
+        else{
+            let password = await bcrypt.hash(number,10)
+            let data = await manager.create({
+                name,
+                email,
+                number,
+                password
+            })
+            if(data){
+                res.status(200).json({
+                    message  : "Manager added successfullt 👍",
+                    manager : data
+                })
+            }
+        }
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.allmanager = async (req,res)=>{
+    try {
+        let data = await manager.find()
+        res.status(200).json({
+            message:"All manager",
+            managers:data
+        })
+    } catch{
         res.status(400).json({
             message: "Internal server error"
         })
