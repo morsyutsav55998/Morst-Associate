@@ -101,8 +101,7 @@ exports.addprovider = async (req, res) => {
             bankIFSCcode,
             bankBranchname,
         } = req.body;
-
-
+        
         const password = await bcrypt.hash(number, 10);
         const processFile = (fieldName, defaultValue) => (req.files[fieldName] ? iplink + req.files[fieldName][0].filename : defaultValue);
         const processArrayField = (fieldName) => [...new Set(req.body[fieldName].split(',').map(item => item.trim()))].sort();
