@@ -102,6 +102,7 @@ exports.addprovider = async (req, res) => {
             bankBranchname,
         } = req.body;
 
+
         const password = await bcrypt.hash(number, 10);
         const processFile = (fieldName, defaultValue) => (req.files[fieldName] ? iplink + req.files[fieldName][0].filename : defaultValue);
         const processArrayField = (fieldName) => [...new Set(req.body[fieldName].split(',').map(item => item.trim()))].sort();
@@ -111,7 +112,6 @@ exports.addprovider = async (req, res) => {
             paths[field] = processFile(field, iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg'));
             return paths;
         }, {});
-
         const isArray = bsubcategoryid.split(',');
 
         const providerData = await provider.create({
@@ -447,6 +447,12 @@ exports.updateprovider = async (req, res) => {
 
         for (const file of filesToUpdate) {
             if (req.files[file]) {
+                if (req.files[file].length > 1) {
+                    // If more than one file is uploaded for this field, send an error response
+                    return res.status(400).json({
+                        message: `Only one file is allowed for ${file}`,
+                    });
+                }
                 const newFilePath = iplink + req.files[file][0].filename;
                 if (existingProvider[file] && existingProvider[file] !== iplink + '/dummy.jpeg') {
                     const oldFilePath = existingProvider[file].replace(iplink, './files/');
@@ -774,7 +780,7 @@ exports.updateuser = async (req, res) => {
                 message: "All field required !"
             })
         }
-        if(data){
+        if (data) {
             res.status(400).json({
                 message: "User not found !"
             })
