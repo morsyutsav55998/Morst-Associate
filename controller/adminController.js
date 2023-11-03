@@ -145,6 +145,32 @@ exports.showproviders = async (req, res) => {
         })
     }
 }
+// exports.providerdetails = async (req, res) => {
+//     try {
+//         let data = await provider.findById(req.params.id)
+//         if (data) {
+//             const subcatData = []
+//             for (var i of data.bsubcategoryid) {
+//                 var subcat = await bsubcategory.findById(i).populate('bcategoryid').exec()
+//                 if (subcat) {
+//                     subcatData.push(subcat)
+//                 }
+//             }
+//             res.json({
+//                 message: "Provider all details",
+//                 providers: data, subcatData
+//             })
+//         }
+//         else {
+//             res.status(400).json({
+//                 message: "Provider not found !"
+//             })
+//         }
+
+//     } catch (error) {
+//         res.json({ message: "internal server error" })
+//     }
+// }
 exports.providerdetails = async (req, res) => {
     try {
         let data = await provider.findById(req.params.id)
@@ -425,65 +451,73 @@ exports.updateprovider = async (req, res) => {
         const providerId = req.params.id;
         const updatedData = req.body;
         const password = await bcrypt.hash(updatedData.number, 10);
+
+        const existingProvider = await provider.findById(providerId);
+
+        if (!existingProvider) {
+            return res.status(404).json({ message: "Provider not found" });
+        }
+
         const fieldsToUpdate = [
-            'name', 'email', 'number', 'BOD', 'address', 'productService',
-            'Bname', 'Bnumber', 'Bemail', 'Bsocialmedia', 'B_GSTnumber',
-            'Btype', 'Bdetails', 'Btdsdetails', 'Bpancardnumber', 'Bformation',
-            'Baddress', 'collaborationDetails', 'salespersonName', 'salespersonNumber',
-            'salespersonEmail', 'salespersonPosition', 'bankName', 'bankAccountnumber',
-            'bankIFSCcode', 'bankBranchname'
+            'name', 'email', 'number', 'BOD', 'address', 'Bname', 'Bnumber',
+            'password', 'Bemail', 'Bsocialmedia', 'B_GSTnumber', 'Btype', 'Bdetails',
+            'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationDetails',
+            'salespersonName', 'salespersonNumber', 'salespersonEmail', 'salespersonPosition',
+            'bankName', 'bankAccountnumber', 'bankIFSCcode', 'bankBranchname',
         ];
 
-        const filesToUpdate = [
-            'profile', 'b_brochure', 'adharcard', 'pancard', 'gstfile', 'tdsfile', 'agreementfile'
-        ];
-
-        for (const field of fieldsToUpdate) {
-            if (updatedData.hasOwnProperty(field)) {
+        fieldsToUpdate.forEach((field) => {
+            if (updatedData[field]) {
                 existingProvider[field] = updatedData[field];
             }
-        }
+        });
 
-        for (const file of filesToUpdate) {
-            if (req.files[file]) {
-                if (req.files[file].length > 1) {
-                    // If more than one file is uploaded for this field, send an error response
-                    return res.status(400).json({
-                        message: `Only one file is allowed for ${file}`,
-                    });
-                }
-                const newFilePath = iplink + req.files[file][0].filename;
-                if (existingProvider[file] && existingProvider[file] !== iplink + '/dummy.jpeg') {
-                    const oldFilePath = existingProvider[file].replace(iplink, './files/');
+        // Process file fields
+        const fileFields = ['profile', 'b_brochure', 'adharcard', 'pancard', 'gstfile', 'tdsfile', 'agreementfile'];
+        fileFields.forEach((field) => {
+            if (req.files[field]) {
+                const newFilePath = iplink + req.files[field][0].filename;
+                if (existingProvider[field] && existingProvider[field] !== iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg')) {
+                    const oldFilePath = existingProvider[field].replace(iplink, './files/');
                     fs.unlinkSync(oldFilePath);
                 }
-                existingProvider[file] = newFilePath;
+                existingProvider[field] = newFilePath;
             } else {
-                if (existingProvider[file] && existingProvider[file] !== iplink + '/dummy.jpeg') {
-                    const oldFilePath = path.join('./files', existingProvider[file].replace(iplink, ''));
+                if (existingProvider[field] && existingProvider[field] !== iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg')) {
+                    const oldFilePath = path.join('./files', existingProvider[field].replace(iplink, ''));
                     fs.unlinkSync(oldFilePath);
                 }
-                existingProvider[file] = iplink + '/dummy.jpeg';
+                existingProvider[field] = iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg');
             }
+        });
+
+        // Process 'product_service'
+        if (updatedData.productService) {
+            const productArray = [...new Set(updatedData.productService.split(',').map(item => item.trim()))].sort();
+            existingProvider.product_service = productArray;
         }
 
-        // Additional logic for uniqueArray...
+        // Process 'bsubcategoryid'
+        if (updatedData.sbcatid) {
+            const subcatArray = updatedData.sbcatid.split(',');
+            existingProvider.bsubcategoryid = subcatArray;
+        }
 
-        existingProvider.product_service = uniqueArray;
-        existingProvider.password = password;
-
+        // Save the updated provider
         const updatedProvider = await existingProvider.save();
+
         res.status(200).json({
             message: "Provider updated successfully",
-            provider: updatedProvider
+            provider: updatedProvider,
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({
-            message: "Internal server error"
+        res.status(400).json({
+            message: "Internal server error",
         });
     }
 };
+
 
 exports.add_btype = async (req, res) => {
     try {
