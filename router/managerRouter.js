@@ -6,6 +6,8 @@ var {
     login,
     home,
     checkemail,
+    verify_otp,
+    forgot_number,
     
     showorders,
 
@@ -19,8 +21,10 @@ router.get('/logout',(req,res)=>{
 })
 // Forget Password
 router.post('/checkemail',checkemail)
+router.post('/verify_otp',verify_otp)
+router.post('/forgot_number',forgot_number)
+// 
 router.get('/home',verifyToken,home)
-
 router.get('/showorders',verifyToken,showorders)
 
 module.exports = router

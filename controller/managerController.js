@@ -5,8 +5,8 @@ var user = require('../model/user')
 var bcrypt = require('bcrypt')
 var nodemailer = require('nodemailer')
 var jwt = require('jsonwebtoken')
+var cookieParser = require('cookie-parser')
 exports.login = async (req, res) => {
-    console.log(req.body);
     try {
         const { email, number } = req.body
         const data = await manager.findOne({ email })
@@ -46,29 +46,96 @@ exports.checkemail = async (req, res) => {
     try {
         var managerData = await manager.findOne({ email: req.body.email })
         if (managerData) {
-            var otp = Math.ceil(Math.random() * 100000)
-            var transport = nodemailer.createTransport({
-                service: 'gmail',
+            var otp =Math.floor(1000 + Math.random() * 9000);
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook', etc.
                 auth: {
-                    user: "utsavgarchar63@gmail.com",
-                    pass: "xzhv bdmj kapn eqgn"
+                    user: 'utsavgarchar63@gmail.com', // Your email address
+                    pass: 'xzhv bdmj kapn eqgn' // Your email password or app-specific password
                 }
             });
-            let info = transport.sendMail({
+            const mailOptions = {
                 from: 'utsavgarchar63@gmail.com',
-                to: managerData.email,
-                subject: 'testing',
-                text: 'Hello',
-                html: `<b>otp : ${otp}</b>`
+                to: managerData.email, // Recipient's email address
+                subject: 'Forgot Password',
+                html: `<b>OTP : ${otp}</b>`
+            };
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error('Error sending email: ' + error);
+                } else {
+                    res.status(200).json({
+                        message: "Mail Sended 👍",
+                        otp: otp
+                    })
+                    res.cookie('otp', otp);
+                    res.cookie('email', managerData.email);
+
+                    // Set a timeout to clear the OTP and email cookies after 5 minutes (300,000 milliseconds)
+                    setTimeout(() => {
+                        res.clearCookie('otp');
+                        res.clearCookie('email');
+                        console.log('OTP and email cookies cleared.');
+                    }, 300000);
+                    console.log('Email sent: ' + info.response);
+                }
             });
-            res.cookie('otp', otp);
-            res.cookie('email', managerData.email);
         }
         else {
-            res.status(400).json({
+            res.status(200).json({
                 message: "Manager not found !"
             })
         }
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.verify_otp = async (req, res) => {
+    try {
+        console.log(req.body,req.cookies.otp);
+        if (req.cookies.otp == req.body.otp) {
+            return res.status(200).json({
+                status:true,
+                message: "OTP Verify successfully 👍"
+            })
+        }
+        else {
+            return res.status(200).json({
+                message: "OTP not Match !"
+            })
+        }
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.forgot_number = async (req,res)=>{
+    try {
+        if (req.body.number == req.body.cnumber) {
+            const managerEmail = await manager.findOne({ email: req.cookies.email })
+            if (managerEmail) {
+                 var password = await bcrypt.hash(req.body.number, 10)
+                 const managerData = await manager.findByIdAndUpdate(managerEmail.id, {
+                      number : req.body.number,
+                      password,
+                 });
+                 if(managerData){
+                    res.status(200).json({
+                        message: "Number changed successfully 👍"
+                    })
+                    res.cookie('otp', '')
+                    res.cookie('email', '')
+                 }
+            }
+       }
+       else {
+            res.status(400).json({
+                message: "Number & Confirm number not match !"
+            })
+       }
     } catch (error) {
         res.status(400).json({
             message: "Internal server error"

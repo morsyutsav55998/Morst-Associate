@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'sample')))
 require('dotenv').config()
 app.use(helmet())
 app.disable("x-powered-by");
-// Ask Helmet to ignore the X-Powered-By header.
+
 app.use(
   helmet({
     xPoweredBy: false,
@@ -27,6 +27,7 @@ app.use(
 app.use(morgan('dev'))
 app.use(cors())  
 app.use(bodyParser.json());
+app.use(cookieParser())
 app.use(express.urlencoded({
     extended: true
 }))
@@ -37,8 +38,11 @@ app.use('/admin', require('./router/adminRouter'))
 app.use('/provider', require('./router/providerRouter'))
 app.use('/manager',require('./router/managerRouter'))
 app.get('/', (req, res) => {
-    res.send('😊')
+ res.json({
+  message : '👍'
+ })
 })
+
 // Server
 app.listen(3000, (err) => {
     if (err) {
