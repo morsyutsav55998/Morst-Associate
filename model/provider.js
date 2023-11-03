@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const providerSchema = new mongoose.Schema({
+    orderids:[{
+        type : mongoose.Schema.Types.ObjectId,
+    }],
     // Provider
     profile:{
         type : String,
@@ -96,10 +99,6 @@ const providerSchema = new mongoose.Schema({
     bankBranchname:{
         type:String
     },
-    // Documents upload
-    // documents:{
-    //     type:[String]
-    // }
     adharcard:{
         type:String,
     },

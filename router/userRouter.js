@@ -20,7 +20,6 @@ router.get('/logout', async (req,res)=>{
     res.status(200).json({message:'logout successfully'})
 })
 router.get('/home',verifyToken,home)
-
 router.get('/allprovider',verifyToken,allprovider)
 router.post('/search',verifyToken,search)
 router.get('/providerdetails/:id',providerdetails)

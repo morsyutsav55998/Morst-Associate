@@ -10,7 +10,8 @@ var {
     forgot_number,
     
     showorders,
-
+    allprovider,
+    provider_order
 } = require('../controller/managerController')
 
 router.post('/login',login)
@@ -23,8 +24,11 @@ router.get('/logout',(req,res)=>{
 router.post('/checkemail',checkemail)
 router.post('/verify_otp',verify_otp)
 router.post('/forgot_number',forgot_number)
+
 // 
 router.get('/home',verifyToken,home)
 router.get('/showorders',verifyToken,showorders)
+router.get('/allprovider',verifyToken,allprovider)
+router.post('/provider_order',verifyToken,provider_order)
 
 module.exports = router

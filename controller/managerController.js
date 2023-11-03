@@ -1,11 +1,12 @@
 var manager = require('../model/manager')
 var orders = require("../model/userForm")
 var product = require("../model/category/product")
+var provider = require('../model/provider')
 var user = require('../model/user')
 var bcrypt = require('bcrypt')
 var nodemailer = require('nodemailer')
 var jwt = require('jsonwebtoken')
-var cookieParser = require('cookie-parser')
+const { productid } = require('./adminController')
 exports.login = async (req, res) => {
     try {
         const { email, number } = req.body
@@ -46,7 +47,7 @@ exports.checkemail = async (req, res) => {
     try {
         var managerData = await manager.findOne({ email: req.body.email })
         if (managerData) {
-            var otp =Math.floor(1000 + Math.random() * 9000);
+            var otp = Math.floor(1000 + Math.random() * 9000);
             const transporter = nodemailer.createTransport({
                 service: 'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook', etc.
                 auth: {
@@ -94,10 +95,10 @@ exports.checkemail = async (req, res) => {
 }
 exports.verify_otp = async (req, res) => {
     try {
-        console.log(req.body,req.cookies.otp);
+        console.log(req.body, req.cookies.otp);
         if (req.cookies.otp == req.body.otp) {
             return res.status(200).json({
-                status:true,
+                status: true,
                 message: "OTP Verify successfully 👍"
             })
         }
@@ -112,30 +113,30 @@ exports.verify_otp = async (req, res) => {
         })
     }
 }
-exports.forgot_number = async (req,res)=>{
+exports.forgot_number = async (req, res) => {
     try {
         if (req.body.number == req.body.cnumber) {
             const managerEmail = await manager.findOne({ email: req.cookies.email })
             if (managerEmail) {
-                 var password = await bcrypt.hash(req.body.number, 10)
-                 const managerData = await manager.findByIdAndUpdate(managerEmail.id, {
-                      number : req.body.number,
-                      password,
-                 });
-                 if(managerData){
+                var password = await bcrypt.hash(req.body.number, 10)
+                const managerData = await manager.findByIdAndUpdate(managerEmail.id, {
+                    number: req.body.number,
+                    password,
+                });
+                if (managerData) {
                     res.status(200).json({
                         message: "Number changed successfully 👍"
                     })
                     res.cookie('otp', '')
                     res.cookie('email', '')
-                 }
+                }
             }
-       }
-       else {
+        }
+        else {
             res.status(400).json({
                 message: "Number & Confirm number not match !"
             })
-       }
+        }
     } catch (error) {
         res.status(400).json({
             message: "Internal server error"
@@ -174,12 +175,10 @@ exports.showorders = async (req, res) => {
                         path: 'bcategoryid'
                     }
                 }
-            })
-                .populate({
-                    path: 'userid',
-                    model: user,
-                })
-                .exec();
+            }).populate({
+                path: 'userid',
+                model: user,
+            }).exec();
             if (order) {
                 orderData.push(order);
             } else {
@@ -188,12 +187,74 @@ exports.showorders = async (req, res) => {
         }
         res.json({
             message: "👍",
-            data: {
-                orders: orderData,
-            },
+            adminorder: orderData
         });
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.allprovider = async (req,res)=>{
+    try {
+        let data = await provider.find()
+        res.status(200).json({
+            message : "All providers",
+            providers : data,
+        })
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.provider_order = async (req, res) => {
+    try {
+        const orderids = req.body.Orderids
+        const providerids = req.body.Providerids
+        if (!Array.isArray(orderids) || !Array.isArray(providerids)) {
+            return res.status(400).json({
+                message: "Invalid input data"
+            });
+        }
+        for (const providerId of providerids) {
+            const providerData = await provider.findById(providerId);
+            if (!providerData) {
+                return res.status(404).json({
+                    message: `Provider with ID ${providerId} not found`
+                });
+            }
+            // console.log(providerData.email);
+            const transporter = nodemailer.createTransport({
+                service: 'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook', etc.
+                auth: {
+                    user: 'utsavgarchar63@gmail.com', // Your email address
+                    pass: 'xzhv bdmj kapn eqgn' // Your email password or app-specific password
+                }
+            });
+            const mailOptions = {
+                from: 'utsavgarchar63@gmail.com',
+                to: providerData.email, // Recipient's email address
+                subject: 'good',
+                html: `<h1>Hello</h1>`
+            };
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.error('Error sending email: ' + error);
+                } else {
+                    res.status(200).json({
+                        message: "Mail Sended 👍",
+                        otp: otp
+                    })
+                }
+            });
+            providerData.orderids = providerData.orderids.concat(orderids);
+            await providerData.save();
+        }
+        res.status(200).json({
+            message: "Orderids updated for the managers"
+        });
+    } catch (error) {
         res.status(400).json({
             message: "Internal server error"
         })
