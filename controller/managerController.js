@@ -3,8 +3,10 @@ var orders = require("../model/userForm")
 var product = require("../model/category/product")
 var user = require('../model/user')
 var bcrypt = require('bcrypt')
+var nodemailer = require('nodemailer')
 var jwt = require('jsonwebtoken')
 exports.login = async (req, res) => {
+    console.log(req.body);
     try {
         const { email, number } = req.body
         const data = await manager.findOne({ email })
@@ -23,8 +25,8 @@ exports.login = async (req, res) => {
                     expires: new Date(Date.now() + 24 * 60 * 60 * 1000)
                 });
                 res.status(200).json({
-                    message: 'Manager login successfully',
-                    token: token
+                    message: 'Manager login successfully 👍',
+                    managertoken: token
                 })
             }
             else {
@@ -40,13 +42,46 @@ exports.login = async (req, res) => {
         })
     }
 }
-exports.home = async (req,res)=>{
+exports.checkemail = async (req, res) => {
+    try {
+        var managerData = await manager.findOne({ email: req.body.email })
+        if (managerData) {
+            var otp = Math.ceil(Math.random() * 100000)
+            var transport = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: "utsavgarchar63@gmail.com",
+                    pass: "xzhv bdmj kapn eqgn"
+                }
+            });
+            let info = transport.sendMail({
+                from: 'utsavgarchar63@gmail.com',
+                to: managerData.email,
+                subject: 'testing',
+                text: 'Hello',
+                html: `<b>otp : ${otp}</b>`
+            });
+            res.cookie('otp', otp);
+            res.cookie('email', managerData.email);
+        }
+        else {
+            res.status(400).json({
+                message: "Manager not found !"
+            })
+        }
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.home = async (req, res) => {
     try {
         const managerId = req.manager
         let data = await manager.findById(managerId.id)
         if (data) {
             res.status(200).json({
-                message : "Login manager data",
+                message: "Login manager data",
                 manager: data
             })
         }
@@ -56,11 +91,11 @@ exports.home = async (req,res)=>{
         })
     }
 }
-exports.showorders = async (req,res)=>{
+exports.showorders = async (req, res) => {
     try {
         const managerId = req.manager
         let data = await manager.findById(managerId.id)
-        const orderIds = data.orderids; 
+        const orderIds = data.orderids;
         const orderData = [];
         for (const orderId of orderIds) {
             const order = await orders.findById(orderId).populate({

@@ -101,7 +101,7 @@ exports.addprovider = async (req, res) => {
             bankIFSCcode,
             bankBranchname,
         } = req.body;
-        
+
         const password = await bcrypt.hash(number, 10);
         const processFile = (fieldName, defaultValue) => (req.files[fieldName] ? iplink + req.files[fieldName][0].filename : defaultValue);
         const processArrayField = (fieldName) => [...new Set(req.body[fieldName].split(',').map(item => item.trim()))].sort();
@@ -901,18 +901,22 @@ exports.userform_details = async (req, res) => {
 }
 exports.today_order = async (req, res) => {
     try {
-        // 24 hours set 
-        const twentyFourHoursAgo = new Date();
-        twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+        // Get the current date and set it to the start of the day
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+
+        // Get the end of today by adding 24 hours to the start date
+        const endOfToday = new Date(currentDate);
+        endOfToday.setHours(24, 0, 0, 0);
 
         const todayOrder = await userform.find({
             createdAt: {
-                $gte: twentyFourHoursAgo, // Greater than or equal to 24 hours ago
-                $lt: new Date() // Less than the current time
+                $gte: currentDate, // Greater than or equal to the start of today
+                $lt: endOfToday,    // Less than the end of today
             }
         }).populate({
             path: 'productid',
-            model: product,
+            model: 'product', // Use the string 'product' as the model name
             populate: {
                 path: 'bsubcategoryid',
                 populate: {
@@ -920,22 +924,24 @@ exports.today_order = async (req, res) => {
                 }
             }
         })
-            .populate({
-                path: 'userid',
-                model: user,
-            })
-            .exec();
+        .populate({
+            path: 'userid',
+            model: 'user', // Use the string 'user' as the model name
+        })
+        .exec();
+
         res.status(200).json({
             message: "Today orders",
             orders: todayOrder
-        })
+        });
     } catch (error) {
         console.log(error);
-        res.status(400).json({
+        res.status(500).json({
             message: "Internal server error"
-        })
+        });
     }
 }
+
 exports.forward_order = async (req, res) => {
     try {
         if (req.body) {
@@ -1047,7 +1053,7 @@ exports.addmanager = async (req, res) => {
         })
     }
 }
-exports.delete_manager = async (req,res)=>{
+exports.delete_manager = async (req, res) => {
     try {
         let dataid = await manager.findById(req.params.id)
         if (!dataid) {
@@ -1069,7 +1075,7 @@ exports.delete_manager = async (req,res)=>{
         })
     }
 }
-exports.update_manager = async (req,res)=>{
+exports.update_manager = async (req, res) => {
     try {
         const {
             name,
@@ -1078,29 +1084,34 @@ exports.update_manager = async (req,res)=>{
         } = req.body
         const password = await bcrypt.hash(number, 10);
         let data = await manager.findOne({ email: req.body.email })
-        
         if (data) {
-            res.status(400).json({
+            return res.status(200).json({
                 message: "Manager not found !"
             })
         }
-        else {
-            let data = await manager.findByIdAndUpdate(req.params.id, {
+        else{
+            let updateData = await manager.findByIdAndUpdate(req.params.id, {
                 name,
                 email,
                 number,
                 password,
             })
-            if (data) {
-                res.status(200).json({
+            if (updateData) {
+                return res.status(200).json({
                     message: "Manager updated successfully 👍",
-                    data,
+                    updateData,
+                })
+            }
+            else{
+                return res.status(200).json({
+                    message: "Manager not update 👎",
+                    updateData,
                 })
             }
         }
     } catch (error) {
         console.log(error);
-        res.status(400).json({
+        return res.status(400).json({
             message: "Internal server error"
         })
     }
@@ -1114,6 +1125,25 @@ exports.allmanager = async (req, res) => {
         })
     } catch {
         res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.manager_detail = async (req, res) => {
+    try {
+        console.log(req.params.id);
+        let data = await manager.findById(req.params.id)
+        if (!data) {
+            return res.status(400).json({
+                message: "Manager not found !"
+            })
+        }
+        return res.status(200).json({
+            message: "Manager data 👍",
+            manager: data,
+        })
+    } catch (error) {
+        return res.status(400).json({
             message: "Internal server error"
         })
     }

@@ -34,6 +34,7 @@ const {
     delete_manager,
     update_manager,
     allmanager,
+    manager_detail,
     
     // User
     adduser,
@@ -143,7 +144,8 @@ router.post('/showproduct',verifyToken,showproduct)
 router.post('/addmanager',verifyToken,addmanager)
 router.delete('/delete_manager/:id',verifyToken,delete_manager)
 router.get('/allmanager',verifyToken,allmanager)
-router.patch('/update_manager/:id',update_manager)
+router.get('/manager_detail/:id',verifyToken,manager_detail)
+router.patch('/update_manager/:id',verifyToken,update_manager)
 
 // User
 router.post('/productid',verifyToken,productid)
