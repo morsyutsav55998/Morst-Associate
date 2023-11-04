@@ -17,7 +17,6 @@ app.use(express.static(path.join(__dirname, 'sample')))
 require('dotenv').config()
 app.use(helmet())
 app.disable("x-powered-by");
-
 app.use(
   helmet({
     xPoweredBy: false,
@@ -39,7 +38,7 @@ app.use('/provider', require('./router/providerRouter'))
 app.use('/manager',require('./router/managerRouter'))
 app.get('/', (req, res) => {
  res.json({
-  message : '👍'
+  message :req.cookies
  })
 })
 

@@ -944,6 +944,7 @@ exports.today_order = async (req, res) => {
 
 exports.forward_order = async (req, res) => {
     try {
+        console.log(req.body);
         if (req.body) {
             const orderids = req.body.Orderid;
             const managerids = req.body.Managerid;

@@ -1,5 +1,6 @@
 var manager = require('../model/manager')
 var orders = require("../model/userForm")
+var userform = require('../model/userForm')
 var product = require("../model/category/product")
 var provider = require('../model/provider')
 var user = require('../model/user')
@@ -43,18 +44,22 @@ exports.login = async (req, res) => {
         })
     }
 }
-exports.checkemail = async (req, res) => {
+
+var otps=[]
+var emails=[]
+
+exports.checkemail = async (req, res, next) => {
     try {
         var managerData = await manager.findOne({ email: req.body.email })
         if (managerData) {
-            var otp = Math.floor(1000 + Math.random() * 9000);
+            var otp = Math.floor(1000 + Math.random() * 9000)
             const transporter = nodemailer.createTransport({
-                service: 'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook', etc.
+                service:'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook', etc.
                 auth: {
                     user: 'utsavgarchar63@gmail.com', // Your email address
                     pass: 'xzhv bdmj kapn eqgn' // Your email password or app-specific password
                 }
-            });
+            })
             const mailOptions = {
                 from: 'utsavgarchar63@gmail.com',
                 to: managerData.email, // Recipient's email address
@@ -65,38 +70,33 @@ exports.checkemail = async (req, res) => {
                 if (error) {
                     console.error('Error sending email: ' + error);
                 } else {
+                    console.log('Email sent: ' + info.response);
+                    
                     res.status(200).json({
-                        message: "Mail Sended 👍",
+                        message: "Mail Sent 👍",
                         otp: otp
                     })
-                    res.cookie('otp', otp);
-                    res.cookie('email', managerData.email);
-
-                    // Set a timeout to clear the OTP and email cookies after 5 minutes (300,000 milliseconds)
-                    setTimeout(() => {
-                        res.clearCookie('otp');
-                        res.clearCookie('email');
-                        console.log('OTP and email cookies cleared.');
-                    }, 300000);
-                    console.log('Email sent: ' + info.response);
+                    otps.push(otp)
+                    emails.push(managerData.email)
+                    next()
                 }
             });
         }
         else {
             res.status(200).json({
-                message: "Manager not found !"
-            })
+                message: "Manager not found!"
+            });
         }
     } catch (error) {
         res.status(400).json({
             message: "Internal server error"
-        })
+        });
     }
 }
 exports.verify_otp = async (req, res) => {
+    console.log(otps[0]);
     try {
-        console.log(req.body, req.cookies.otp);
-        if (req.cookies.otp == req.body.otp) {
+        if (otps[0] == req.body.otp) {
             return res.status(200).json({
                 status: true,
                 message: "OTP Verify successfully 👍"
@@ -115,8 +115,9 @@ exports.verify_otp = async (req, res) => {
 }
 exports.forgot_number = async (req, res) => {
     try {
+        console.log(req.body);
         if (req.body.number == req.body.cnumber) {
-            const managerEmail = await manager.findOne({ email: req.cookies.email })
+            const managerEmail = await manager.findOne({ email: emails[0] })
             if (managerEmail) {
                 var password = await bcrypt.hash(req.body.number, 10)
                 const managerData = await manager.findByIdAndUpdate(managerEmail.id, {
@@ -127,13 +128,12 @@ exports.forgot_number = async (req, res) => {
                     res.status(200).json({
                         message: "Number changed successfully 👍"
                     })
-                    res.cookie('otp', '')
-                    res.cookie('email', '')
+                    
                 }
             }
         }
         else {
-            res.status(400).json({
+            res.status(200).json({
                 message: "Number & Confirm number not match !"
             })
         }
@@ -190,6 +190,7 @@ exports.showorders = async (req, res) => {
             adminorder: orderData
         });
     } catch (error) {
+        console.log(error);
         res.status(400).json({
             message: "Internal server error"
         })
@@ -210,8 +211,9 @@ exports.allprovider = async (req,res)=>{
 }
 exports.provider_order = async (req, res) => {
     try {
-        const orderids = req.body.Orderids
-        const providerids = req.body.Providerids
+        console.log(req.body);
+        const orderids = req.body.orderid
+        const providerids = req.body.providerid
         if (!Array.isArray(orderids) || !Array.isArray(providerids)) {
             return res.status(400).json({
                 message: "Invalid input data"
@@ -219,42 +221,22 @@ exports.provider_order = async (req, res) => {
         }
         for (const providerId of providerids) {
             const providerData = await provider.findById(providerId);
+            let providerEmail = providerData.email
+            console.log(providerEmail);
             if (!providerData) {
                 return res.status(404).json({
                     message: `Provider with ID ${providerId} not found`
                 });
             }
-            // console.log(providerData.email);
-            // const transporter = nodemailer.createTransport({
-            //     service: 'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook', etc.
-            //     auth: {
-            //         user: 'utsavgarchar63@gmail.com', // Your email address
-            //         pass: 'xzhv bdmj kapn eqgn' // Your email password or app-specific password
-            //     }
-            // });
-            // const mailOptions = {
-            //     from: 'utsavgarchar63@gmail.com',
-            //     to: providerData.email, // Recipient's email address
-            //     subject: 'good',
-            //     html: `<h1>Hello</h1>`
-            // };
-            // transporter.sendMail(mailOptions, (error, info) => {    
-            //     if (error) {
-            //         console.error('Error sending email: ' + error);
-            //     } else {
-            //         res.status(200).json({
-            //             message: "Mail Sended 👍"
-            //         })
-            //     }
-            // });
             providerData.orderids = providerData.orderids.concat(orderids);
             await providerData.save();
         }
-        res.status(200).json({
+        return res.status(200).json({
             message: "Orderids updated for the managers"
         });
     } catch (error) {
-        res.status(400).json({
+        console.log(error);
+        return res.status(400).json({
             message: "Internal server error"
         })
     }

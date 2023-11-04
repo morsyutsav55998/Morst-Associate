@@ -23,7 +23,7 @@ router.get('/logout',(req,res)=>{
 // Forget Password
 router.post('/checkemail',checkemail)
 router.post('/verify_otp',verify_otp)
-router.post('/forgot_number',forgot_number)
+router.post('/forget_number',forgot_number)
 
 // 
 router.get('/home',verifyToken,home)
