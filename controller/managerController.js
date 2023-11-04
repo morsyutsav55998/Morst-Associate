@@ -225,29 +225,28 @@ exports.provider_order = async (req, res) => {
                 });
             }
             // console.log(providerData.email);
-            const transporter = nodemailer.createTransport({
-                service: 'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook', etc.
-                auth: {
-                    user: 'utsavgarchar63@gmail.com', // Your email address
-                    pass: 'xzhv bdmj kapn eqgn' // Your email password or app-specific password
-                }
-            });
-            const mailOptions = {
-                from: 'utsavgarchar63@gmail.com',
-                to: providerData.email, // Recipient's email address
-                subject: 'good',
-                html: `<h1>Hello</h1>`
-            };
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.error('Error sending email: ' + error);
-                } else {
-                    res.status(200).json({
-                        message: "Mail Sended 👍",
-                        otp: otp
-                    })
-                }
-            });
+            // const transporter = nodemailer.createTransport({
+            //     service: 'Gmail', // e.g., 'Gmail', 'Yahoo', 'Outlook', etc.
+            //     auth: {
+            //         user: 'utsavgarchar63@gmail.com', // Your email address
+            //         pass: 'xzhv bdmj kapn eqgn' // Your email password or app-specific password
+            //     }
+            // });
+            // const mailOptions = {
+            //     from: 'utsavgarchar63@gmail.com',
+            //     to: providerData.email, // Recipient's email address
+            //     subject: 'good',
+            //     html: `<h1>Hello</h1>`
+            // };
+            // transporter.sendMail(mailOptions, (error, info) => {    
+            //     if (error) {
+            //         console.error('Error sending email: ' + error);
+            //     } else {
+            //         res.status(200).json({
+            //             message: "Mail Sended 👍"
+            //         })
+            //     }
+            // });
             providerData.orderids = providerData.orderids.concat(orderids);
             await providerData.save();
         }
