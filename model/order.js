@@ -28,6 +28,12 @@ const userformSchema = new mongoose.Schema({
   },
   otherEmail: {
     type: String,
+  },
+  providerid: [{
+    type: mongoose.Schema.Types.ObjectId,
+  }],
+  status: {
+    type: Boolean,
   }
 }, {
   timestamps: true

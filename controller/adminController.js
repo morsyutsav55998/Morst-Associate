@@ -4,7 +4,7 @@ var user = require('../model/user')
 var provider = require('../model/provider');
 var bcategory = require('../model/category/bussiness_category')
 var btype = require('../model/category/bussiness_type')
-var userform = require('../model/userForm')
+var userform = require('../model/order')
 var bsubcategory = require('../model/category/bussiness_subcategory')
 var product = require('../model/category/product')
 var bformation = require('../model/category/bussiness_formation')
@@ -341,9 +341,9 @@ exports.updateprovider = async (req, res) => {
         const fieldsToUpdate = [
             'name', 'email', 'number', 'BOD', 'address', 'Bname', 'Bnumber',
             'password', 'Bemail', 'Bsocialmedia', 'B_GSTnumber', 'Btype', 'Bdetails',
-            'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationCompany','collaborationMember',
+            'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationCompany', 'collaborationMember',
             'salespersonName', 'salespersonNumber', 'salespersonEmail', 'salespersonPosition',
-            'bankName', 'bankAccountnumber', 'bankIFSCcode', 'bankBranchname','upiid',
+            'bankName', 'bankAccountnumber', 'bankIFSCcode', 'bankBranchname', 'upiid',
         ];
 
         fieldsToUpdate.forEach((field) => {
@@ -578,7 +578,12 @@ exports.adduser = async (req, res) => {
             occupation,
             reference,
             ref_no,
-            address
+            address,
+            bankname,
+            bankaccount,
+            bankifsc,
+            bankbranch,
+            upiid,
         } = req.body
         let data = await user.findOne({ email: req.body.email })
         if (data) {
@@ -598,6 +603,11 @@ exports.adduser = async (req, res) => {
                 reference,
                 ref_no,
                 address,
+                bankname,
+                bankaccount,
+                bankifsc,
+                bankbranch,
+                upiid,
                 ids
             })
             if (userData) {
@@ -678,7 +688,12 @@ exports.updateuser = async (req, res) => {
             occupation,
             reference,
             ref_no,
-            address
+            address,
+            bankname,
+            bankaccount,
+            bankifsc,
+            bankbranch,
+            upiid,
         } = req.body
         console.log(req.body, req.params.id);
         const password = await bcrypt.hash(number, 10);
@@ -693,6 +708,11 @@ exports.updateuser = async (req, res) => {
             reference,
             ref_no,
             address,
+            bankname,
+            bankaccount,
+            bankifsc,
+            bankbranch,
+            upiid,
         })
         if (data) {
             res.status(200).json({

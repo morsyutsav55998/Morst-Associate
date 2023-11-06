@@ -1,7 +1,7 @@
 var provider = require("../model/provider")
 var iplink = 'http://192.168.0.113:3000/'
 var bsubcategory = require('../model/category/bussiness_subcategory')
-var orders = require('../model/userForm')
+var orders = require('../model/order')
 var product = require('../model/category/product')
 var user = require('../model/user')
 var bcrypt = require('bcrypt')
@@ -55,82 +55,9 @@ exports.profile = async (req, res) => {
     }
     res.status(200).json({
         profile: req.provider,
-        subcatData:subcatData
+        subcatData: subcatData
     })
 }
-
-exports.updateprovider = async (req, res) => {
-    try {
-        const providerId = req.params.id;
-        const updatedData = req.body;
-        const password = await bcrypt.hash(updatedData.number, 10);
-
-        const existingProvider = await provider.findById(providerId);
-
-        if (!existingProvider) {
-            return res.status(404).json({ message: "Provider not found" });
-        }
-
-        const fieldsToUpdate = [
-            'name', 'email', 'number', 'BOD', 'address', 'Bname', 'Bnumber',
-            'password', 'Bemail', 'Bsocialmedia', 'B_GSTnumber', 'Btype', 'Bdetails',
-            'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationDetails',
-            'salespersonName', 'salespersonNumber', 'salespersonEmail', 'salespersonPosition',
-            'bankName', 'bankAccountnumber', 'bankIFSCcode', 'bankBranchname',
-        ];
-
-        fieldsToUpdate.forEach((field) => {
-            if (updatedData[field]) {
-                existingProvider[field] = updatedData[field];
-            }
-        });
-
-        // Process file fields
-        const fileFields = ['profile', 'b_brochure', 'adharcard', 'pancard', 'gstfile', 'tdsfile', 'agreementfile'];
-        fileFields.forEach((field) => {
-            if (req.files[field]) {
-                const newFilePath = iplink + req.files[field][0].filename;
-                if (existingProvider[field] && existingProvider[field] !== iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg')) {
-                    const oldFilePath = existingProvider[field].replace(iplink, './files/');
-                    fs.unlinkSync(oldFilePath);
-                }
-                existingProvider[field] = newFilePath;
-            } else {
-                if (existingProvider[field] && existingProvider[field] !== iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg')) {
-                    const oldFilePath = path.join('./files', existingProvider[field].replace(iplink, ''));
-                    fs.unlinkSync(oldFilePath);
-                }
-                existingProvider[field] = iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg');
-            }
-        });
-
-        // Process 'product_service'
-        if (updatedData.productService) {
-            const productArray = [...new Set(updatedData.productService.split(',').map(item => item.trim()))].sort();
-            existingProvider.product_service = productArray;
-        }
-
-        // Process 'bsubcategoryid'
-        if (updatedData.sbcatid) {
-            const subcatArray = updatedData.sbcatid.split(',');
-            existingProvider.bsubcategoryid = subcatArray;
-        }
-
-        // Save the updated provider
-        const updatedProvider = await existingProvider.save();
-
-        res.status(200).json({
-            message: "Provider updated successfully",
-            provider: updatedProvider,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(400).json({
-            message: "Internal server error",
-        });
-    }
-};
-
 exports.home = async (req, res) => {
     try {
         const providerId = req.provider
@@ -149,8 +76,8 @@ exports.home = async (req, res) => {
 }
 exports.orders = async (req, res) => {
     try {
-        const managerId = req.provider
-        let data = await provider.findById(managerId.id)
+        const Id = req.provider
+        let data = await provider.findById(Id.id)
         const orderIds = data.orderids;
         const orderData = [];
         for (const orderId of orderIds) {
@@ -167,18 +94,46 @@ exports.orders = async (req, res) => {
                 path: 'userid',
                 model: user,
             }).exec();
+            // if (order) {
+            //     orderData.push(order);
+            // } else {
+            //     orderData.push({ error: `Order with ID ${orderId} not found` });
+            // }
             if (order) {
-                orderData.push(order);
+                // Check if the providerid in the order does not match req.provider.id
+                if (!order.providerid.includes(req.provider.id)) {
+                    orderData.push(order);
+                }
             } else {
                 orderData.push({ error: `Order with ID ${orderId} not found` });
             }
+            
         }
-        res.json({
+        const filteredOrders = orderData.filter(order => !order.providerid.includes(req.provider.id));
+        res.status(200).json({
             message: "👍",
-            providerorder: orderData
+            providerorder: filteredOrders
         });
     } catch (error) {
-        console.log(error);
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+exports.accept_order = async (req, res) => {
+    try {
+        let data = req.provider.id
+        console.log(req.params);
+        let orderUpdate = await orders.findByIdAndUpdate(req.params.id, {
+            status: true,
+            providerid: data
+        })
+        if (orderUpdate) {
+            res.status(200).json({
+                message: 'Accepted succefully 😊'
+            })
+        }
+    } catch (error) {
         res.status(400).json({
             message: "Internal server error"
         })

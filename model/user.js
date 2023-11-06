@@ -27,6 +27,22 @@ const userSchema = new mongoose.Schema({
     address:{
         type:String,
     },
+    // Bank Detail
+    bankname:{
+        type:String,
+    },
+    bankaccount:{
+        type:String,
+    },
+    bankifsc:{
+        type:String,
+    },
+    bankbranch:{
+        type:String,
+    },
+    upiid:{
+        type:String,
+    },
     ids:{
         type:Number
     }

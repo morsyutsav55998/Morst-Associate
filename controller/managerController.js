@@ -1,6 +1,6 @@
 var manager = require('../model/manager')
-var orders = require("../model/userForm")
-var userform = require('../model/userForm')
+var orders = require("../model/order")
+var userform = require('../model/order')
 var product = require("../model/category/product")
 var provider = require('../model/provider')
 var user = require('../model/user')
@@ -198,7 +198,8 @@ exports.showorders = async (req, res) => {
 }
 exports.allprovider = async (req, res) => {
   try {
-    var orderids = ['6548bffd0c16911fbdae4180']
+    var orderids = req.body
+    console.log(orderids);
     var data = await orders.find({ _id: { $in: orderids } }).populate({
       path: 'productid',
       model: product,
@@ -217,22 +218,32 @@ exports.allprovider = async (req, res) => {
       bussinesssubcategory: provider.productid.bsubcategoryid[0].bussinesssubcategory,
       product: provider.productid.product,
     }));
-
-    const providerData = await provider.find({
-      $and: [
-        { bcategoryid: relevantData.bussinesscategory },
-        { bsubcategoryid:  relevantData.bussinesssubcategory},
-        { product_service: relevantData.product}, // Replace with your actual product value
+    // Get unique values of business category, subcategory, and product
+    const uniqueBusinessCategories = [...new Set(relevantData.map((item) => item.bussinesscategory))];
+    const uniqueBusinessSubcategories = [...new Set(relevantData.map((item) => item.bussinesssubcategory))];
+    const uniqueProducts = [...new Set(relevantData.map((item) => item.product))];
+    console.log(uniqueBusinessCategories);
+    // Query the provider database to find providers that match the criteria
+    const providers = await provider.find({
+      $or: [
+        { "bussinesscategory": { $in: uniqueBusinessCategories } },
+        { "bussinesssubcategory": { $in: uniqueBusinessSubcategories } },
+        { "product_service": { $in: uniqueProducts } },
       ],
     }).populate({
-      path: 'bsubcategoryid bcategoryid',
+      path: 'bsubcategoryid',
+      populate: {
+        path: 'bcategoryid bussinesssubcategory',
+      },
+    }).populate({
+      path: 'bsubcategoryid',
+      populate: {
+        path: 'bcategoryid bussinesssubcategory',
+      },
     });
-
     res.json({
-      relevantData,
-      providerData
+      providers,
     });
-
   } catch (error) {
     console.log(error);
     res.status(400).json({

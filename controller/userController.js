@@ -3,7 +3,7 @@ const provider = require('../model/provider')
 const bsubcategory = require('../model/category/bussiness_subcategory')
 const bcategory = require('../model/category/bussiness_category')
 const bcrypt = require('bcrypt')
-const userForm = require('../model/userForm')
+const userForm = require('../model/order')
 const nodemailer = require('nodemailer')
 const product = require('../model/category/product')
 const jwt = require('jsonwebtoken')
@@ -201,6 +201,8 @@ exports.adduserform = async (req, res) => {
       otherNumber,
       budget,
       otherEmail,
+      status : false,
+      providerid : []
     })
     if (data) {
       let productId = data.productid
