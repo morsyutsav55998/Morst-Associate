@@ -70,7 +70,10 @@ const providerSchema = new mongoose.Schema({
     Baddress:{
         type:String
     },
-    collaborationDetails:{
+    collaborationCompany:{
+        type:String
+    },
+    collaborationMember:{
         type:String
     },
     // Sales
@@ -96,6 +99,9 @@ const providerSchema = new mongoose.Schema({
     bankIFSCcode:{
         type:String
     },
+    upiid:{
+        type:String
+    },
     bankBranchname:{
         type:String
     },
@@ -114,6 +120,8 @@ const providerSchema = new mongoose.Schema({
     agreementfile:{
         type:String,
     }
-});
+},{
+    timestamps: true
+  });
 module.exports = mongoose.model('provider', providerSchema);
 

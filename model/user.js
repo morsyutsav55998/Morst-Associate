@@ -30,6 +30,8 @@ const userSchema = new mongoose.Schema({
     ids:{
         type:Number
     }
-});
+},{
+    timestamps: true
+  });
 
 module.exports = mongoose.model('user', userSchema); 

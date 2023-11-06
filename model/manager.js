@@ -9,12 +9,14 @@ const managerSchema = new mongoose.Schema({
     number: {
         type: String,
     },
-    password:{
-        type:String,
+    password: {
+        type: String,
     },
-    orderids:[{
-        type : mongoose.Schema.Types.ObjectId,
+    orderids: [{
+        type: mongoose.Schema.Types.ObjectId,
     }]
+}, {
+    timestamps: true
 })
 
 module.exports = mongoose.model('manager', managerSchema); 

@@ -91,7 +91,8 @@ exports.addprovider = async (req, res) => {
             Bformation,
             bsubcategoryid,
             Baddress,
-            collaborationDetails,
+            collaborationCompany,
+            collaborationMember,
             salespersonName,
             salespersonNumber,
             salespersonEmail,
@@ -100,6 +101,7 @@ exports.addprovider = async (req, res) => {
             bankAccountnumber,
             bankIFSCcode,
             bankBranchname,
+            upiid
         } = req.body;
 
         const password = await bcrypt.hash(number, 10);
@@ -117,10 +119,10 @@ exports.addprovider = async (req, res) => {
             name, email, number, password, BOD, address, profile: fileFieldPaths.profile,
             product_service: processArrayField('product_service'),
             Bname, Bnumber, Bemail, Bsocialmedia, B_GSTnumber, Btype, Bdetails, Btdsdetails, Bpancardnumber,
-            Btype, Bformation, bsubcategoryid: isArray, Baddress, collaborationDetails,
+            Btype, Bformation, bsubcategoryid: isArray, Baddress, collaborationCompany, collaborationMember,
             b_brochure: fileFieldPaths.b_brochure,
             salespersonName, salespersonNumber, salespersonEmail, salespersonPosition,
-            bankName, bankAccountnumber, bankIFSCcode, bankBranchname,
+            bankName, upiid, bankAccountnumber, bankIFSCcode, bankBranchname,
             adharcard: fileFieldPaths.adharcard, pancard: fileFieldPaths.pancard,
             gstfile: fileFieldPaths.gstfile, tdsfile: fileFieldPaths.tdsfile,
             agreementfile: fileFieldPaths.agreementfile,
@@ -253,199 +255,77 @@ exports.deleteprovider = async (req, res) => {
         res.json({ message: "internal server error" })
     }
 }
-
 // exports.updateprovider = async (req, res) => {
 //     try {
 //         const providerId = req.params.id;
 //         const updatedData = req.body;
-//         const password = await bcrypt.hash(updatedData.number, 10)
-//         // const originalArray = updatedData.productService.split(',').map(item => item.trim());
-//         const originalArray = updatedData.productService ? updatedData.productService.split(',').map(item => item.trim()) : [];
+//         const password = await bcrypt.hash(updatedData.number, 10);
 
-//         const uniqueArray = [...new Set(originalArray)];
-
-//         uniqueArray.sort();
-
-//         const subcat = updatedData.sbcatid
-//         const isArray = subcat.split(',');
 //         const existingProvider = await provider.findById(providerId);
 
 //         if (!existingProvider) {
 //             return res.status(404).json({ message: "Provider not found" });
 //         }
-//         // Profile
-//         if (req.files['profile']) {
-//             const newProfilePath = iplink + req.files['profile'][0].filename;
-//             if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
-//                 const oldProfilePath = existingProvider.profile.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.profile = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.profile && existingProvider.profile !== iplink + '/profile.png') {
-//                 const oldProfilePath = path.join('./files', existingProvider.profile.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.profile = iplink + '/profile.png';
-//         }
-//         // b_brochure
-//         if (req.files['b_brochure']) {
-//             const newProfilePath = iplink + req.files['b_brochure'][0].filename;
 
-//             if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.b_brochure.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.b_brochure = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.b_brochure && existingProvider.b_brochure !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.b_brochure.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.b_brochure = iplink + '/dummy.jpeg';
-//         }
-//         //adharcard
-//         if (req.files['adharcard']) {
-//             const newProfilePath = iplink + req.files['adharcard'][0].filename;
+//         const fieldsToUpdate = [
+//             'name', 'email', 'number', 'BOD', 'address', 'Bname', 'Bnumber',
+//             'password', 'Bemail', 'Bsocialmedia', 'B_GSTnumber', 'Btype', 'Bdetails',
+//             'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationCompany','collaborationMember',
+//             'salespersonName', 'salespersonNumber', 'salespersonEmail', 'salespersonPosition',
+//             'bankName', 'bankAccountnumber', 'bankIFSCcode', 'bankBranchname','upiid',
+//         ];
 
-//             if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.adharcard.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
+//         fieldsToUpdate.forEach((field) => {
+//             if (updatedData[field]) {
+//                 existingProvider[field] = updatedData[field];
 //             }
-//             updatedData.adharcard = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.adharcard && existingProvider.adharcard !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.adharcard.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.adharcard = iplink + '/dummy.jpeg';
-//         }
-//         //pancard
-//         if (req.files['pancard']) {
-//             const newProfilePath = iplink + req.files['pancard'][0].filename;
+//         });
 
-//             if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.pancard.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
+//         // Process file fields
+//         const fileFields = ['profile', 'b_brochure', 'adharcard', 'pancard', 'gstfile', 'tdsfile', 'agreementfile'];
+//         fileFields.forEach((field) => {
+//             if (req.files[field]) {
+//                 const newFilePath = iplink + req.files[field][0].filename;
+//                 if (existingProvider[field] && existingProvider[field] !== iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg')) {
+//                     const oldFilePath = existingProvider[field].replace(iplink, './files/');
+//                     fs.unlinkSync(oldFilePath);
+//                 }
+//                 existingProvider[field] = newFilePath;
+//             } else {
+//                 if (existingProvider[field] && existingProvider[field] !== iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg')) {
+//                     const oldFilePath = path.join('./files', existingProvider[field].replace(iplink, ''));
+//                     fs.unlinkSync(oldFilePath);
+//                 }
+//                 existingProvider[field] = iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg');
 //             }
-//             updatedData.pancard = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.pancard && existingProvider.pancard !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.pancard.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.pancard = iplink + '/dummy.jpeg';
-//         }
-//         //gstfile
-//         if (req.files['gstfile']) {
-//             const newProfilePath = iplink + req.files['gstfile'][0].filename;
+//         });
 
-//             if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.gstfile.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.gstfile = newProfilePath;
+//         // Process 'product_service'
+//         if (updatedData.productService) {
+//             const productArray = [...new Set(updatedData.productService.split(',').map(item => item.trim()))].sort();
+//             existingProvider.product_service = productArray;
 //         }
-//         else {
-//             if (existingProvider.gstfile && existingProvider.gstfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.gstfile.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.gstfile = iplink + '/dummy.jpeg';
-//         }
-//         //tdsfile
-//         if (req.files['tdsfile']) {
-//             const newProfilePath = iplink + req.files['tdsfile'][0].filename;
 
-//             if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.tdsfile.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.tdsfile = newProfilePath;
+//         // Process 'bsubcategoryid'
+//         if (updatedData.sbcatid) {
+//             const subcatArray = updatedData.sbcatid.split(',');
+//             existingProvider.bsubcategoryid = subcatArray;
 //         }
-//         else {
-//             if (existingProvider.tdsfile && existingProvider.tdsfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.tdsfile.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.tdsfile = iplink + '/dummy.jpeg';
-//         }
-//         //agreementfile
-//         if (req.files['agreementfile']) {
-//             const newProfilePath = iplink + req.files['agreementfile'][0].filename;
 
-//             if (existingProvider.tdsfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = existingProvider.agreementfile.replace(iplink, './files/');
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.agreementfile = newProfilePath;
-//         }
-//         else {
-//             if (existingProvider.agreementfile && existingProvider.agreementfile !== iplink + '/dummy.jpeg') {
-//                 const oldProfilePath = path.join('./files', existingProvider.agreementfile.replace(iplink, ''));
-//                 fs.unlinkSync(oldProfilePath);
-//             }
-//             updatedData.agreementfile = iplink + '/dummy.jpeg';
-//         }
-//         existingProvider.profile = updatedData.profile
-//         existingProvider.b_brochure = updatedData.b_brochure
-//         existingProvider.adharcard = updatedData.adharcard
-//         existingProvider.pancard = updatedData.pancard
-//         existingProvider.gstfile = updatedData.gstfile
-//         existingProvider.tdsfile = updatedData.tdsfile
-//         existingProvider.agreementfile = updatedData.agreementfile
+//         // Save the updated provider
+//         const updatedProvider = await existingProvider.save();
 
-
-//         existingProvider.name = updatedData.name;
-//         existingProvider.email = updatedData.email;
-//         existingProvider.number = updatedData.number;
-//         existingProvider.BOD = updatedData.BOD;
-//         existingProvider.address = updatedData.address;
-//         existingProvider.product_service = uniqueArray
-//         existingProvider.product_service = updatedData.productService
-//         existingProvider.Bname = updatedData.Bname;
-//         existingProvider.Bnumber = updatedData.Bnumber;
-//         existingProvider.password = password;
-//         existingProvider.Bemail = updatedData.Bemail;
-//         existingProvider.Bsocialmedia = updatedData.Bsocialmedia;
-//         existingProvider.B_GSTnumber = updatedData.B_GSTnumber;
-//         existingProvider.Btype = updatedData.Btype;
-//         existingProvider.Bdetails = updatedData.Bdetails;
-//         existingProvider.Btdsdetails = updatedData.Btdsdetails;
-//         existingProvider.Bpancardnumber = updatedData.Bpancardnumber;
-//         existingProvider.Bformation = updatedData.Bformation;
-//         existingProvider.bsubcategoryid = isArray;
-//         existingProvider.Baddress = updatedData.Baddress;
-//         existingProvider.collaborationDetails = updatedData.collaborationDetails;
-//         existingProvider.salespersonName = updatedData.salespersonName;
-//         existingProvider.salespersonNumber = updatedData.salespersonNumber;
-//         existingProvider.salespersonEmail = updatedData.salespersonEmail;
-//         existingProvider.salespersonPosition = updatedData.salespersonPosition;
-//         existingProvider.bankName = updatedData.bankName;
-//         existingProvider.bankAccountnumber = updatedData.bankAccountnumber;
-//         existingProvider.bankIFSCcode = updatedData.bankIFSCcode;
-//         existingProvider.bankBranchname = updatedData.bankBranchname;
-
-//         // Update other fields as needed...
-//         const updatedProvider = await existingProvider.save()
 //         res.status(200).json({
 //             message: "Provider updated successfully",
-//             provider: updatedProvider
+//             provider: updatedProvider,
 //         });
 //     } catch (error) {
+//         console.error(error);
 //         res.status(400).json({
-//             message: "Internal server error"
-//         })
-//         console.log(error);
-//         res.status(400).json({
-//             message: "Internal server error"
-//         })
+//             message: "Internal server error",
+//         });
 //     }
-// }
+// };
 exports.updateprovider = async (req, res) => {
     try {
         const providerId = req.params.id;
@@ -461,9 +341,9 @@ exports.updateprovider = async (req, res) => {
         const fieldsToUpdate = [
             'name', 'email', 'number', 'BOD', 'address', 'Bname', 'Bnumber',
             'password', 'Bemail', 'Bsocialmedia', 'B_GSTnumber', 'Btype', 'Bdetails',
-            'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationDetails',
+            'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationCompany','collaborationMember',
             'salespersonName', 'salespersonNumber', 'salespersonEmail', 'salespersonPosition',
-            'bankName', 'bankAccountnumber', 'bankIFSCcode', 'bankBranchname',
+            'bankName', 'bankAccountnumber', 'bankIFSCcode', 'bankBranchname','upiid',
         ];
 
         fieldsToUpdate.forEach((field) => {
@@ -482,12 +362,6 @@ exports.updateprovider = async (req, res) => {
                     fs.unlinkSync(oldFilePath);
                 }
                 existingProvider[field] = newFilePath;
-            } else {
-                if (existingProvider[field] && existingProvider[field] !== iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg')) {
-                    const oldFilePath = path.join('./files', existingProvider[field].replace(iplink, ''));
-                    fs.unlinkSync(oldFilePath);
-                }
-                existingProvider[field] = iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg');
             }
         });
 
@@ -806,36 +680,25 @@ exports.updateuser = async (req, res) => {
             ref_no,
             address
         } = req.body
+        console.log(req.body, req.params.id);
         const password = await bcrypt.hash(number, 10);
-        let data = await user.findOne({ email: req.body.email })
-        if (emptyobj(req.body)) {
-            res.status(200).json({
-                message: "All field required !"
-            })
-        }
+
+        let data = await user.findByIdAndUpdate(req.params.id, {
+            name,
+            email,
+            number,
+            password,
+            DOB,
+            occupation,
+            reference,
+            ref_no,
+            address,
+        })
         if (data) {
-            res.status(400).json({
-                message: "User not found !"
+            res.status(200).json({
+                message: "User updated successfully",
+                data,
             })
-        }
-        else {
-            let data = await user.findByIdAndUpdate(req.params.id, {
-                name,
-                email,
-                number,
-                password,
-                DOB,
-                occupation,
-                reference,
-                ref_no,
-                address,
-            })
-            if (data) {
-                res.status(200).json({
-                    message: "User updated successfully",
-                    data,
-                })
-            }
         }
     } catch (error) {
         console.log(error)
@@ -859,8 +722,8 @@ exports.all_userform = async (req, res) => {
             .populate({
                 path: 'userid',
                 model: user, // Replace with your actual User model name
-            })
-            .exec();
+            }).sort({ createdAt: -1 })
+            .exec()
         res.status(200).json({
             message: "All userforms",
             userForms,
@@ -924,11 +787,11 @@ exports.today_order = async (req, res) => {
                 }
             }
         })
-        .populate({
-            path: 'userid',
-            model: 'user', // Use the string 'user' as the model name
-        })
-        .exec();
+            .populate({
+                path: 'userid',
+                model: 'user', // Use the string 'user' as the model name
+            })
+            .exec();
 
         res.status(200).json({
             message: "Today orders",
@@ -1084,31 +947,24 @@ exports.update_manager = async (req, res) => {
             number,
         } = req.body
         const password = await bcrypt.hash(number, 10);
-        let data = await manager.findOne({ email: req.body.email })
-        if (data) {
+
+        let updateData = await manager.findByIdAndUpdate(req.params.id, {
+            name,
+            email,
+            number,
+            password,
+        })
+        if (updateData) {
             return res.status(200).json({
-                message: "Manager not found !"
+                message: "Manager updated successfully 👍",
+                updateData,
             })
         }
-        else{
-            let updateData = await manager.findByIdAndUpdate(req.params.id, {
-                name,
-                email,
-                number,
-                password,
+        else {
+            return res.status(200).json({
+                message: "Manager not update 👎",
+                updateData,
             })
-            if (updateData) {
-                return res.status(200).json({
-                    message: "Manager updated successfully 👍",
-                    updateData,
-                })
-            }
-            else{
-                return res.status(200).json({
-                    message: "Manager not update 👎",
-                    updateData,
-                })
-            }
         }
     } catch (error) {
         console.log(error);

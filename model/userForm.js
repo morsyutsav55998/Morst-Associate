@@ -17,12 +17,18 @@ const userformSchema = new mongoose.Schema({
   providerid: [{
     type: mongoose.Schema.Types.ObjectId,
   }],
+  budget: {
+    type: String
+  },
   otherName: {
     type: String
   },
   otherNumber: {
     type: String,
   },
+  otherEmail: {
+    type: String,
+  }
 }, {
   timestamps: true
 });

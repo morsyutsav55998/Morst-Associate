@@ -190,6 +190,8 @@ exports.adduserform = async (req, res) => {
 
       otherName,
       otherNumber,
+      budget,
+      otherEmail
     } = req.body
     let data = await userForm.create({
       userid: userData,
@@ -197,6 +199,8 @@ exports.adduserform = async (req, res) => {
       productid,
       otherName,
       otherNumber,
+      budget,
+      otherEmail,
     })
     if (data) {
       let productId = data.productid

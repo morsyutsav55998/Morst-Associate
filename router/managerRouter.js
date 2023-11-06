@@ -11,6 +11,7 @@ var {
     
     showorders,
     allprovider,
+    orderdetail,
     provider_order
 } = require('../controller/managerController')
 
@@ -28,7 +29,8 @@ router.post('/forget_number',forgot_number)
 // 
 router.get('/home',verifyToken,home)
 router.get('/showorders',verifyToken,showorders)
-router.get('/allprovider',verifyToken,allprovider)
+router.post('/allprovider',verifyToken,allprovider)
+router.get('/orderdetail/:id',verifyToken,orderdetail)
 router.post('/provider_order',verifyToken,provider_order)
 
 module.exports = router
