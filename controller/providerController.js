@@ -128,6 +128,59 @@ exports.accept_order = async (req, res) => {
         })
     }
 }
+// exports.decline_order = async (req, res) => {
+//     try {
+//         let orderUpdate = await orders.findByIdAndUpdate(req.params.id, { status: false });
+
+//         if (orderUpdate) {
+//             res.status(200).json({
+//                 message: 'Order declined successfully 👎'
+//             });
+//         }
+//     } catch (error) {
+//         res.status(400).json({
+//             message: "Internal server error"
+//         });
+//     }
+// }
+exports.decline_order = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+
+        // Find the provider using req.provider.id
+        const Provider = await provider.findById(req.provider.id);
+
+        if (!Provider) {
+            return res.status(404).json({
+                message: 'Provider not found'
+            });
+        }
+
+        // Find the index of the orderId in the provider's orderids array
+        const orderIndex = Provider.orderids.indexOf(orderId);
+
+        if (orderIndex !== -1) {
+            // Remove the orderId from the provider's orderids array
+            Provider.orderids.splice(orderIndex, 1);
+
+            // Save the updated provider object with the modified orderids array
+            await Provider.save();
+
+            res.status(200).json({
+                message: 'Order declined successfully 👎'
+            });
+        } else {
+            res.status(404).json({
+                message: 'Order not found in the provider orderids'
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}
+
 exports.accepted_orders = async (req, res) => {
     try {
         const Id = req.provider
@@ -224,8 +277,9 @@ exports.accepted_orders = async (req, res) => {
 //   };
 exports.tracking = async (req, res) => {
     const data = req.provider
-    console.log(data.collaborationMember);
     const name = req.params.name;
+    console.log(name);
+    console.log(req.body.dealamount);
     const allowedNames = ["call", "meeting", "deal", "amount", "work", "payment"];
 
     if (!allowedNames.includes(name)) {

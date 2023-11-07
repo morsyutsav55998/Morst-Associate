@@ -10,7 +10,8 @@ const {
     orders,
     accept_order,
     accepted_orders,
-    completed_order
+    completed_order,
+    decline_order
 } = require('../controller/providerController')
 
 router.post('/login',login)
@@ -20,6 +21,7 @@ router.get('/orders',verifyToken,orders)
 
 // Order
 router.get('/accept_order/:id',verifyToken,accept_order)
+router.get('/decline_order/:id',verifyToken,decline_order)
 router.get('/accepted_orders',verifyToken,accepted_orders)
 router.post('/tracking/:id/:name',verifyToken,tracking)
 router.get('/completed_order',verifyToken,completed_order)

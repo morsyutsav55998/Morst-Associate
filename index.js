@@ -36,10 +36,10 @@ app.use('/user', require('./router/userRouter'))
 app.use('/admin', require('./router/adminRouter'))
 app.use('/provider', require('./router/providerRouter'))
 app.use('/manager',require('./router/managerRouter'))
+app.use('/payment',require('./router/paymentRouter'))
+
 app.get('/', (req, res) => {
- res.json({
-  message :req.cookies
- })
+ res.send('😎')
 })
 
 // Server
