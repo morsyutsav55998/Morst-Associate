@@ -180,7 +180,9 @@ exports.showorders = async (req, res) => {
         model: user,
       }).sort({ createdAt: -1 }).exec();
       if (order) {
-        orderData.push(order);
+        if (order.status === false) {
+          orderData.push(order);
+        }
       } else {
         orderData.push({ error: `Order with ID ${orderId} not found` });
       }

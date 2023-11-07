@@ -729,7 +729,7 @@ exports.updateuser = async (req, res) => {
 }
 exports.all_userform = async (req, res) => {
     try {
-        const userForms = await userform.find().populate({
+        const userForms = await userform.find({ status: false }).populate({
             path: 'productid',
             model: product,
             populate: {

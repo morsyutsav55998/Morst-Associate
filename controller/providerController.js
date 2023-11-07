@@ -94,25 +94,18 @@ exports.orders = async (req, res) => {
                 path: 'userid',
                 model: user,
             }).exec();
-            // if (order) {
-            //     orderData.push(order);
-            // } else {
-            //     orderData.push({ error: `Order with ID ${orderId} not found` });
-            // }
             if (order) {
-                // Check if the providerid in the order does not match req.provider.id
-                if (!order.providerid.includes(req.provider.id)) {
+                if (order.status !== true) {
+                    // Only add orders with status "true" (accepted)
                     orderData.push(order);
                 }
             } else {
                 orderData.push({ error: `Order with ID ${orderId} not found` });
             }
-            
         }
-        const filteredOrders = orderData.filter(order => !order.providerid.includes(req.provider.id));
         res.status(200).json({
             message: "👍",
-            providerorder: filteredOrders
+            providerorder: orderData
         });
     } catch (error) {
         res.status(400).json({
@@ -123,19 +116,213 @@ exports.orders = async (req, res) => {
 exports.accept_order = async (req, res) => {
     try {
         let data = req.provider.id
-        console.log(req.params);
-        let orderUpdate = await orders.findByIdAndUpdate(req.params.id, {
-            status: true,
-            providerid: data
-        })
+        let orderUpdate = await orders.findByIdAndUpdate(req.params.id, { $push: { providerid: data }, status: true })
         if (orderUpdate) {
             res.status(200).json({
-                message: 'Accepted succefully 😊'
+                message: 'Accepted succefully 👍'
             })
         }
     } catch (error) {
         res.status(400).json({
             message: "Internal server error"
         })
+    }
+}
+exports.accepted_orders = async (req, res) => {
+    try {
+        const Id = req.provider
+        let data = await provider.findById(Id.id)
+        const orderIds = data.orderids;
+        const orderData = [];
+        for (const orderId of orderIds) {
+            const order = await orders.findById(orderId).populate({
+                path: 'productid',
+                model: product,
+                populate: {
+                    path: 'bsubcategoryid',
+                    populate: {
+                        path: 'bcategoryid'
+                    }
+                }
+            }).populate({
+                path: 'userid',
+                model: user,
+            }).exec();
+            if (order) {
+                if (order.status === true && order.payment !== true) {
+                    orderData.push(order);
+                }
+            } else {
+                orderData.push({ error: `Order with ID ${orderId} not found` });
+            }
+
+        }
+        res.status(200).json({
+            message: "👍",
+            providerorder: orderData
+        });
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        })
+    }
+}
+
+// exports.tracking = async (req, res) => {
+//     const name = req.params.name;
+//     console.log(req.params);
+//     console.log(req.body); 
+//     const allowedNames = ["call", "meeting", "deal","amount", "work", "payment", ];
+
+//     if (!allowedNames.includes(name)) {
+//       return res.status(200).json({
+//         message: "Invalid name provided",
+//       });
+//     }
+
+//     try {
+//       const order = await orders.findById(req.params.id);
+
+//       if (!order) {
+//         return res.status(200).json({
+//           message: "Order not found",
+//         });
+//       }
+
+//       if (name === "amount" && req.body.dealamount !== undefined) {
+//         // Update the "amount" field in the order with the value from req.body.amount
+//         order.dealamount = req.body.dealamount;
+//         await order.save();
+//       } else {
+//         // Define the order of fields
+//         const fieldOrder = ["call", "meeting","amount", "deal", "work", "payment"];
+
+//         // Find the index of the current field
+//         const currentIndex = fieldOrder.indexOf(name);
+
+//         // Check if the previous field is true
+//         if (currentIndex > 0 && !order[fieldOrder[currentIndex - 1]]) {
+//           return res.status(200).json({
+//             message: `Cannot set '${name}' to true without setting '${fieldOrder[currentIndex - 1]}' to true first.`,
+//           });
+//         }
+
+//         // Set the current field to true
+//         order[name] = true;
+//         await order.save();
+//       }
+
+//       return res.status(200).json({
+//         message: "👍",
+//       });
+//     } catch (error) {
+//       console.log(error);
+//       return res.status(200).json({
+//         message: "Internal Server Error",
+//       });
+//     }
+//   };
+exports.tracking = async (req, res) => {
+    const data = req.provider
+    console.log(data.collaborationMember);
+    const name = req.params.name;
+    const allowedNames = ["call", "meeting", "deal", "amount", "work", "payment"];
+
+    if (!allowedNames.includes(name)) {
+        return res.status(200).json({
+            message: "Invalid name provided",
+        });
+    }
+
+    try {
+        const order = await orders.findById(req.params.id);
+
+        if (!order) {
+            return res.status(200).json({
+                message: "Order not found",
+            });
+        }
+
+        // Define the order of fields
+        const fieldOrder = ["call", "meeting", "deal", "amount", "work", "payment"];
+
+        // Find the index of the current field
+        const currentIndex = fieldOrder.indexOf(name);
+
+        // If the current field is "amount" and there is a dealamount in the request body, update it
+        if (name === "amount" && req.body.dealamount !== undefined) {
+            order.dealamount = req.body.dealamount;
+        }
+
+        // Check if the previous field is true, except for the first field
+        if (currentIndex > 0 && !order[fieldOrder[currentIndex - 1]]) {
+            return res.status(200).json({
+                message: `Cannot set '${name}' to true without setting '${fieldOrder[currentIndex - 1]}' to true first.`,
+            });
+        }
+
+        // Set the current field to true
+        order[name] = true;
+
+        if (name === "payment" && order.payment) {
+            // If "payment" is true, calculate and store the commission
+            const dealamount = parseFloat(order.dealamount);
+            const collaborationMemberPercentage = parseFloat(data.collaborationMember) / 100;
+            const memberCommission = dealamount * collaborationMemberPercentage;
+            order.memberCommission = memberCommission;
+
+            const dealamount_ = parseFloat(order.dealamount);
+            const collaborationCompanyPercentage = parseFloat(data.collaborationCompany) / 100;
+            const companyCommission = dealamount_ * collaborationCompanyPercentage;
+            order.companyCommission = companyCommission;
+        }
+        let updatedData = await order.save();
+
+        return res.status(200).json({
+            message: "👍",
+        });
+    } catch (error) {
+        return res.status(200).json({
+            message: "Internal Server Error",
+        });
+    }
+};
+exports.completed_order = async (req, res) => {
+    try {
+        const Id = req.provider
+        let data = await provider.findById(Id.id)
+        const orderIds = data.orderids;
+        const orderData = [];
+        for (const orderId of orderIds) {
+            const order = await orders.findById(orderId).populate({
+                path: 'productid',
+                model: product,
+                populate: {
+                    path: 'bsubcategoryid',
+                    populate: {
+                        path: 'bcategoryid'
+                    }
+                }
+            }).populate({
+                path: 'userid',
+                model: user,
+            }).exec();
+            if (order) {
+                if (order.payment === true) {
+                    orderData.push(order);
+                }
+            } else {
+                orderData.push({ error: `Order with ID ${orderId} not found` });
+            }
+
+        }
+        res.status(200).json({
+            message: "👍",
+            completed: orderData
+        });
+    } catch (error) {
+        return res.status(200).json({
+            message: "Internal Server Error",
+        });
     }
 }

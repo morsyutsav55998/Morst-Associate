@@ -1,14 +1,13 @@
-const user = require('../model/user')
-const provider = require('../model/provider')
-const bsubcategory = require('../model/category/bussiness_subcategory')
-const bcategory = require('../model/category/bussiness_category')
-const bcrypt = require('bcrypt')
-const userForm = require('../model/order')
-const nodemailer = require('nodemailer')
-const product = require('../model/category/product')
-const jwt = require('jsonwebtoken')
-const fs = require('fs')
-const path = require('path')
+var user = require('../model/user')
+var provider = require('../model/provider')
+var orders = require('../model/order')
+var bcrypt = require('bcrypt')
+var userForm = require('../model/order')
+var nodemailer = require('nodemailer')
+var product = require('../model/category/product')
+var jwt = require('jsonwebtoken')
+var fs = require('fs')
+var path = require('path')
 
 exports.login = async (req, res) => {
   try {
@@ -201,8 +200,15 @@ exports.adduserform = async (req, res) => {
       otherNumber,
       budget,
       otherEmail,
-      status : false,
-      providerid : []
+      dealamount: '',
+      status: false,
+      call: false,
+      meeting: false,
+      deal: false,
+      amount: false,
+      work: false,
+      payment: false,
+      providerid: []
     })
     if (data) {
       let productId = data.productid
@@ -380,6 +386,88 @@ exports.adduserform = async (req, res) => {
         data,
       })
     }
+  } catch (error) {
+    res.status(400).json({
+      message: "Internal server error"
+    })
+  }
+}
+exports.show_order = async (req, res) => {
+  try {
+    let data = req.user
+    let order = await orders.find({ userid: data.id }).populate({
+      path: 'productid',
+      model: product,
+      populate: {
+        path: 'bsubcategoryid',
+        populate: {
+          path: 'bcategoryid'
+        }
+      }
+    }).populate({
+      path: 'userid',
+      model: user,
+    }).exec();
+    res.status(200).json({
+      message: "Member orders 👍",
+      order
+    })
+  } catch (error) {
+    res.status(400).json({
+      message: "Internal server error"
+    })
+  }
+}
+exports.order_detail = async (req, res) => {
+  try {
+    let data = await orders.findById(req.params.id).populate({
+      path: 'productid',
+      model: product,
+      populate: {
+        path: 'bsubcategoryid',
+        populate: {
+          path: 'bcategoryid'
+        }
+      }
+    }).populate({
+      path: 'userid',
+      model: user,
+    }).exec();
+    if (!data) {
+      res.status(200).json({
+        message: "Order not found 👎"
+      })
+    }
+    res.status(200).json({
+      message: "Order details 👍",
+      order: data
+    })
+  } catch (error) {
+    res.status(400).json({
+      message: "Internal server error"
+    })
+  }
+}
+exports.completed_order = async (req, res) => {
+  try {
+    let data = req.user
+    let order = await orders.find({ userid: data.id ,payment: true }).populate({
+      path: 'productid',
+      model: product,
+      populate: {
+        path: 'bsubcategoryid',
+        populate: {
+          path: 'bcategoryid'
+        }
+      }
+    }).populate({
+      path: 'userid',
+      model: user,
+    }).exec();
+    res.status(200).json({
+      message: "Member orders 👍",
+      order
+    })
   } catch (error) {
     res.status(400).json({
       message: "Internal server error"

@@ -34,7 +34,34 @@ const userformSchema = new mongoose.Schema({
   }],
   status: {
     type: Boolean,
-  }
+  },
+  call :{
+    type: Boolean,
+  },
+  meeting :{
+    type: Boolean,
+  },
+  deal :{
+    type: Boolean,
+  },
+  amount :{
+    type: Boolean,
+  },
+  dealamount:{
+    type: String,
+  },
+  work :{
+    type: Boolean,
+  },
+  payment :{
+    type: Boolean,
+  },
+  memberCommission :{
+    type: String,
+  },
+  companyCommission :{
+    type: String,
+  },
 }, {
   timestamps: true
 });
