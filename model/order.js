@@ -32,6 +32,9 @@ const userformSchema = new mongoose.Schema({
   providerid: [{
     type: mongoose.Schema.Types.ObjectId,
   }],
+  providercommission:{
+    type: String,
+  },
   status: {
     type: Boolean,
   },

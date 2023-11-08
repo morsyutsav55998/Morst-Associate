@@ -196,16 +196,16 @@ exports.providerdetails = async (req, res) => {
             let totalMemberCommission = 0;
 
             for (const order of orders) {
-                totalCompanyCommission += parseInt(order.companyCommission);
-                totalMemberCommission += parseInt(order.memberCommission);
-            }
+                totalCompanyCommission += parseFloat(order.companyCommission)
+                totalMemberCommission += parseFloat(order.memberCommission)
 
+            }
             res.json({
                 message: "Provider all details",
                 providers: data, subcatData,
                 orders,
-                totalCompanyCommission,
-                totalMemberCommission,
+                commission :totalCompanyCommission+totalMemberCommission
+            
             })
         }
         else {

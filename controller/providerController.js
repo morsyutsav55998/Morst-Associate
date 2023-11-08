@@ -329,6 +329,9 @@ exports.tracking = async (req, res) => {
             const collaborationCompanyPercentage = parseFloat(data.collaborationCompany) / 100;
             const companyCommission = dealamount_ * collaborationCompanyPercentage;
             order.companyCommission = companyCommission;
+
+            const providercommission = companyCommission + memberCommission
+            order.providercommission = providercommission
         }
         let updatedData = await order.save();
 
@@ -347,6 +350,9 @@ exports.completed_order = async (req, res) => {
         let data = await provider.findById(Id.id)
         const orderIds = data.orderids;
         const orderData = [];
+        let totalProviderCommission = 0; 
+        let totalDealAmount = 0; 
+
         for (const orderId of orderIds) {
             const order = await orders.findById(orderId).populate({
                 path: 'productid',
@@ -364,6 +370,9 @@ exports.completed_order = async (req, res) => {
             if (order) {
                 if (order.payment === true) {
                     orderData.push(order);
+                    totalProviderCommission += parseInt(order.providercommission);
+                    totalDealAmount += parseInt(order.dealamount);
+                
                 }
             } else {
                 orderData.push({ error: `Order with ID ${orderId} not found` });
@@ -372,9 +381,13 @@ exports.completed_order = async (req, res) => {
         }
         res.status(200).json({
             message: "👍",
-            completed: orderData
+            totalProviderCommission, 
+            totalDealAmount,
+            totalAmount :  totalDealAmount - totalProviderCommission,
+            completed: orderData,
         });
     } catch (error) {
+        console.log(error);
         return res.status(200).json({
             message: "Internal Server Error",
         });

@@ -4,7 +4,6 @@ var router = express.Router()
 var {
     login,
     accept_order, 
-    comission_total
 } = require('../controller/paymentController')
 
 router.post('/login',login)
