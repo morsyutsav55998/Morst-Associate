@@ -239,7 +239,7 @@ exports.allprovider = async (req, res) => {
         path: 'bcategoryid bussinesssubcategory',
       },
     })
-    res.json({
+    res.json({ 
       providers,
     });
   } catch (error) {
