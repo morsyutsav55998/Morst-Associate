@@ -48,7 +48,10 @@ const {
     all_userform,
     today_order,
     forward_order,
-    done_order
+    done_order,
+    order_detail,
+    comission_total,
+    user_order
 } = require('../controller/adminController')
 
 router.post('/login',login)
@@ -162,5 +165,8 @@ router.get('/all_userform',verifyToken,all_userform)
 router.get('/today_order',verifyToken,today_order)
 router.post('/forward_order',verifyToken,forward_order)
 router.get('/done_order',verifyToken,done_order)
+router.get('/order_detail/:id',verifyToken,order_detail)
+router.get('/comission_total',verifyToken,comission_total)
 
+router.get('/user_order/:id',verifyToken,user_order)
 module.exports = router

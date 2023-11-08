@@ -22,7 +22,7 @@ app.use(
     xPoweredBy: false,
     xXssProtection: false,
   })
-);
+);``
 app.use(morgan('dev'))
 app.use(cors())
 app.use(bodyParser.json());
@@ -39,7 +39,7 @@ app.use('/manager',require('./router/managerRouter'))
 app.use('/payment',require('./router/paymentRouter'))
 
 app.get('/', (req, res) => {
- res.send('😎')
+ res.send('👍')
 })
 
 // Server

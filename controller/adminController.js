@@ -255,77 +255,6 @@ exports.deleteprovider = async (req, res) => {
         res.json({ message: "internal server error" })
     }
 }
-// exports.updateprovider = async (req, res) => {
-//     try {
-//         const providerId = req.params.id;
-//         const updatedData = req.body;
-//         const password = await bcrypt.hash(updatedData.number, 10);
-
-//         const existingProvider = await provider.findById(providerId);
-
-//         if (!existingProvider) {
-//             return res.status(404).json({ message: "Provider not found" });
-//         }
-
-//         const fieldsToUpdate = [
-//             'name', 'email', 'number', 'BOD', 'address', 'Bname', 'Bnumber',
-//             'password', 'Bemail', 'Bsocialmedia', 'B_GSTnumber', 'Btype', 'Bdetails',
-//             'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationCompany','collaborationMember',
-//             'salespersonName', 'salespersonNumber', 'salespersonEmail', 'salespersonPosition',
-//             'bankName', 'bankAccountnumber', 'bankIFSCcode', 'bankBranchname','upiid',
-//         ];
-
-//         fieldsToUpdate.forEach((field) => {
-//             if (updatedData[field]) {
-//                 existingProvider[field] = updatedData[field];
-//             }
-//         });
-
-//         // Process file fields
-//         const fileFields = ['profile', 'b_brochure', 'adharcard', 'pancard', 'gstfile', 'tdsfile', 'agreementfile'];
-//         fileFields.forEach((field) => {
-//             if (req.files[field]) {
-//                 const newFilePath = iplink + req.files[field][0].filename;
-//                 if (existingProvider[field] && existingProvider[field] !== iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg')) {
-//                     const oldFilePath = existingProvider[field].replace(iplink, './files/');
-//                     fs.unlinkSync(oldFilePath);
-//                 }
-//                 existingProvider[field] = newFilePath;
-//             } else {
-//                 if (existingProvider[field] && existingProvider[field] !== iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg')) {
-//                     const oldFilePath = path.join('./files', existingProvider[field].replace(iplink, ''));
-//                     fs.unlinkSync(oldFilePath);
-//                 }
-//                 existingProvider[field] = iplink + (field === 'profile' ? '/profile.png' : '/dummy.jpeg');
-//             }
-//         });
-
-//         // Process 'product_service'
-//         if (updatedData.productService) {
-//             const productArray = [...new Set(updatedData.productService.split(',').map(item => item.trim()))].sort();
-//             existingProvider.product_service = productArray;
-//         }
-
-//         // Process 'bsubcategoryid'
-//         if (updatedData.sbcatid) {
-//             const subcatArray = updatedData.sbcatid.split(',');
-//             existingProvider.bsubcategoryid = subcatArray;
-//         }
-
-//         // Save the updated provider
-//         const updatedProvider = await existingProvider.save();
-
-//         res.status(200).json({
-//             message: "Provider updated successfully",
-//             provider: updatedProvider,
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(400).json({
-//             message: "Internal server error",
-//         });
-//     }
-// };
 exports.updateprovider = async (req, res) => {
     try {
         const providerId = req.params.id;
@@ -885,6 +814,112 @@ exports.done_order = async (req, res) => {
             }).exec();
         res.json({
             orders,
+        })
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        });
+    }
+}
+
+exports.comission_total = async (req, res) => {
+    try {
+        const users = await user.find();
+        let totalMemberCommissionTotal = 0;
+        let totalCompanyCommissionTotal = 0;
+        let totalDealAmountTotal = 0; // Add this variable to keep track of the total deal amount
+        const commissionTotals = {};
+
+        for (const user of users) {
+            const userId = user._id;
+            const userName = user.name;
+
+            let totalMemberCommission = 0;
+            let totalCompanyCommission = 0;
+            let totalOrders = 0;
+            var userDealAmount = 0; // Add this variable to calculate the total deal amount for the user
+
+            const userOrders = await userform.find({ userid: userId });
+
+            for (const order of userOrders) {
+                totalMemberCommission += parseInt(order.memberCommission) || 0;
+                totalCompanyCommission += parseInt(order.companyCommission) || 0;
+                totalOrders++;
+                userDealAmount += parseInt(order.dealamount) || 0; // Add the deal amount to the user's total deal amount
+            }
+            commissionTotals[userId] = {
+                userId,
+                userName,
+                totalOrders,
+                totalMemberCommission,
+                totalCompanyCommission,
+                userDealAmount, // Include user's total deal amount in the commissionTotals
+            };
+
+            totalMemberCommissionTotal += totalMemberCommission;
+            totalCompanyCommissionTotal += totalCompanyCommission;
+            totalDealAmountTotal += userDealAmount; // Add the user's total deal amount to the overall total
+        }
+
+        res.json({
+            commissionTotals,
+            totalMemberCommissionTotal,
+            totalCompanyCommissionTotal,
+            totalDealAmountTotal, // Include the total deal amount in the response
+            totalComission: totalMemberCommissionTotal + totalCompanyCommissionTotal,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+}
+exports.user_order = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        // const User = await user.findById(userId);
+        // if (!User) {
+        //     return res.status(404).json({
+        //         message: "User not found",
+        //     });
+        // }
+        const orders = await userform.find({ userid: userId, payment: true });
+        res.status(200).json({
+            message : "👍",
+            order: orders,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+}
+exports.order_detail = async (req, res) => {
+    try {
+        let data = await userform.findById(req.params.id).populate({
+            path: 'productid',
+            model: product,
+            populate: {
+                path: 'bsubcategoryid',
+                populate: {
+                    path: 'bcategoryid'
+                }
+            }
+        }).populate({
+            path: 'userid',
+            model: user,
+        }).populate({
+            path: 'providerid',
+            model: provider,
+        }).exec();
+        if (!data) {
+            res.status(200).json({
+                message: "Order not found 👎"
+            })
+        }
+        res.status(200).json({
+            message: "Order details 👍",
+            order: data
         })
     } catch (error) {
         res.status(400).json({

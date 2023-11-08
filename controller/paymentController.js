@@ -74,39 +74,7 @@ exports.accept_order = async (req, res) => {
         });
     }
 }
-exports.order_detail = async (req, res) => {
-    try {
-        let data = await order.findById(req.params.id).populate({
-            path: 'productid',
-            model: product,
-            populate: {
-                path: 'bsubcategoryid',
-                populate: {
-                    path: 'bcategoryid'
-                }
-            }
-        }).populate({
-            path: 'userid',
-            model: user,
-        }).populate({
-            path: 'providerid',
-            model: provider,
-        }).exec();
-        if (!data) {
-            res.status(200).json({
-                message: "Order not found 👎"
-            })
-        }
-        res.status(200).json({
-            message: "Order details 👍",
-            order: data
-        })
-    } catch (error) {
-        res.status(400).json({
-            message: "Internal server error"
-        });
-    }
-}
+
 
 exports.comission_total = async (req, res) => {
     try {
