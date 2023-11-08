@@ -861,6 +861,37 @@ exports.forward_order = async (req, res) => {
         });
     }
 }
+
+exports.done_order = async (req, res) => {
+    try {
+        let orders
+            = await userform.find({
+                payment: true,
+            }).populate({
+                path: 'productid',
+                model: product,
+                populate: {
+                    path: 'bsubcategoryid',
+                    populate: {
+                        path: 'bcategoryid'
+                    }
+                }
+            }).populate({
+                path: 'userid',
+                model: user,
+            }).populate({
+                path: 'providerid',
+                model: provider,
+            }).exec();
+        res.json({
+            orders,
+        })
+    } catch (error) {
+        res.status(400).json({
+            message: "Internal server error"
+        });
+    }
+}
 exports.showproduct = async (req, res) => {
     try {
         let data = req.body
