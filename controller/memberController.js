@@ -1,4 +1,4 @@
-var user = require('../model/user')
+var user = require('../model/member')
 var provider = require('../model/provider')
 var orders = require('../model/order')
 var bcrypt = require('bcrypt')

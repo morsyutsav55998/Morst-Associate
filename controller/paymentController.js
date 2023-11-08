@@ -2,7 +2,7 @@ var payment = require('../model/payment')
 var order = require('../model/order')
 var product = require('../model/category/product')
 var provider = require('../model/provider')
-var user = require('../model/user')
+var user = require('../model/member')
 var jwt = require('jsonwebtoken')
 var bcrypt = require('bcrypt')
 exports.login = async (req, res) => {

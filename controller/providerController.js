@@ -3,7 +3,7 @@ var iplink = 'http://192.168.0.113:3000/'
 var bsubcategory = require('../model/category/bussiness_subcategory')
 var orders = require('../model/order')
 var product = require('../model/category/product')
-var user = require('../model/user')
+var user = require('../model/member')
 var bcrypt = require('bcrypt')
 var jwt = require('jsonwebtoken')
 exports.login = async (req, res) => {

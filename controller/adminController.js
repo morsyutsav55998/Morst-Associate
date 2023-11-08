@@ -1,6 +1,6 @@
 var admin = require('../model/admin')
 var jwt = require('jsonwebtoken');
-var user = require('../model/user')
+var user = require('../model/member')
 var provider = require('../model/provider');
 var bcategory = require('../model/category/bussiness_category')
 var btype = require('../model/category/bussiness_type')
@@ -82,7 +82,10 @@ exports.addprovider = async (req, res) => {
             Bname,
             Bnumber,
             Bemail,
-            Bsocialmedia,
+            socialmedia1,
+            socialmedia2,
+            socialmedia3,
+            socialmedia4,
             B_GSTnumber,
             Bdetails,
             Btdsdetails,
@@ -93,6 +96,7 @@ exports.addprovider = async (req, res) => {
             Baddress,
             collaborationCompany,
             collaborationMember,
+            collaboration,
             salespersonName,
             salespersonNumber,
             salespersonEmail,
@@ -118,8 +122,8 @@ exports.addprovider = async (req, res) => {
         const providerData = await provider.create({
             name, email, number, password, BOD, address, profile: fileFieldPaths.profile,
             product_service: processArrayField('product_service'),
-            Bname, Bnumber, Bemail, Bsocialmedia, B_GSTnumber, Btype, Bdetails, Btdsdetails, Bpancardnumber,
-            Btype, Bformation, bsubcategoryid: isArray, Baddress, collaborationCompany, collaborationMember,
+            Bname, Bnumber, Bemail, socialmedia1,socialmedia2,socialmedia3,socialmedia4, B_GSTnumber, Btype, Bdetails, Btdsdetails, Bpancardnumber,
+            Btype, Bformation, bsubcategoryid: isArray, Baddress, collaborationCompany, collaborationMember,collaboration,
             b_brochure: fileFieldPaths.b_brochure,
             salespersonName, salespersonNumber, salespersonEmail, salespersonPosition,
             bankName, upiid, bankAccountnumber, bankIFSCcode, bankBranchname,
@@ -176,6 +180,10 @@ exports.showproviders = async (req, res) => {
 exports.providerdetails = async (req, res) => {
     try {
         let data = await provider.findById(req.params.id)
+        let orders = await userform.find({
+                providerid : data.id,
+                payment:true
+            })
         if (data) {
             const subcatData = []
             for (var i of data.bsubcategoryid) {
@@ -184,9 +192,20 @@ exports.providerdetails = async (req, res) => {
                     subcatData.push(subcat)
                 }
             }
+            let totalCompanyCommission = 0;
+            let totalMemberCommission = 0;
+
+            for (const order of orders) {
+                totalCompanyCommission += parseInt(order.companyCommission);
+                totalMemberCommission += parseInt(order.memberCommission);
+            }
+
             res.json({
                 message: "Provider all details",
-                providers: data, subcatData
+                providers: data, subcatData,
+                orders,
+                totalCompanyCommission,
+                totalMemberCommission,
             })
         }
         else {
@@ -194,6 +213,7 @@ exports.providerdetails = async (req, res) => {
                 message: "Provider not found !"
             })
         }
+
 
     } catch (error) {
         res.json({ message: "internal server error" })
@@ -269,9 +289,9 @@ exports.updateprovider = async (req, res) => {
 
         const fieldsToUpdate = [
             'name', 'email', 'number', 'BOD', 'address', 'Bname', 'Bnumber',
-            'password', 'Bemail', 'Bsocialmedia', 'B_GSTnumber', 'Btype', 'Bdetails',
-            'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationCompany', 'collaborationMember',
-            'salespersonName', 'salespersonNumber', 'salespersonEmail', 'salespersonPosition',
+            'password', 'Bemail', 'socialmedia1','socialmedia2','socialmedia3','socialmedia4', 'B_GSTnumber', 'Btype', 'Bdetails',
+            'Btdsdetails', 'Bpancardnumber', 'Bformation', 'Baddress', 'collaborationCompany', 'collaborationMember','collaboration',
+            'salespersonName', 'salespersonNumber', 'salespersonEmail', 'salespersonPosition',password,
             'bankName', 'bankAccountnumber', 'bankIFSCcode', 'bankBranchname', 'upiid',
         ];
 
@@ -568,15 +588,30 @@ exports.alluser = async (req, res) => {
 exports.userdetails = async (req, res) => {
     try {
         let data = await user.findById(req.params.id)
+        let orders = await userform.find({
+            userid : data.id,
+            payment:true
+        })
         if (!data) {
             res.status(400).json({
                 message: "User not found !"
             })
         }
         else {
+            let totalCompanyCommission = 0;
+            let totalMemberCommission = 0;
+
+            for (const order of orders) {
+                totalCompanyCommission += parseInt(order.companyCommission);
+                totalMemberCommission += parseInt(order.memberCommission);
+            }
+
             res.status(200).json({
                 message: "User data",
+                totalCompanyCommission,
+                totalMemberCommission,
                 user: data,
+                orders,
             })
         }
     } catch (error) {
@@ -839,7 +874,7 @@ exports.comission_total = async (req, res) => {
             let totalOrders = 0;
             var userDealAmount = 0; // Add this variable to calculate the total deal amount for the user
 
-            const userOrders = await userform.find({ userid: userId });
+            const userOrders = await userform.find({ userid: userId, payment: true });
 
             for (const order of userOrders) {
                 totalMemberCommission += parseInt(order.memberCommission) || 0;
@@ -883,9 +918,24 @@ exports.user_order = async (req, res) => {
         //         message: "User not found",
         //     });
         // }
-        const orders = await userform.find({ userid: userId, payment: true });
+        const orders = await userform.find({ userid: userId, payment: true }).populate({
+            path: 'productid',
+            model: product,
+            populate: {
+                path: 'bsubcategoryid',
+                populate: {
+                    path: 'bcategoryid'
+                }
+            }
+        }).populate({
+            path: 'userid',
+            model: user,
+        }).populate({
+            path: 'providerid',
+            model: provider,
+        }).exec();
         res.status(200).json({
-            message : "👍",
+            message: "👍",
             order: orders,
         });
     } catch (error) {

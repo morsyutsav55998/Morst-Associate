@@ -1,127 +1,139 @@
 const mongoose = require('mongoose');
 const providerSchema = new mongoose.Schema({
-    orderids:[{
-        type : mongoose.Schema.Types.ObjectId,
+    orderids: [{
+        type: mongoose.Schema.Types.ObjectId,
     }],
     // Provider
-    profile:{
-        type : String,
+    profile: {
+        type: String,
     },
-    name: { 
+    name: {
         type: String
     },
-    email:{
-        type:String
+    email: {
+        type: String
     },
-    number:{
-        type:String
+    number: {
+        type: String
     },
-    
-    BOD:{
-        type:String
+
+    BOD: {
+        type: String
     },
-    address:{
-        type:String
+    address: {
+        type: String
     },
-    product_service:{
-        type:Array,
+    product_service: {
+        type: Array,
     },
     // Bussiness
-    Bname:{
-        type:String
+    Bname: {
+        type: String
     },
-    Bnumber:{
-        type:String
+    Bnumber: {
+        type: String
     },
-    password:{
-        type:String
+    password: {
+        type: String
     },
-    Bemail:{
-        type:String
+    Bemail: {
+        type: String
     },
-    Bsocialmedia:{
-        type:Array
+    socialmedia1: {
+        type: String
     },
-    B_GSTnumber:{
-        type:String
+    socialmedia2: {
+        type: String
     },
-    Btype:{
-        type:String
+    socialmedia3: {
+        type: String
     },
-    Bdetails:{
-        type:String
+    socialmedia4: {
+        type: String
     },
-    Btdsdetails:{
-        type:String
+    B_GSTnumber: {
+        type: String
     },
-    Bpancardnumber:{
-        type:String
+    Btype: {
+        type: String
     },
-    Bformation:{
-        type:String,
+    Bdetails: {
+        type: String
     },
-    bsubcategoryid:[{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'bussinesssubcategory',
+    Btdsdetails: {
+        type: String
+    },
+    Bpancardnumber: {
+        type: String
+    },
+    Bformation: {
+        type: String,
+    },
+    bsubcategoryid: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'bussinesssubcategory',
     }],
-    b_brochure:{
-        type:String,
+    b_brochure: {
+        type: String,
     },
-    Baddress:{
-        type:String
+    Baddress: {
+        type: String
     },
-    collaborationCompany:{
-        type:String
+    collaboration: {
+        type: String
     },
-    collaborationMember:{
-        type:String
+    collaborationCompany: {
+        type: String
+    },
+    collaborationMember: {
+        type: String
     },
     // Sales
-    salespersonName:{
-        type:String
+    salespersonName: {
+        type: String
     },
-    salespersonNumber:{
-        type:String
+    salespersonNumber: {
+        type: String
     },
-    salespersonEmail:{
-        type:String
+    salespersonEmail: {
+        type: String
     },
-    salespersonPosition:{
-        type:String
+    salespersonPosition: {
+        type: String
     },
     // Bank
-    bankName:{
-        type:String
+    bankName: {
+        type: String
     },
-    bankAccountnumber:{
-        type:String,
+    bankAccountnumber: {
+        type: String,
     },
-    bankIFSCcode:{
-        type:String
+    bankIFSCcode: {
+        type: String
     },
-    upiid:{
-        type:String
+    upiid: {
+        type: String
     },
-    bankBranchname:{
-        type:String
+    bankBranchname: {
+        type: String
     },
-    adharcard:{
-        type:String,
+    adharcard: {
+        type: String,
     },
-    pancard:{
-        type:String,
+    pancard: {
+        type: String,
     },
-    gstfile:{
-        type:String,
+    gstfile: {
+        type: String,
     },
-    tdsfile:{
-        type:String,
+    tdsfile: {
+        type: String,
     },
-    agreementfile:{
-        type:String,
+    agreementfile: {
+        type: String,
     }
-},{
+}, {
     timestamps: true
-  });
+});
 module.exports = mongoose.model('provider', providerSchema);
 

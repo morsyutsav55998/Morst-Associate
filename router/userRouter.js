@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const verifyToken = require('../JWT/userjwt')
+const verifyToken = require('../JWT/memberjwt')
 const {
     login,
     home,
@@ -14,7 +14,7 @@ const {
     show_order,
     order_detail,
     completed_order,
-} = require('../controller/userController')
+} = require('../controller/memberController')
 
 router.post('/login',login)
 router.get('/logout', async (req,res)=>{
