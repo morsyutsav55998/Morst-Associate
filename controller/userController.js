@@ -464,9 +464,20 @@ exports.completed_order = async (req, res) => {
       path: 'userid',
       model: user,
     }).exec();
+    let totalMemberCommission = 0;
+    order.forEach((orderItem) => {
+      totalMemberCommission += parseInt(orderItem.memberCommission);
+    });
+    let totalComapnyCommission = 0;
+    order.forEach((orderItem) => {
+      totalComapnyCommission += parseInt(orderItem.companyCommission);
+    });
+
     res.status(200).json({
       message: "Member orders 👍",
-      order
+      totalMemberCommission, 
+      totalComapnyCommission,
+      order,
     })
   } catch (error) {
     res.status(400).json({

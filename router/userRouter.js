@@ -32,4 +32,5 @@ router.get('/show_products',verifyToken,show_products)
 router.get('/show_order',verifyToken,show_order)
 router.get('/order_detail/:id',verifyToken,order_detail)
 router.get('/completed_order',verifyToken,completed_order)
+
 module.exports = router

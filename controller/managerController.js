@@ -215,6 +215,7 @@ exports.allprovider = async (req, res) => {
       path: 'userid',
       model: user,
     }).exec();
+    
     const relevantData = data.map(provider => ({
       bussinesscategory: provider.productid.bsubcategoryid[0].bcategoryid.bussinesscategory,
       bussinesssubcategory: provider.productid.bsubcategoryid[0].bussinesssubcategory,
@@ -224,25 +225,20 @@ exports.allprovider = async (req, res) => {
     const uniqueBusinessCategories = [...new Set(relevantData.map((item) => item.bussinesscategory))];
     const uniqueBusinessSubcategories = [...new Set(relevantData.map((item) => item.bussinesssubcategory))];
     const uniqueProducts = [...new Set(relevantData.map((item) => item.product))];
-    console.log(uniqueBusinessCategories);
+    const productRegex = new RegExp(uniqueProducts.join('|'), 'i');
     // Query the provider database to find providers that match the criteria
     const providers = await provider.find({
       $or: [
         { "bussinesscategory": { $in: uniqueBusinessCategories } },
         { "bussinesssubcategory": { $in: uniqueBusinessSubcategories } },
-        { "product_service": { $in: uniqueProducts } },
+        { "product_service": productRegex },
       ],
     }).populate({
       path: 'bsubcategoryid',
       populate: {
         path: 'bcategoryid bussinesssubcategory',
       },
-    }).populate({
-      path: 'bsubcategoryid',
-      populate: {
-        path: 'bcategoryid bussinesssubcategory',
-      },
-    });
+    })
     res.json({
       providers,
     });
@@ -253,6 +249,7 @@ exports.allprovider = async (req, res) => {
     })
   }
 }
+
 exports.provider_order = async (req, res) => {
   try {
     const orderids = req.body.orderid
